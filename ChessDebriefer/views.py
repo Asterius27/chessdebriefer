@@ -9,8 +9,6 @@ from ChessDebriefer.models import Games
 
 def test(request):
     html = '<html><body>Hello World!</body></html>'
-    # for game in Games.objects:
-    #    print(game.name)
     return HttpResponse("Hello World!")  # html
 
 
