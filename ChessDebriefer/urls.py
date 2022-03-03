@@ -22,4 +22,5 @@ urlpatterns = [
     path('', views.test),
     path('upload', views.upload),
     path('success', views.success),
+    path('<slug:name>/percentages', views.percentages),
 ]
