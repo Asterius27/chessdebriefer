@@ -23,4 +23,5 @@ urlpatterns = [
     path('upload', views.upload),
     path('success', views.success),
     path('<slug:name>/percentages', views.percentages),
+    path('<slug:name>/accuracy', views.accuracy),
 ]
