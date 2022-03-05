@@ -22,6 +22,6 @@ urlpatterns = [
     path('', views.test),
     path('upload', views.upload),
     path('success', views.success),
-    path('<slug:name>/percentages', views.percentages),
+    path('<slug:name>/percentages', views.percentages),  # TODO use regexp
     path('<slug:name>/accuracy', views.accuracy),
 ]

@@ -6,6 +6,7 @@ from ChessDebriefer.logic import handle_pgn_uploads, evaluate_games, calculate_p
 
 def test(request):
     html = '<html><body>Hello World!</body></html>'
+    params = request.GET
     return HttpResponse("Hello World!")  # html
 
 
@@ -29,11 +30,11 @@ def success(request):
 
 
 def percentages(request, name):
-    (percentage_won, percentage_lost, percentage_drawn, won_games, lost_games, drawn_games) = calculate_percentages(name)
-    return HttpResponse("games won: " + str(won_games) + "\ngames lost: " + str(lost_games) +
-                        "\ngames drawn: " + str(drawn_games) + "\npercentage won: " + str(round(percentage_won, 2)) +
-                        " %\npercentage lost: " + str(round(percentage_lost, 2)) + " %\npercentage drawn: " +
-                        str(round(percentage_drawn, 2)) + " %", content_type="text/plain")
+    stats = calculate_percentages(name, request.GET)
+    return HttpResponse("games won: " + str(stats[0]) + "\ngames lost: " + str(stats[1]) +
+                        "\ngames drawn: " + str(stats[2]) + "\npercentage won: " + str(round(stats[3], 2)) +
+                        " %\npercentage lost: " + str(round(stats[4], 2)) + " %\npercentage drawn: " +
+                        str(round(stats[5], 2)) + " %", content_type="text/plain")
 
 
 def accuracy(request, name):

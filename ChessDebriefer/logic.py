@@ -4,7 +4,6 @@ import os
 import chess.pgn
 import chess.engine
 from mongoengine import Q
-
 from ChessDebriefer.models import Games
 
 
@@ -31,10 +30,21 @@ def handle_pgn_uploads(f):
     os.remove("temp.pgn")
 
 
-def calculate_percentages(name):
+def calculate_percentages(name, params):
     won_games = 0
     lost_games = 0
     drawn_games = 0
+    # TODO add empty field check
+    """
+    games = Games.objects.filter(((Q(white=name) & Q(white_elo__gte=params["elolb"]) &
+                                   Q(white_elo__lte=params["eloub"])) | (Q(black=name) &
+                                                                         Q(black_elo__gte=params["elolb"]) &
+                                                                         Q(white_elo__lte=params["eloub"]))) &
+                                 Q(event=params["event"]) & (Q(white=params["opponent"]) | Q(black=params["opponent"]))
+                                 & Q(opening=params["opening"]) & Q(termination=params["termination"]) &
+                                 Q(eco=params["eco"]) & Q(date__gte=params["periodstart"])
+                                 & Q(date__lte=params["periodend"]))
+    """
     games = Games.objects.filter(Q(white=name) | Q(black=name))
     for game in games:
         if game.white == name:
@@ -51,6 +61,8 @@ def calculate_percentages(name):
                 drawn_games = drawn_games + 1
             if game.result == "1-0":
                 lost_games = lost_games + 1
+    if won_games + lost_games + drawn_games == 0:
+        return 0, 0, 0, 0, 0, 0
     percentage_won = (won_games / (won_games + lost_games + drawn_games)) * 100
     percentage_lost = (lost_games / (won_games + lost_games + drawn_games)) * 100
     percentage_drawn = (drawn_games / (won_games + lost_games + drawn_games)) * 100
@@ -82,4 +94,4 @@ def evaluate_games(name):
                 accurate_moves = accurate_moves + 1
         engine.quit()
         print(accurate_moves, moves_played)
-    return (accurate_moves*1./moves_played)*100
+    return (accurate_moves * 1. / moves_played) * 100
