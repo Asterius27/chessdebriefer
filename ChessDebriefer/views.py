@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from ChessDebriefer.forms import UploadPGNForm
 from ChessDebriefer.logic import handle_pgn_uploads, evaluate_games, calculate_percentages
@@ -31,10 +31,7 @@ def success(request):
 
 def percentages(request, name):
     stats = calculate_percentages(name, request.GET)
-    return HttpResponse("games won: " + str(stats[0]) + "\ngames lost: " + str(stats[1]) +
-                        "\ngames drawn: " + str(stats[2]) + "\npercentage won: " + str(round(stats[3], 2)) +
-                        " %\npercentage lost: " + str(round(stats[4], 2)) + " %\npercentage drawn: " +
-                        str(round(stats[5], 2)) + " %", content_type="text/plain")
+    return JsonResponse(stats)
 
 
 def accuracy(request, name):
