@@ -96,6 +96,7 @@ def calculate_percentages(name, params):
     event_percentages = filter_games(games, name, "event")
     opening_percentages = filter_games(games, name, "opening")  # does it count only if you are white?
     termination_percentages = filter_games(games, name, "termination")
+    throw_percentages = thrown_games(games, name)
     if general_percentages:
         response["General percentages"] = general_percentages
     if side_percentages:
@@ -106,6 +107,8 @@ def calculate_percentages(name, params):
         response["Opening percentages"] = opening_percentages
     if termination_percentages:
         response["Termination percentages"] = termination_percentages
+    if throw_percentages:
+        response["Thrown games percentages"] = throw_percentages
     return response
 
 
@@ -184,3 +187,40 @@ def evaluate_games(name):
         engine.quit()
         print(accurate_moves, moves_played)
     return (accurate_moves * 1. / moves_played) * 100
+
+
+# slow
+def thrown_games(games, name):
+    throws = 0
+    losses = 0
+    for game in games:
+        if (game.white == name and game.result == "0-1") or (game.black == name and game.result == "1-0"):
+            cp = average_game_centipawn(game, name)
+            losses = losses + 1
+            if cp > 0:
+                throws = throws + 1
+            print(throws, losses, cp)
+    percentage = round((throws * 1. / losses) * 100, 2)
+    return {"throws": throws, "losses": losses, "percentage": percentage}
+
+
+def average_game_centipawn(game, name):
+    moves = 0
+    centipawn = 0
+    parsed_game = chess.pgn.read_game(io.StringIO(game.moves))
+    engine = chess.engine.SimpleEngine.popen_uci("stockfish_14.1_win_x64_avx2.exe")
+    while not parsed_game.is_end():
+        node = parsed_game.variations[0]
+        if node.turn() and game.white == name:
+            info = engine.analyse(parsed_game.board(), chess.engine.Limit(time=1))
+            if not str(info["score"].pov(True)).startswith("#"):
+                centipawn = centipawn + int(str(info["score"].pov(True)))
+                moves = moves + 1
+        if not node.turn() and game.black == name:
+            info = engine.analyse(parsed_game.board(), chess.engine.Limit(time=1))
+            if not str(info["score"].pov(False)).startswith("#"):
+                centipawn = centipawn + int(str(info["score"].pov(False)))
+                moves = moves + 1
+        parsed_game = node
+    engine.quit()
+    return round(centipawn * 1. / moves, 2)
