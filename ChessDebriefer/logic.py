@@ -2,7 +2,6 @@ import datetime
 import io
 import os
 import re
-
 import chess.pgn
 import chess.engine
 from mongoengine import Q
@@ -33,9 +32,10 @@ def handle_pgn_uploads(f):
 
 
 # pretty slow
-# TODO add elo, opponent, eco filter
+# TODO add opponent, eco filter
 def calculate_percentages(name, params):
-    pattern = re.compile(r'^\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$')
+    date_pattern = re.compile(r'^\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$')
+    elo_pattern = re.compile(r'^\d{1,4}$')
     if not params:
         games = Games.objects.filter(Q(white=name) | Q(black=name))
         white_games = Games.objects.filter(Q(white=name))
@@ -44,7 +44,7 @@ def calculate_percentages(name, params):
         if "from" not in params.keys():
             from_date = datetime.datetime(1970, 1, 1)
         else:
-            if pattern.match(params["from"]):
+            if date_pattern.match(params["from"]):
                 date_str = params["from"].split("-")
                 try:
                     from_date = datetime.datetime(int(date_str[0]), int(date_str[1]), int(date_str[2]))
@@ -55,7 +55,7 @@ def calculate_percentages(name, params):
         if "to" not in params.keys():
             to_date = datetime.datetime.now()
         else:
-            if pattern.match(params["to"]):
+            if date_pattern.match(params["to"]):
                 date_str = params["to"].split("-")
                 try:
                     to_date = datetime.datetime(int(date_str[0]), int(date_str[1]), int(date_str[2]))
@@ -63,10 +63,27 @@ def calculate_percentages(name, params):
                     to_date = datetime.datetime.now()
             else:
                 to_date = datetime.datetime.now()
-        print(from_date, to_date)
-        games = Games.objects.filter((Q(white=name) | Q(black=name)) & Q(date__gte=from_date) & Q(date__lte=to_date))
-        white_games = Games.objects.filter(Q(white=name) & Q(date__gte=from_date) & Q(date__lte=to_date))
-        black_games = Games.objects.filter(Q(black=name) & Q(date__gte=from_date) & Q(date__lte=to_date))
+        if "minelo" not in params.keys():
+            min_elo = 0
+        else:
+            if elo_pattern.match(params["minelo"]):
+                min_elo = int(params["minelo"])
+            else:
+                min_elo = 0
+        if "maxelo" not in params.keys():
+            max_elo = 9999  # retrieve highest elo from database and assign it here
+        else:
+            if elo_pattern.match(params["maxelo"]):
+                max_elo = int(params["maxelo"])
+            else:
+                max_elo = 9999  # retrieve highest elo from database and assign it here
+        games = Games.objects.filter(((Q(white=name) & Q(white_elo__gte=min_elo) & Q(white_elo__lte=max_elo)) |
+                                      (Q(black=name) & Q(black_elo__gte=min_elo) & Q(black_elo__lte=max_elo)))
+                                     & Q(date__gte=from_date) & Q(date__lte=to_date))
+        white_games = Games.objects.filter(Q(white=name) & Q(white_elo__gte=min_elo) & Q(white_elo__lte=max_elo)
+                                           & Q(date__gte=from_date) & Q(date__lte=to_date))
+        black_games = Games.objects.filter(Q(black=name) & Q(black_elo__gte=min_elo) & Q(black_elo__lte=max_elo)
+                                           & Q(date__gte=from_date) & Q(date__lte=to_date))
     response = {}
     side_percentages = {}
     general_percentages = create_dictionary(games, name)
