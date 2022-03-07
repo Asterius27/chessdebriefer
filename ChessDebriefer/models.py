@@ -19,3 +19,5 @@ class Games(Document):
     time_control = StringField()
     termination = StringField()
     moves = StringField()  # best way?
+
+# TODO add a cache of some sort

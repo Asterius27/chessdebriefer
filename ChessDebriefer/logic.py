@@ -190,6 +190,7 @@ def evaluate_games(name):
 
 
 # slow
+# TODO add epic comebacks (win from a disadvantage)
 def thrown_games(games, name):
     throws = 0
     losses = 0
