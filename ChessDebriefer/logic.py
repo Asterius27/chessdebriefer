@@ -5,10 +5,11 @@ import re
 import chess.pgn
 import chess.engine
 from mongoengine import Q
-from ChessDebriefer.models import Games
+from ChessDebriefer.models import Games, Players, FieldsCache
 
 
 # only works with 1 file upload at a time, and it takes a lot of time to parse everything
+# TODO update cache
 def handle_pgn_uploads(f):
     with open('temp.pgn', 'wb+') as temp:
         for chunk in f.chunks():
@@ -31,16 +32,22 @@ def handle_pgn_uploads(f):
     os.remove("temp.pgn")
 
 
-# pretty slow
-# TODO add opponent, eco filter
+# pretty slow, caching only works without query params
+# TODO add opponent, eco filter; add openings filtered by event type
 def calculate_percentages(name, params):
     date_pattern = re.compile(r'^\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$')
     elo_pattern = re.compile(r'^\d{1,4}$')
     if not params:
-        games = Games.objects.filter(Q(white=name) | Q(black=name))
-        white_games = Games.objects.filter(Q(white=name))
-        black_games = Games.objects.filter(Q(black=name))
+        cached_response = Players.objects(name=name).first()
+        if not cached_response:
+            cache_flag = True
+            games = Games.objects.filter(Q(white=name) | Q(black=name))
+            white_games = Games.objects.filter(Q(white=name))
+            black_games = Games.objects.filter(Q(black=name))
+        else:
+            return cached_response.percentages
     else:
+        cache_flag = False
         if "from" not in params.keys():
             from_date = datetime.datetime(1970, 1, 1)
         else:
@@ -109,21 +116,31 @@ def calculate_percentages(name, params):
         response["Termination percentages"] = termination_percentages
     if throw_percentages:
         response["Thrown games percentages"] = throw_percentages
+    if cache_flag:
+        Players(name=name, percentages=response).save()
     return response
 
 
 def filter_games(games, name, field):
-    temps = Games.objects()
-    fields = []
+    fields_cache = FieldsCache.objects.first()
+    if not fields_cache:
+        fields_cache = FieldsCache(event=[], opening=[], termination=[]).save()
     result = {}
-    for temp in temps:
-        if "https" in getattr(temp, field):
-            new = temp.event.split(" ")
-            del new[-1]
-            if ' '.join(new) not in fields:
-                fields.append(' '.join(new))
-        elif getattr(temp, field) not in fields:
-            fields.append(getattr(temp, field))
+    if not getattr(fields_cache, field):
+        temps = Games.objects()
+        fields = []
+        for temp in temps:
+            if "https" in getattr(temp, field):
+                new = temp.event.split(" ")
+                del new[-1]
+                if ' '.join(new) not in fields:
+                    fields.append(' '.join(new))
+            elif getattr(temp, field) not in fields:
+                fields.append(getattr(temp, field))
+        setattr(fields_cache, field, fields)
+        fields_cache.save()
+    else:
+        fields = getattr(fields_cache, field)
     for fld in fields:
         filtered_games = filter(lambda game: getattr(game, field) == fld, games)
         dictionary = create_dictionary(filtered_games, name)
@@ -190,7 +207,7 @@ def evaluate_games(name):
 
 
 # slow
-# TODO add epic comebacks (win from a disadvantage)
+# TODO add epic comebacks (win from a disadvantage); add cache
 def thrown_games(games, name):
     throws = 0
     losses = 0

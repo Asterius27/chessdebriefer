@@ -20,4 +20,15 @@ class Games(Document):
     termination = StringField()
     moves = StringField()  # best way?
 
-# TODO add a cache of some sort
+
+# document used as cache
+class Players(Document):
+    name = StringField()
+    percentages = DictField()
+
+
+# document used as cache
+class FieldsCache(Document):
+    event = ListField(StringField())
+    opening = ListField(StringField())
+    termination = ListField(StringField())
