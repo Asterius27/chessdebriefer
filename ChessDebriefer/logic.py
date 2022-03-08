@@ -206,22 +206,30 @@ def evaluate_games(name):
     return (accurate_moves * 1. / moves_played) * 100
 
 
-# slow
-# TODO add epic comebacks (win from a disadvantage); add cache
 def thrown_games(games, name):
     throws = 0
     losses = 0
+    wins = 0
+    comebacks = 0
     for game in games:
         if (game.white == name and game.result == "0-1") or (game.black == name and game.result == "1-0"):
             cp = average_game_centipawn(game, name)
             losses = losses + 1
             if cp > 0:
                 throws = throws + 1
-            print(throws, losses, cp)
-    percentage = round((throws * 1. / losses) * 100, 2)
-    return {"throws": throws, "losses": losses, "percentage": percentage}
+        if (game.white == name and game.result == "1-0") or (game.black == name and game.result == "0-1"):
+            cp = average_game_centipawn(game, name)
+            wins = wins + 1
+            if cp < 0:
+                comebacks = comebacks + 1
+    percentage_throws = round((throws * 1. / losses) * 100, 2)
+    percentage_comebacks = round((comebacks * 1. / wins) * 100, 2)
+    return {"throws": throws, "losses": losses, "percentage_throws": percentage_throws, "comebacks": comebacks,
+            "wins": wins, "percentage_comebacks": percentage_comebacks}
 
 
+# slow
+# TODO add game evaluation cache
 def average_game_centipawn(game, name):
     moves = 0
     centipawn = 0
