@@ -2,7 +2,7 @@ from mongoengine import *
 
 
 # missing fields: time
-# required fields?
+# required fields, other constraints?
 class Games(Document):
     event = StringField()
     site = URLField()
@@ -19,6 +19,8 @@ class Games(Document):
     time_control = StringField()
     termination = StringField()
     moves = StringField()  # best way?
+    best_moves = ListField(StringField())
+    moves_evaluation = ListField(StringField())
 
 
 # document used as cache

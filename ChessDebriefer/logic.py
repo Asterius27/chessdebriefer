@@ -28,7 +28,8 @@ def handle_pgn_uploads(f):
                       white_rating_diff=game.headers["WhiteRatingDiff"],
                       black_rating_diff=game.headers["BlackRatingDiff"], eco=game.headers["ECO"],
                       opening=game.headers["Opening"], time_control=game.headers["TimeControl"],
-                      termination=game.headers["Termination"], moves=str(game.mainline_moves())).save()
+                      termination=game.headers["Termination"], moves=str(game.mainline_moves()), best_moves=[],
+                      moves_evaluation=[]).save()
     os.remove("temp.pgn")
 
 
@@ -103,7 +104,7 @@ def calculate_percentages(name, params):
     event_percentages = filter_games(games, name, "event")
     opening_percentages = filter_games(games, name, "opening")  # does it count only if you are white?
     termination_percentages = filter_games(games, name, "termination")
-    throw_percentages = thrown_games(games, name)
+    throw_percentages = throw_comeback_percentages(games, name)
     if general_percentages:
         response["General percentages"] = general_percentages
     if side_percentages:
@@ -177,36 +178,7 @@ def create_dictionary(games, name):
             "won_games": won_games, "lost_games": lost_games, "drawn_games": drawn_games}
 
 
-# evaluation isn't perfect, more time you give it the better the result. Results are more precise in middle game
-# only evaluates in centipawns
-# too slow
-def evaluate_games(name):
-    games = Games.objects.filter(Q(white=name) | Q(black=name))
-    accurate_moves = 0
-    moves_played = 0
-    for game in games:
-        pgn = io.StringIO(game.moves)
-        parsed_game = chess.pgn.read_game(pgn)
-        engine = chess.engine.SimpleEngine.popen_uci("stockfish_14.1_win_x64_avx2.exe")
-        while not parsed_game.is_end():
-            node = parsed_game.variations[0]
-            result = engine.analysis(parsed_game.board(), chess.engine.Limit(time=0.1))
-            # info = engine.analyse(parsed_game.board(), chess.engine.Limit(time=2))
-            # t = str(info["score"].pov(info["score"].turn))
-            # if t.startswith("#"):
-            #    print("Best move: ", parsed_game.board().san(result.wait().move), " eval = mate in", t)
-            # else:
-            #    print("Best move: ", parsed_game.board().san(result.wait().move), " eval =", round(int(t)/100., 2))
-            parsed_game = node
-            moves_played = moves_played + 1
-            if str(parsed_game.move) == str(result.wait().move):
-                accurate_moves = accurate_moves + 1
-        engine.quit()
-        print(accurate_moves, moves_played)
-    return (accurate_moves * 1. / moves_played) * 100
-
-
-def thrown_games(games, name):
+def throw_comeback_percentages(games, name):
     throws = 0
     losses = 0
     wins = 0
@@ -228,25 +200,78 @@ def thrown_games(games, name):
             "wins": wins, "percentage_comebacks": percentage_comebacks}
 
 
+# evaluation isn't perfect, more time you give it the better the result. Results are more precise in middle game
+# only evaluates in centipawns, positive means an advantage for white, negative means an advantage for black
 # slow
-# TODO add game evaluation cache
+def evaluate_game(game):
+    pgn = io.StringIO(game.moves)
+    parsed_game = chess.pgn.read_game(pgn)
+    engine = chess.engine.SimpleEngine.popen_uci("stockfish_14.1_win_x64_avx2.exe")
+    best_moves = []
+    moves_evaluation = []
+    while not parsed_game.is_end():
+        node = parsed_game.variations[0]
+        result = engine.analysis(parsed_game.board(), chess.engine.Limit(time=1))
+        info = engine.analyse(parsed_game.board(), chess.engine.Limit(time=1))
+        t = str(info["score"].pov(True))
+        best_moves.append(parsed_game.board().san(result.wait().move))
+        if t.startswith("#"):
+            moves_evaluation.append(t)
+        else:
+            moves_evaluation.append(str(round(int(t)/100., 2)))
+        parsed_game = node
+    engine.quit()
+    setattr(game, "best_moves", best_moves)
+    setattr(game, "moves_evaluation", moves_evaluation)
+    game.save()
+
+
 def average_game_centipawn(game, name):
     moves = 0
     centipawn = 0
-    parsed_game = chess.pgn.read_game(io.StringIO(game.moves))
-    engine = chess.engine.SimpleEngine.popen_uci("stockfish_14.1_win_x64_avx2.exe")
-    while not parsed_game.is_end():
-        node = parsed_game.variations[0]
-        if node.turn() and game.white == name:
-            info = engine.analyse(parsed_game.board(), chess.engine.Limit(time=1))
-            if not str(info["score"].pov(True)).startswith("#"):
-                centipawn = centipawn + int(str(info["score"].pov(True)))
+    if not game.moves_evaluation:
+        evaluate_game(game)
+    it = iter(game.moves_evaluation)
+    if game.white == name:
+        for evaluation in game.moves_evaluation:
+            if not evaluation.startswith("#"):
+                centipawn = centipawn + int(evaluation)
                 moves = moves + 1
-        if not node.turn() and game.black == name:
-            info = engine.analyse(parsed_game.board(), chess.engine.Limit(time=1))
-            if not str(info["score"].pov(False)).startswith("#"):
-                centipawn = centipawn + int(str(info["score"].pov(False)))
+            next(it)
+    if game.black == name:
+        for evaluation in game.moves_evaluation:
+            next(it)
+            if not evaluation.startswith("#"):
+                centipawn = centipawn + (int(evaluation) * -1)
                 moves = moves + 1
-        parsed_game = node
-    engine.quit()
     return round(centipawn * 1. / moves, 2)
+
+
+# TODO test it
+def calculate_accuracy(name):
+    accuracy = 0
+    total_moves = 0
+    games = Games.objects.filter(Q(white=name) | Q(black=name))
+    for game in games:
+        if not game.best_moves:
+            evaluate_game(game)
+        temp = game.moves.split(" ")
+        pattern = re.compile(r'\.$')
+        moves = filter(lambda m: not pattern.match(m), temp)
+        it1 = iter(game.best_moves)
+        it2 = iter(moves)
+        if game.white == name:
+            for (move, best_move) in zip(moves, game.best_moves):
+                if move == best_move:
+                    accuracy = accuracy + 1
+                total_moves = total_moves + 1
+                next(it1)
+                next(it2)
+        if game.black == name:
+            for (move, best_move) in zip(moves, game.best_moves):
+                next(it1)
+                next(it2)
+                if move == best_move:
+                    accuracy = accuracy + 1
+                total_moves = total_moves + 1
+    return round(((accuracy * 1.) / total_moves) * 100, 2)
