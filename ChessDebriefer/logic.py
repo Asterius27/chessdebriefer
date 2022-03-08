@@ -226,6 +226,7 @@ def evaluate_game(game):
     game.save()
 
 
+# TODO test it
 def average_game_centipawn(game, name):
     moves = 0
     centipawn = 0
