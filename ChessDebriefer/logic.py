@@ -203,6 +203,7 @@ def throw_comeback_percentages(games, name):
 # evaluation isn't perfect, more time you give it the better the result. Results are more precise in middle game
 # only evaluates in centipawns, positive means an advantage for white, negative means an advantage for black
 # slow
+# TODO test caching
 def evaluate_game(game):
     pgn = io.StringIO(game.moves)
     parsed_game = chess.pgn.read_game(pgn)
@@ -226,26 +227,25 @@ def evaluate_game(game):
     game.save()
 
 
-# TODO test it
 def average_game_centipawn(game, name):
     moves = 0
-    centipawn = 0
+    centipawn = 0.
     if not game.moves_evaluation:
         evaluate_game(game)
     it = iter(game.moves_evaluation)
     if game.white == name:
         for evaluation in game.moves_evaluation:
             if not evaluation.startswith("#"):
-                centipawn = centipawn + int(evaluation)
+                centipawn = centipawn + float(evaluation)
                 moves = moves + 1
             next(it)
     if game.black == name:
         for evaluation in game.moves_evaluation:
             next(it)
             if not evaluation.startswith("#"):
-                centipawn = centipawn + (int(evaluation) * -1)
+                centipawn = centipawn + (float(evaluation) * -1)
                 moves = moves + 1
-    return round(centipawn * 1. / moves, 2)
+    return round(centipawn / moves, 2)
 
 
 # TODO test it
