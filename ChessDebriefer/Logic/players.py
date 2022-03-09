@@ -1,57 +1,8 @@
 import datetime
-import io
-import os
 import re
-import chess.pgn
-import chess.engine
 from mongoengine import Q
-from ChessDebriefer.models import Games, Players, FieldsCache
-
-
-# only works with 1 file upload at a time, and it takes a lot of time to parse everything
-def handle_pgn_uploads(f):
-    cached_players = Players.objects
-    cached_fields = FieldsCache.objects.first()
-    fields = ["event", "opening", "termination"]
-    if not cached_fields:
-        cached_fields = FieldsCache(event=[], opening=[], termination=[]).save()
-    with open('temp.pgn', 'wb+') as temp:
-        for chunk in f.chunks():
-            temp.write(chunk)
-    with open('temp.pgn') as pgn:
-        while True:
-            game = chess.pgn.read_game(pgn)
-            if game is None:
-                break
-            arr = game.headers["UTCDate"].split(".")
-            date = datetime.datetime(int(arr[0]), int(arr[1]), int(arr[2]))
-            if game.headers["Black"] != "?" and game.headers["White"] != "?":
-                saved_game = Games(event=game.headers["Event"], site=game.headers["Site"], white=game.headers["White"],
-                                   black=game.headers["Black"], result=game.headers["Result"], date=date,
-                                   white_elo=game.headers["WhiteElo"], black_elo=game.headers["BlackElo"],
-                                   white_rating_diff=game.headers["WhiteRatingDiff"],
-                                   black_rating_diff=game.headers["BlackRatingDiff"], eco=game.headers["ECO"],
-                                   opening=game.headers["Opening"], time_control=game.headers["TimeControl"],
-                                   termination=game.headers["Termination"], moves=str(game.mainline_moves()),
-                                   best_moves=[], moves_evaluation=[]).save()
-                for field in fields:
-                    if "https" in getattr(saved_game, field):
-                        new = saved_game.event.split(" ")
-                        del new[-1]
-                        if ' '.join(new) not in getattr(cached_fields, field):
-                            temp = getattr(cached_fields, field)
-                            temp.append(' '.join(new))
-                            setattr(cached_fields, field, temp)
-                            cached_fields.save()
-                    elif getattr(saved_game, field) not in getattr(cached_fields, field):
-                        temp = getattr(cached_fields, field)
-                        temp.append(getattr(saved_game, field))
-                        setattr(cached_fields, field, temp)
-                        cached_fields.save()
-                for player in cached_players:
-                    if saved_game.white == player.name or saved_game.black == player.name:
-                        player.delete()
-    os.remove("temp.pgn")
+from ChessDebriefer.Logic.games import evaluate_game, average_game_centipawn
+from ChessDebriefer.models import Games, FieldsCache, Players
 
 
 # pretty slow, caching only works without query params
@@ -202,55 +153,6 @@ def filter_throws_comebacks(games, name):
     percentage_comebacks = round((comebacks * 1. / wins) * 100, 2)
     return {"throws": throws, "losses": losses, "percentage_throws": percentage_throws, "comebacks": comebacks,
             "wins": wins, "percentage_comebacks": percentage_comebacks}
-
-
-# evaluation isn't perfect, more time you give it the better the result. Results are more precise in middle game
-# only evaluates in centipawns, positive means an advantage for white, negative means an advantage for black
-# slow
-def evaluate_game(game):
-    pgn = io.StringIO(game.moves)
-    parsed_game = chess.pgn.read_game(pgn)
-    engine = chess.engine.SimpleEngine.popen_uci("stockfish_14.1_win_x64_avx2.exe")
-    best_moves = []
-    moves_evaluation = []
-    while not parsed_game.is_end():
-        node = parsed_game.variations[0]
-        result = engine.analysis(parsed_game.board(), chess.engine.Limit(time=1))
-        info = engine.analyse(parsed_game.board(), chess.engine.Limit(time=1))
-        t = str(info["score"].pov(True))
-        best_moves.append(parsed_game.board().san(result.wait().move))
-        if t.startswith("#"):
-            moves_evaluation.append(t)
-        else:
-            moves_evaluation.append(str(round(int(t) / 100., 2)))
-        parsed_game = node
-    engine.quit()
-    setattr(game, "best_moves", best_moves)
-    setattr(game, "moves_evaluation", moves_evaluation)
-    game.save()
-
-
-def average_game_centipawn(game, name):
-    i = 0
-    moves = 0
-    centipawn = 0.
-    if not game.moves_evaluation:
-        evaluate_game(game)
-    if game.white == name:
-        for evaluation in game.moves_evaluation:
-            if i % 2 == 0:
-                if not evaluation.startswith("#"):
-                    centipawn = centipawn + float(evaluation)
-                    moves = moves + 1
-            i = i + 1
-    if game.black == name:
-        for evaluation in game.moves_evaluation:
-            if i % 2 != 0:
-                if not evaluation.startswith("#"):
-                    centipawn = centipawn + (float(evaluation) * -1)
-                    moves = moves + 1
-            i = i + 1
-    return round(centipawn / moves, 2)
 
 
 def calculate_accuracy(name):

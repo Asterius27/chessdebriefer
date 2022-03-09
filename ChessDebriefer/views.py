@@ -1,7 +1,8 @@
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
+from ChessDebriefer.Logic.players import calculate_percentages, calculate_accuracy
 from ChessDebriefer.forms import UploadPGNForm
-from ChessDebriefer.logic import handle_pgn_uploads, calculate_accuracy, calculate_percentages
+from ChessDebriefer.Logic.general import handle_pgn_uploads
 
 
 def test(request):
