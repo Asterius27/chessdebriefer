@@ -144,7 +144,6 @@ def filter_games(games, name, field):
         fields = getattr(fields_cache, field)
     for fld in fields:
         filtered_games = filter(lambda game: getattr(game, field) == fld, games)
-        print(filtered_games)  # TODO
         dictionary = create_dictionary(filtered_games, name)
         if dictionary:
             result[str(fld)] = dictionary
@@ -204,7 +203,6 @@ def filter_throws_comebacks(games, name):
 # evaluation isn't perfect, more time you give it the better the result. Results are more precise in middle game
 # only evaluates in centipawns, positive means an advantage for white, negative means an advantage for black
 # slow
-# TODO test caching
 def evaluate_game(game):
     pgn = io.StringIO(game.moves)
     parsed_game = chess.pgn.read_game(pgn)
