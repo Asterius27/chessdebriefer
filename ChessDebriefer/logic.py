@@ -104,7 +104,7 @@ def calculate_percentages(name, params):
     event_percentages = filter_games(games, name, "event")
     opening_percentages = filter_games(games, name, "opening")  # does it count only if you are white?
     termination_percentages = filter_games(games, name, "termination")
-    throw_percentages = throw_comeback_percentages(games, name)
+    throw_comeback_percentages = filter_throws_comebacks(games, name)
     if general_percentages:
         response["General percentages"] = general_percentages
     if side_percentages:
@@ -115,8 +115,8 @@ def calculate_percentages(name, params):
         response["Opening percentages"] = opening_percentages
     if termination_percentages:
         response["Termination percentages"] = termination_percentages
-    if throw_percentages:
-        response["Thrown games percentages"] = throw_percentages
+    if throw_comeback_percentages:
+        response["Throw comeback percentages"] = throw_comeback_percentages
     if cache_flag:
         Players(name=name, percentages=response).save()
     return response
@@ -144,6 +144,7 @@ def filter_games(games, name, field):
         fields = getattr(fields_cache, field)
     for fld in fields:
         filtered_games = filter(lambda game: getattr(game, field) == fld, games)
+        print(filtered_games)  # TODO
         dictionary = create_dictionary(filtered_games, name)
         if dictionary:
             result[str(fld)] = dictionary
@@ -178,7 +179,7 @@ def create_dictionary(games, name):
             "won_games": won_games, "lost_games": lost_games, "drawn_games": drawn_games}
 
 
-def throw_comeback_percentages(games, name):
+def filter_throws_comebacks(games, name):
     throws = 0
     losses = 0
     wins = 0
@@ -219,7 +220,7 @@ def evaluate_game(game):
         if t.startswith("#"):
             moves_evaluation.append(t)
         else:
-            moves_evaluation.append(str(round(int(t)/100., 2)))
+            moves_evaluation.append(str(round(int(t) / 100., 2)))
         parsed_game = node
     engine.quit()
     setattr(game, "best_moves", best_moves)
@@ -228,51 +229,51 @@ def evaluate_game(game):
 
 
 def average_game_centipawn(game, name):
+    i = 0
     moves = 0
     centipawn = 0.
     if not game.moves_evaluation:
         evaluate_game(game)
-    it = iter(game.moves_evaluation)
     if game.white == name:
         for evaluation in game.moves_evaluation:
-            if not evaluation.startswith("#"):
-                centipawn = centipawn + float(evaluation)
-                moves = moves + 1
-            next(it)
+            if i % 2 == 0:
+                if not evaluation.startswith("#"):
+                    centipawn = centipawn + float(evaluation)
+                    moves = moves + 1
+            i = i + 1
     if game.black == name:
         for evaluation in game.moves_evaluation:
-            next(it)
-            if not evaluation.startswith("#"):
-                centipawn = centipawn + (float(evaluation) * -1)
-                moves = moves + 1
+            if i % 2 != 0:
+                if not evaluation.startswith("#"):
+                    centipawn = centipawn + (float(evaluation) * -1)
+                    moves = moves + 1
+            i = i + 1
     return round(centipawn / moves, 2)
 
 
-# TODO test it
 def calculate_accuracy(name):
     accuracy = 0
     total_moves = 0
     games = Games.objects.filter(Q(white=name) | Q(black=name))
     for game in games:
+        i = 0
         if not game.best_moves:
             evaluate_game(game)
         temp = game.moves.split(" ")
         pattern = re.compile(r'\.$')
-        moves = filter(lambda m: not pattern.match(m), temp)
-        it1 = iter(game.best_moves)
-        it2 = iter(moves)
+        moves = list(filter(lambda m: not pattern.search(m), temp))
         if game.white == name:
             for (move, best_move) in zip(moves, game.best_moves):
-                if move == best_move:
-                    accuracy = accuracy + 1
-                total_moves = total_moves + 1
-                next(it1)
-                next(it2)
+                if i % 2 == 0:
+                    if move == best_move:
+                        accuracy = accuracy + 1
+                    total_moves = total_moves + 1
+                i = i + 1
         if game.black == name:
             for (move, best_move) in zip(moves, game.best_moves):
-                next(it1)
-                next(it2)
-                if move == best_move:
-                    accuracy = accuracy + 1
-                total_moves = total_moves + 1
+                if i % 2 != 0:
+                    if move == best_move:
+                        accuracy = accuracy + 1
+                    total_moves = total_moves + 1
+                i = i + 1
     return round(((accuracy * 1.) / total_moves) * 100, 2)
