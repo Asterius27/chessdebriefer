@@ -6,7 +6,7 @@ from ChessDebriefer.models import Games, FieldsCache, Players
 
 
 # pretty slow, caching only works without query params
-# TODO add opponent, eco filter; add openings filtered by event type
+# TODO add opponent, eco filter
 def calculate_percentages(name, params):
     date_pattern = re.compile(r'^\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$')
     elo_pattern = re.compile(r'^\d{1,4}$')
@@ -100,8 +100,22 @@ def filter_games(games, name, field):
     for fld in getattr(fields_cache, field):
         filtered_games = filter(lambda game: getattr(game, field) == fld, games)
         dictionary = create_dictionary(filtered_games, name)
+        if field == "opening" and dictionary:
+            list_filtered_games = list(filter(lambda game: getattr(game, field) == fld, games))
+            dictionary["event"] = event_filter(list_filtered_games, name)
         if dictionary:
             result[str(fld)] = dictionary
+    return result
+
+
+def event_filter(games, name):
+    events = getattr(FieldsCache.objects.first(), "event")
+    result = {}
+    for event in events:
+        filtered_games = filter(lambda game: getattr(game, "event") == event, games)
+        dictionary = create_dictionary(filtered_games, name)
+        if dictionary:
+            result[str(event)] = dictionary
     return result
 
 
