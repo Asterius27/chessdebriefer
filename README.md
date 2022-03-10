@@ -18,7 +18,7 @@
 <details>
   <summary>GET /name/percentages</summary>
   
-  ## Heading
-  * A numbered
-  * list
+  ### URI parameters
+  * opponent : (optional) find only the matches played against this opponent
+  * from : (optional)
 </details>
