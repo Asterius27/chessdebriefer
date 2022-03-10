@@ -780,4 +780,25 @@
   ```
 </details>
 	
+  <summary>GET /:name/accuracy</summary>
+  
+  #### URI parameters
+  * None
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"Accuracy": 0
+	}
+  ```
+</details>
+	
 </details>
