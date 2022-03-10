@@ -5,7 +5,7 @@ A backend that parses and analyses pgn files
 ## Endpoints
 <details>
   <summary> 
-  <h2> GET /:name/percentages </h2>
+  <h3> GET /:name/percentages </h3>
   
   </summary>
   
@@ -788,7 +788,10 @@ A backend that parses and analyses pgn files
 </details>
 
 <details>
-  <summary>GET /:name/accuracy</summary>
+  <summary>
+  <h3> GET /:name/accuracy </h3>
+  
+  </summary>
   
   #### URI parameters
   * None
@@ -812,7 +815,10 @@ A backend that parses and analyses pgn files
 </details>
 
 <details>
-  <summary>POST /upload</summary>
+  <summary>
+  <h3> POST /upload </h3>
+  
+  </summary>
   
   #### URI parameters
   * None
