@@ -5,7 +5,7 @@ A backend that parses and analyses pgn files
 ## Endpoints
 <details>
   <summary> 
-  ## GET /:name/percentages
+  <h2> GET /:name/percentages </h2>
   
   </summary>
   
