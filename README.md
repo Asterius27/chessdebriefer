@@ -805,3 +805,35 @@
 </details>
 
 </details>
+
+<details>
+  <summary>POST /upload</summary>
+  
+  #### URI parameters
+  * None
+  
+  #### Request
+  Headers
+  ```
+  Content-Type: multipart/form-data
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  The pgn file
+</details>
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: text/html
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  None
+</details>
+
+</details>
