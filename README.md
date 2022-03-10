@@ -17,7 +17,6 @@
   Content-Type: application/json
   ```
   
-  # A collapsible section with markdown
 <details>
   <summary>Click to expand!</summary>
   
