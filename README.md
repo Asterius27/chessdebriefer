@@ -16,7 +16,7 @@
 
 # A collapsible section with markdown
 <details>
-  <summary>Click to expand!</summary>
+  <summary>GET /name/percentages</summary>
   
   ## Heading
   1. A numbered
