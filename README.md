@@ -19,7 +19,7 @@
   
   <details>
 	<summary>Body</summary>
-  
+	
 	  ```json
 	  {
 		"General percentages": {
