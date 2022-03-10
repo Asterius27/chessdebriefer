@@ -1,4 +1,5 @@
 # Chess Debriefer
+
 ## Endpoints
 <details>
 	<summary>GET /name/percentages</summary>
