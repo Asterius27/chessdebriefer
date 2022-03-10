@@ -6,7 +6,7 @@ from ChessDebriefer.models import Games, FieldsCache, Players
 
 
 # pretty slow, caching only works without query params
-# TODO add opponent, eco filter
+# TODO add eco filter
 def calculate_percentages(name, params):
     date_pattern = re.compile(r'^\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$')
     elo_pattern = re.compile(r'^\d{1,4}$')
@@ -57,13 +57,26 @@ def calculate_percentages(name, params):
                 max_elo = int(params["maxelo"])
             else:
                 max_elo = 9999  # retrieve highest elo from database and assign it here
-        games = Games.objects.filter(((Q(white=name) & Q(white_elo__gte=min_elo) & Q(white_elo__lte=max_elo)) |
-                                      (Q(black=name) & Q(black_elo__gte=min_elo) & Q(black_elo__lte=max_elo)))
-                                     & Q(date__gte=from_date) & Q(date__lte=to_date))
-        white_games = Games.objects.filter(Q(white=name) & Q(white_elo__gte=min_elo) & Q(white_elo__lte=max_elo)
-                                           & Q(date__gte=from_date) & Q(date__lte=to_date))
-        black_games = Games.objects.filter(Q(black=name) & Q(black_elo__gte=min_elo) & Q(black_elo__lte=max_elo)
-                                           & Q(date__gte=from_date) & Q(date__lte=to_date))
+        if "opponent" not in params.keys():
+            games = Games.objects.filter(((Q(white=name) & Q(white_elo__gte=min_elo) & Q(white_elo__lte=max_elo)) |
+                                          (Q(black=name) & Q(black_elo__gte=min_elo) & Q(black_elo__lte=max_elo)))
+                                         & Q(date__gte=from_date) & Q(date__lte=to_date))
+            white_games = Games.objects.filter(Q(white=name) & Q(white_elo__gte=min_elo) & Q(white_elo__lte=max_elo)
+                                               & Q(date__gte=from_date) & Q(date__lte=to_date))
+            black_games = Games.objects.filter(Q(black=name) & Q(black_elo__gte=min_elo) & Q(black_elo__lte=max_elo)
+                                               & Q(date__gte=from_date) & Q(date__lte=to_date))
+        else:
+            games = Games.objects.filter(((Q(white=name) & Q(black=params["opponent"]) & Q(white_elo__gte=min_elo) &
+                                           Q(white_elo__lte=max_elo)) | (Q(black=name) & Q(white=params["opponent"]) &
+                                                                         Q(black_elo__gte=min_elo) &
+                                                                         Q(black_elo__lte=max_elo)))
+                                         & Q(date__gte=from_date) & Q(date__lte=to_date))
+            white_games = Games.objects.filter(Q(white=name) & Q(black=params["opponent"]) & Q(white_elo__gte=min_elo)
+                                               & Q(white_elo__lte=max_elo) & Q(date__gte=from_date)
+                                               & Q(date__lte=to_date))
+            black_games = Games.objects.filter(Q(black=name) & Q(white=params["opponent"]) & Q(black_elo__gte=min_elo)
+                                               & Q(black_elo__lte=max_elo) & Q(date__gte=from_date)
+                                               & Q(date__lte=to_date))
     response = {}
     side_percentages = {}
     general_percentages = create_dictionary(games, name)
@@ -149,9 +162,11 @@ def create_dictionary(games, name):
 
 def filter_throws_comebacks(games, name):
     throws = 0
+    comebacks = 0
     losses = 0
     wins = 0
-    comebacks = 0
+    percentage_throws = 0
+    percentage_comebacks = 0
     for game in games:
         if (game.white == name and game.result == "0-1") or (game.black == name and game.result == "1-0"):
             cp = average_game_centipawn(game, name)
@@ -163,8 +178,12 @@ def filter_throws_comebacks(games, name):
             wins = wins + 1
             if cp < 0:
                 comebacks = comebacks + 1
-    percentage_throws = round((throws * 1. / losses) * 100, 2)
-    percentage_comebacks = round((comebacks * 1. / wins) * 100, 2)
+    if losses != 0:
+        percentage_throws = round((throws * 1. / losses) * 100, 2)
+    if wins != 0:
+        percentage_comebacks = round((comebacks * 1. / wins) * 100, 2)
+    if wins == 0 and losses == 0:
+        return {}
     return {"throws": throws, "losses": losses, "percentage_throws": percentage_throws, "comebacks": comebacks,
             "wins": wins, "percentage_comebacks": percentage_comebacks}
 
