@@ -790,7 +790,6 @@ A backend that parses and analyses pgn files
 <details>
   <summary>
   <h3> GET /:name/accuracy </h3>
-  
   </summary>
   
   #### URI parameters
@@ -817,7 +816,6 @@ A backend that parses and analyses pgn files
 <details>
   <summary>
   <h3> POST /upload </h3>
-  
   </summary>
   
   #### URI parameters
