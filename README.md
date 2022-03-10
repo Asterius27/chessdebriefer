@@ -780,6 +780,9 @@
   ```
 </details>
 	
+</details>
+
+<details>
   <summary>GET /:name/accuracy</summary>
   
   #### URI parameters
@@ -800,5 +803,5 @@
 	}
   ```
 </details>
-	
+
 </details>
