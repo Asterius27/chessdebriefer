@@ -4,7 +4,7 @@ A backend that parses and analyses pgn files
 
 ## Endpoints
 <details>
-  <summary><span style="color:red">**GET /:name/percentages**</span></summary>
+  <summary> **GET /:name/percentages** </summary>
   
   #### URI parameters
   * **opponent** : (optional) find only the matches played against this opponent
