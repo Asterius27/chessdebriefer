@@ -18,19 +18,10 @@
   ```
   
 <details>
-  <summary>Click to expand!</summary>
+  <summary>Body</summary>
   
   ## Heading
-  1. A numbered
-  2. list
-	 * With some
-	 * Sub bullets
-</details>
-  
-  <details>
-	<summary>Body</summary>
-	
-	  ```json
+  ```json
 	  {
 		"General percentages": {
 			"percentage_won": 58.75,
@@ -788,6 +779,12 @@
 		}
 	  }
 	  ```
+</details>
+  
+  <details>
+	<summary>Body</summary>
+	
+	  
 	</details>
 	
 </details>
