@@ -20,7 +20,6 @@
 <details>
   <summary>Body</summary>
   
-  ## Heading
   ```json
 	  {
 		"General percentages": {
@@ -781,10 +780,5 @@
 	  ```
 </details>
   
-  <details>
-	<summary>Body</summary>
-	
-	  
-	</details>
 	
 </details>
