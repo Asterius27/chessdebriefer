@@ -20,8 +20,9 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.test),
-    path('upload', views.upload),
     path('success', views.success),
+    path('upload', views.upload),
+    path('upload/openings', views.upload_openings),
     path('<slug:name>/percentages', views.percentages),  # use regexp?
     path('<slug:name>/accuracy', views.accuracy),
 ]

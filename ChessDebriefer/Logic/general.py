@@ -1,7 +1,7 @@
 import datetime
 import os
 import chess.pgn
-from ChessDebriefer.models import Games, Players, FieldsCache
+from ChessDebriefer.models import Games, Players, FieldsCache, Openings
 
 
 # only works with 1 file upload at a time, and it takes a lot of time to parse everything
@@ -48,3 +48,17 @@ def handle_pgn_uploads(f):
                     if saved_game.white == player.name or saved_game.black == player.name:
                         player.delete()
     os.remove("temp.pgn")
+
+
+def handle_pgn_openings_upload(f):
+    with open('openings.pgn', 'wb+') as temp:
+        for chunk in f.chunks():
+            temp.write(chunk)
+    with open('openings.pgn') as pgn:
+        while True:
+            opening = chess.pgn.read_game(pgn)
+            if opening is None:
+                break
+            Openings(eco=opening.headers["Site"], white_opening=opening.headers["White"],
+                     black_opening=opening.headers["Black"], moves=str(opening.mainline_moves())).save()
+    os.remove("openings.pgn")

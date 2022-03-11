@@ -34,3 +34,10 @@ class FieldsCache(Document):
     event = ListField(StringField())
     opening = ListField(StringField())
     termination = ListField(StringField())
+
+
+class Openings(Document):
+    eco = StringField()
+    white_opening = StringField()
+    black_opening = StringField()
+    moves = StringField()
