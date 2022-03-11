@@ -16,6 +16,7 @@ class Games(Document):
     black_rating_diff = IntField()
     eco = StringField()
     opening = StringField()
+    opening_id = ObjectIdField()
     time_control = StringField()
     termination = StringField()
     moves = StringField()  # best way?
