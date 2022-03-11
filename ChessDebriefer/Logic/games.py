@@ -1,6 +1,7 @@
 import io
 import chess.pgn
 import chess.engine
+from ChessDebriefer.models import Openings, FieldsCache
 
 
 # evaluation isn't perfect, more time you give it the better the result. Results are more precise in middle game
@@ -50,3 +51,29 @@ def average_game_centipawn(game, name):
                     moves = moves + 1
             i = i + 1
     return round(centipawn / moves, 2)
+
+
+def find_opening(game):
+    if not game.eco or str(game.opening_id) == "000000000000000000000000":
+        openings = Openings.objects
+        cached_fields = FieldsCache.objects.first()
+        fields = ["eco", "opening_id"]
+        filtered_openings = list(filter(lambda op: game.moves.startswith(op.moves), openings))
+        opening = filtered_openings[0]
+        for opn in filtered_openings:
+            split1 = opn.moves.split(" ")
+            split2 = opening.moves.split(" ")
+            if len(split1) > len(split2):
+                opening = opn
+        setattr(game, "eco", opening.eco)
+        setattr(game, "opening_id", opening.id)
+        game.save()
+        for field in fields:
+            if getattr(game, field) not in getattr(cached_fields, field):
+                temp = getattr(cached_fields, field)
+                temp.append(getattr(game, field))
+                setattr(cached_fields, field, temp)
+                cached_fields.save()
+
+
+# TODO opening evaluation

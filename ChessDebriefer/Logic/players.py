@@ -1,7 +1,7 @@
 import datetime
 import re
 from mongoengine import Q
-from ChessDebriefer.Logic.games import evaluate_game, average_game_centipawn
+from ChessDebriefer.Logic.games import evaluate_game, average_game_centipawn, find_opening
 from ChessDebriefer.models import Games, FieldsCache, Players
 
 
@@ -77,6 +77,8 @@ def calculate_percentages(name, params):
             black_games = Games.objects.filter(Q(black=name) & Q(white=params["opponent"]) & Q(black_elo__gte=min_elo)
                                                & Q(black_elo__lte=max_elo) & Q(date__gte=from_date)
                                                & Q(date__lte=to_date))
+    for game in games:
+        find_opening(game)
     response = {}
     side_percentages = {}
     general_percentages = create_dictionary(games, name)
@@ -87,7 +89,7 @@ def calculate_percentages(name, params):
     if black_percentages:
         side_percentages["Black"] = black_percentages
     event_percentages = filter_games(games, name, "event")
-    opening_percentages = filter_games(games, name, "opening")  # does it count only if you are white?
+    opening_percentages = filter_games(games, name, "opening_id")  # does it count only if you are white?
     termination_percentages = filter_games(games, name, "termination")
     throw_comeback_percentages = filter_throws_comebacks(games, name)
     if general_percentages:
@@ -113,11 +115,11 @@ def filter_games(games, name, field):
     for fld in getattr(fields_cache, field):
         filtered_games = filter(lambda game: getattr(game, field) == fld, games)
         dictionary = create_dictionary(filtered_games, name)
-        if field == "opening" and dictionary:
+        if field == "opening_id" and dictionary:
             list_filtered_games = list(filter(lambda game: getattr(game, field) == fld, games))
             dictionary["event"] = event_filter(list_filtered_games, name)
         if dictionary:
-            result[str(fld)] = dictionary
+            result[str(fld)] = dictionary  # TODO use eco or opening name instead of opening id
     return result
 
 

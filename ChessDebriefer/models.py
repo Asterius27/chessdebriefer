@@ -15,11 +15,10 @@ class Games(Document):
     white_rating_diff = IntField()
     black_rating_diff = IntField()
     eco = StringField()
-    opening = StringField()
     opening_id = ObjectIdField()
     time_control = StringField()
     termination = StringField()
-    moves = StringField()  # best way?
+    moves = StringField()
     best_moves = ListField(StringField())
     moves_evaluation = ListField(StringField())
 
@@ -33,7 +32,8 @@ class Players(Document):
 # document used as cache
 class FieldsCache(Document):
     event = ListField(StringField())
-    opening = ListField(StringField())
+    opening_id = ListField(ObjectIdField())
+    eco = ListField(StringField())
     termination = ListField(StringField())
 
 
