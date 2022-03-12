@@ -36,3 +36,4 @@ class Openings(Document):
     white_opening = StringField()
     black_opening = StringField()
     moves = StringField()
+    evaluation = StringField()

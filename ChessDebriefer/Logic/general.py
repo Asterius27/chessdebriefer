@@ -56,5 +56,5 @@ def handle_pgn_openings_upload(f):
             if opening is None:
                 break
             Openings(eco=opening.headers["Site"], white_opening=opening.headers["White"],
-                     black_opening=opening.headers["Black"], moves=str(opening.mainline_moves())).save()
+                     black_opening=opening.headers["Black"], moves=str(opening.mainline_moves()), evaluation="").save()
     os.remove("openings.pgn")
