@@ -53,6 +53,7 @@ def average_game_centipawn(game, name):
     return round(centipawn / moves, 2)
 
 
+# pretty slow
 def find_opening(game):
     if not game.eco or str(game.opening_id) == "000000000000000000000000":
         openings = Openings.objects

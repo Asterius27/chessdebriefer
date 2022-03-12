@@ -1,12 +1,11 @@
 import datetime
 import os
 import chess.pgn
-from ChessDebriefer.models import Games, Players, FieldsCache, Openings
+from ChessDebriefer.models import Games, FieldsCache, Openings
 
 
 # only works with 1 file upload at a time, and it takes a lot of time to parse everything
 def handle_pgn_uploads(f):
-    cached_players = Players.objects
     cached_fields = FieldsCache.objects.first()
     fields = ["event", "termination"]
     if not cached_fields:
@@ -44,9 +43,6 @@ def handle_pgn_uploads(f):
                         temp.append(getattr(saved_game, field))
                         setattr(cached_fields, field, temp)
                         cached_fields.save()
-                for player in cached_players:
-                    if saved_game.white == player.name or saved_game.black == player.name:
-                        player.delete()
     os.remove("temp.pgn")
 
 

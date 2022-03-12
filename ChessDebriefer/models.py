@@ -23,12 +23,6 @@ class Games(Document):
     moves_evaluation = ListField(StringField())
 
 
-# document used as cache, needed?
-class Players(Document):
-    name = StringField()
-    percentages = DictField()
-
-
 # document used as cache
 class FieldsCache(Document):
     event = ListField(StringField())

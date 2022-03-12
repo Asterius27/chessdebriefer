@@ -1,14 +1,14 @@
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
-from ChessDebriefer.Logic.players import calculate_percentages, calculate_accuracy
+from ChessDebriefer.Logic.accuracy import calculate_accuracy
+from ChessDebriefer.Logic.percentages import calculate_percentages, calculate_event_percentages, \
+    calculate_opening_percentages, calculate_termination_percentages
 from ChessDebriefer.forms import UploadPGNForm
 from ChessDebriefer.Logic.general import handle_pgn_uploads, handle_pgn_openings_upload
 
 
 def test(request):
-    html = '<html><body>Hello World!</body></html>'
-    params = request.GET
-    return HttpResponse("Hello World!")  # html
+    return HttpResponse("Hello World!")
 
 
 def success(request):
@@ -18,7 +18,7 @@ def success(request):
 def upload(request):
     if request.method == 'GET':
         form = UploadPGNForm()
-        return render(request, 'uploadpgn.html', {'form': form})
+        return render(request, 'upload_pgn.html', {'form': form})
     if request.method == 'POST':
         form = UploadPGNForm(request.POST, request.FILES)
         if form.is_valid():
@@ -33,7 +33,7 @@ def upload(request):
 def upload_openings(request):
     if request.method == 'GET':
         form = UploadPGNForm()
-        return render(request, 'uploadpgnopenings.html', {'form': form})
+        return render(request, 'upload_pgn_openings.html', {'form': form})
     if request.method == 'POST':
         form = UploadPGNForm(request.POST, request.FILES)
         if form.is_valid():
@@ -46,10 +46,20 @@ def upload_openings(request):
 
 
 def percentages(request, name):
-    stats = calculate_percentages(name, request.GET)
-    return JsonResponse(stats)
+    return JsonResponse(calculate_percentages(name, request.GET))
+
+
+def event_percentages(request, name):
+    return JsonResponse(calculate_event_percentages(name, request.GET))
+
+
+def opening_percentages(request, name):
+    return JsonResponse(calculate_opening_percentages(name, request.GET))
+
+
+def termination_percentages(request, name):
+    return JsonResponse(calculate_termination_percentages(name, request.GET))
 
 
 def accuracy(request, name):
-    percentage = calculate_accuracy(name)
-    return HttpResponse(str(percentage) + " %")
+    return JsonResponse({"accuracy_percentage": calculate_accuracy(name)})

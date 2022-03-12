@@ -1,26 +1,56 @@
 import datetime
 import re
 from mongoengine import Q
-from ChessDebriefer.Logic.games import evaluate_game, average_game_centipawn, find_opening
-from ChessDebriefer.models import Games, FieldsCache, Players
+from ChessDebriefer.Logic.games import average_game_centipawn, find_opening
+from ChessDebriefer.models import Games, FieldsCache
 
 
-# pretty slow, caching only works without query params
-# TODO add eco filter
 def calculate_percentages(name, params):
+    games, white_games, black_games = database_query(name, params)
+    response = {}
+    side_percentages = {}
+    general_percentages = create_dictionary(games, name)
+    white_percentages = create_dictionary(white_games, name)
+    black_percentages = create_dictionary(black_games, name)
+    throw_comeback_percentages = filter_throws_comebacks(games, name)
+    if white_percentages:
+        side_percentages["White"] = white_percentages
+    if black_percentages:
+        side_percentages["Black"] = black_percentages
+    if general_percentages:
+        response["General percentages"] = general_percentages
+    if side_percentages:
+        response["Side percentages"] = side_percentages
+    if throw_comeback_percentages:
+        response["Throw comeback percentages"] = throw_comeback_percentages
+    return response
+
+
+def calculate_event_percentages(name, params):
+    games, white_games, black_games = database_query(name, params)
+    return filter_games(games, name, "event")
+
+
+# does it count only if you are white?
+def calculate_opening_percentages(name, params):
+    games, white_games, black_games = database_query(name, params)
+    return filter_games(games, name, "eco")
+
+
+def calculate_termination_percentages(name, params):
+    games, white_games, black_games = database_query(name, params)
+    return filter_games(games, name, "termination")
+
+
+# group by?
+def database_query(name, params):
     date_pattern = re.compile(r'^\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$')
     elo_pattern = re.compile(r'^\d{1,4}$')
     if not params:
-        cached_response = Players.objects(name=name).first()
-        if not cached_response:
-            cache_flag = True
-            games = Games.objects.filter(Q(white=name) | Q(black=name))
-            white_games = Games.objects.filter(Q(white=name))
-            black_games = Games.objects.filter(Q(black=name))
-        else:
-            return cached_response.percentages
+        games = Games.objects.filter(Q(white=name) | Q(black=name))
+        white_games = Games.objects.filter(Q(white=name))
+        black_games = Games.objects.filter(Q(black=name))
     else:
-        cache_flag = False
         if "from" not in params.keys():
             from_date = datetime.datetime(1970, 1, 1)
         else:
@@ -79,34 +109,7 @@ def calculate_percentages(name, params):
                                                & Q(date__lte=to_date))
     for game in games:
         find_opening(game)
-    response = {}
-    side_percentages = {}
-    general_percentages = create_dictionary(games, name)
-    white_percentages = create_dictionary(white_games, name)
-    black_percentages = create_dictionary(black_games, name)
-    if white_percentages:
-        side_percentages["White"] = white_percentages
-    if black_percentages:
-        side_percentages["Black"] = black_percentages
-    event_percentages = filter_games(games, name, "event")
-    opening_percentages = filter_games(games, name, "opening_id")  # does it count only if you are white?
-    termination_percentages = filter_games(games, name, "termination")
-    throw_comeback_percentages = filter_throws_comebacks(games, name)
-    if general_percentages:
-        response["General percentages"] = general_percentages
-    if side_percentages:
-        response["Side percentages"] = side_percentages
-    if event_percentages:
-        response["Event percentages"] = event_percentages
-    if opening_percentages:
-        response["Opening percentages"] = opening_percentages
-    if termination_percentages:
-        response["Termination percentages"] = termination_percentages
-    if throw_comeback_percentages:
-        response["Throw comeback percentages"] = throw_comeback_percentages
-    if cache_flag:
-        Players(name=name, percentages=response).save()
-    return response
+    return games, white_games, black_games
 
 
 def filter_games(games, name, field):
@@ -115,11 +118,11 @@ def filter_games(games, name, field):
     for fld in getattr(fields_cache, field):
         filtered_games = filter(lambda game: getattr(game, field) == fld, games)
         dictionary = create_dictionary(filtered_games, name)
-        if field == "opening_id" and dictionary:
+        if field == "eco" and dictionary:
             list_filtered_games = list(filter(lambda game: getattr(game, field) == fld, games))
-            dictionary["event"] = event_filter(list_filtered_games, name)
+            dictionary["events"] = event_filter(list_filtered_games, name)
         if dictionary:
-            result[str(fld)] = dictionary  # TODO use eco or opening name instead of opening id
+            result[str(fld)] = dictionary
     return result
 
 
@@ -188,31 +191,3 @@ def filter_throws_comebacks(games, name):
         return {}
     return {"throws": throws, "losses": losses, "percentage_throws": percentage_throws, "comebacks": comebacks,
             "wins": wins, "percentage_comebacks": percentage_comebacks}
-
-
-def calculate_accuracy(name):
-    accuracy = 0
-    total_moves = 0
-    games = Games.objects.filter(Q(white=name) | Q(black=name))
-    for game in games:
-        i = 0
-        if not game.best_moves:
-            evaluate_game(game)
-        temp = game.moves.split(" ")
-        pattern = re.compile(r'\.$')
-        moves = list(filter(lambda m: not pattern.search(m), temp))
-        if game.white == name:
-            for (move, best_move) in zip(moves, game.best_moves):
-                if i % 2 == 0:
-                    if move == best_move:
-                        accuracy = accuracy + 1
-                    total_moves = total_moves + 1
-                i = i + 1
-        if game.black == name:
-            for (move, best_move) in zip(moves, game.best_moves):
-                if i % 2 != 0:
-                    if move == best_move:
-                        accuracy = accuracy + 1
-                    total_moves = total_moves + 1
-                i = i + 1
-    return round(((accuracy * 1.) / total_moves) * 100, 2)
