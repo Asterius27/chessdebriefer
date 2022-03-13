@@ -1,7 +1,10 @@
 import io
 import chess.pgn
 import chess.engine
-from ChessDebriefer.models import Openings, FieldsCache
+import chess.polyglot
+from mongoengine import Q
+
+from ChessDebriefer.models import Openings, FieldsCache, Games
 
 
 # evaluation isn't perfect, more time you give it the better the result. Results are more precise in middle game
@@ -54,8 +57,8 @@ def average_game_centipawn(game, name):
 
 
 # pretty slow
-def find_opening(game):
-    if not game.eco or str(game.opening_id) == "000000000000000000000000":
+def find_opening(game, update=False):
+    if not game.eco or str(game.opening_id) == "000000000000000000000000" or update:
         openings = Openings.objects
         cached_fields = FieldsCache.objects.first()
         fields = ["eco", "opening_id"]
@@ -77,18 +80,55 @@ def find_opening(game):
                 cached_fields.save()
 
 
-# TODO opening evaluation without using the engine
 # slow
-def evaluate_opening(game):
-    if not game.evaluation:
+def evaluate_opening_engine(game):
+    if not game.engine_evaluation:
         pgn = io.StringIO(game.moves)
         parsed_game = chess.pgn.read_game(pgn)
         engine = chess.engine.SimpleEngine.popen_uci("stockfish_14.1_win_x64_avx2.exe")
         info = engine.analyse(parsed_game.end().board(), chess.engine.Limit(time=1))
         t = str(info["score"].pov(True))
         if t.startswith("#"):
-            setattr(game, "evaluation", t)
+            setattr(game, "engine_evaluation", t)
         else:
-            setattr(game, "evaluation", str(round(int(t) / 100., 2)))
+            setattr(game, "engine_evaluation", str(round(int(t) / 100., 2)))
         engine.quit()
         game.save()
+
+
+# has to be updated when new games are added to the database, slow
+# TODO divide it in evaluation using all games, only tournament games, only high elo games
+def evaluate_opening_database(opening, update=False):
+    if not opening.database_evaluation or update:
+        games = Games.objects.filter(Q(opening_id=opening.id))
+        white_wins = 0
+        black_wins = 0
+        draws = 0
+        percentage_white_wins = 0.
+        percentage_black_wins = 0.
+        percentage_draws = 0.
+        for game in games:
+            if game.result == "1-0":
+                white_wins = white_wins + 1
+            if game.result == "0-1":
+                black_wins = black_wins + 1
+            if game.result == "1/2-1/2":
+                draws = draws + 1
+        if white_wins + black_wins + draws != 0:
+            percentage_white_wins = round((white_wins / (white_wins + black_wins + draws)) * 100, 2)
+            percentage_black_wins = round((black_wins / (white_wins + black_wins + draws)) * 100, 2)
+            percentage_draws = round((draws / (white_wins + black_wins + draws)) * 100, 2)
+        setattr(opening, "database_evaluation", {"percentage_white_wins": percentage_white_wins,
+                                                 "percentage_black_wins": percentage_black_wins,
+                                                 "percentage_draws_wins": percentage_draws})
+        opening.save()
+
+
+# find good book? how to use it to evaluate boards?
+def polyglot(game):
+    pgn = io.StringIO(game.moves)
+    parsed_game = chess.pgn.read_game(pgn)
+    with chess.polyglot.open_reader("polyglot/performance.bin") as reader:
+        for entry in reader.find_all(parsed_game.end().board()):
+            print(entry.move, entry.weight, entry.learn)
+    print("-------------------------------")

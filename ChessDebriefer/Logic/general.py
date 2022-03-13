@@ -47,14 +47,23 @@ def handle_pgn_uploads(f):
 
 
 def handle_pgn_openings_upload(f):
+    cached_fields = FieldsCache.objects.first()
+    fields = ["opening_id", "eco"]
+    if not cached_fields:
+        cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
     with open('openings.pgn', 'wb+') as temp:
         for chunk in f.chunks():
             temp.write(chunk)
+    Openings.drop_collection()
     with open('openings.pgn') as pgn:
         while True:
             opening = chess.pgn.read_game(pgn)
             if opening is None:
                 break
             Openings(eco=opening.headers["Site"], white_opening=opening.headers["White"],
-                     black_opening=opening.headers["Black"], moves=str(opening.mainline_moves()), evaluation="").save()
+                     black_opening=opening.headers["Black"], moves=str(opening.mainline_moves()), engine_evaluation="",
+                     database_evaluation={}).save()
     os.remove("openings.pgn")
+    for field in fields:
+        setattr(cached_fields, field, [])
+    cached_fields.save()
