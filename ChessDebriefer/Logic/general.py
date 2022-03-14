@@ -4,7 +4,7 @@ import chess.pgn
 from ChessDebriefer.models import Games, FieldsCache, Openings
 
 
-# only works with 1 file upload at a time, and it takes a lot of time to parse everything
+# only works with 1 file upload at a time, and it takes a lot of time to parse everything, make it async?
 def handle_pgn_uploads(f):
     cached_fields = FieldsCache.objects.first()
     fields = ["event", "termination"]
