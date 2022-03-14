@@ -116,10 +116,10 @@ def filter_games(games, name, field):
     fields_cache = FieldsCache.objects.first()
     result = {}
     for fld in getattr(fields_cache, field):
-        filtered_games = filter(lambda game: getattr(game, field) == fld, games)
+        filtered_games = filter(lambda game: getattr(game, field).startswith(fld), games)
         dictionary = create_dictionary(filtered_games, name)
         if field == "eco" and dictionary:
-            list_filtered_games = list(filter(lambda game: getattr(game, field) == fld, games))
+            list_filtered_games = list(filter(lambda game: getattr(game, field).startswith(fld), games))
             dictionary["events"] = event_filter(list_filtered_games, name)
         if dictionary:
             result[str(fld)] = dictionary
@@ -130,7 +130,7 @@ def event_filter(games, name):
     events = getattr(FieldsCache.objects.first(), "event")
     result = {}
     for event in events:
-        filtered_games = filter(lambda game: getattr(game, "event") == event, games)
+        filtered_games = filter(lambda game: getattr(game, "event").startswith(event), games)
         dictionary = create_dictionary(filtered_games, name)
         if dictionary:
             result[str(event)] = dictionary
