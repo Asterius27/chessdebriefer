@@ -1,18 +1,24 @@
 import datetime
 import os
+import threading
 import chess.pgn
 from ChessDebriefer.models import Games, FieldsCache, Openings
 
 
-# only works with 1 file upload at a time, and it takes a lot of time to parse everything, make it async?
+# only works with 1 file upload at a time, and it takes a lot of time to parse everything
 def handle_pgn_uploads(f):
+    with open('temp.pgn', 'wb+') as temp:
+        for chunk in f.chunks():
+            temp.write(chunk)
+    thr = threading.Thread(target=parse_pgn)
+    thr.start()
+
+
+def parse_pgn():
     cached_fields = FieldsCache.objects.first()
     fields = ["event", "termination"]
     if not cached_fields:
         cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
-    with open('temp.pgn', 'wb+') as temp:
-        for chunk in f.chunks():
-            temp.write(chunk)
     with open('temp.pgn') as pgn:
         while True:
             game = chess.pgn.read_game(pgn)

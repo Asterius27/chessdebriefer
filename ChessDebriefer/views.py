@@ -12,7 +12,8 @@ def test(request):
 
 
 def success(request):
-    return HttpResponse("Success!")
+    return HttpResponse("Success! Your file was uploaded and is now being parsed. Please note that it may take several "
+                        "hours for the process to complete")
 
 
 def upload(request):
