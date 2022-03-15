@@ -28,4 +28,5 @@ urlpatterns = [
     path('<slug:name>/percentages/openings', views.opening_percentages),
     path('<slug:name>/percentages/terminations', views.termination_percentages),
     path('<slug:name>/accuracy', views.accuracy),
+    path('<slug:eco>/stats', views.opening_stats),
 ]

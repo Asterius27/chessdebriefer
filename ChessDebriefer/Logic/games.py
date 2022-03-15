@@ -97,58 +97,59 @@ def evaluate_opening_engine(game):
         game.save()
 
 
-# has to be updated when new games are added to the database, slow
-# TODO divide it in evaluation using all games, only tournament games, only high elo games
-def evaluate_opening_database(opening, update=False):
-    if not opening.database_evaluation or update:
-        cached_fields = FieldsCache.objects.first()
-        filtered_games = Games.objects.filter((Q(eco="") | Q(opening_id=ObjectId("000000000000000000000000")))
-                                              & Q(moves__startswith=opening.moves))
-        filtered_openings = Openings.objects.filter(Q(id__ne=opening.id) & Q(moves__startswith=opening.moves))
-        filtered_games_final = []
-        for g in filtered_games:
-            flag = False
-            for op in filtered_openings:
-                if g.moves.startswith(op.moves):
-                    flag = True
-            if not flag:
-                filtered_games_final.append(g)
-        for gm in filtered_games_final:
-            setattr(gm, "eco", opening.eco)
-            setattr(gm, "opening_id", opening.id)
-            gm.save()
-        if getattr(opening, "eco") not in getattr(cached_fields, "eco"):
-            temp = getattr(cached_fields, "eco")
-            temp.append(getattr(opening, "eco"))
-            setattr(cached_fields, "eco", temp)
-            cached_fields.save()
-        if getattr(opening, "id") not in getattr(cached_fields, "opening_id"):
-            temp = getattr(cached_fields, "opening_id")
-            temp.append(getattr(opening, "id"))
-            setattr(cached_fields, "opening_id", temp)
-            cached_fields.save()
-        games = Games.objects.filter(Q(opening_id=opening.id))
-        white_wins = 0
-        black_wins = 0
-        draws = 0
-        percentage_white_wins = 0.
-        percentage_black_wins = 0.
-        percentage_draws = 0.
-        for game in games:
-            if game.result == "1-0":
-                white_wins = white_wins + 1
-            if game.result == "0-1":
-                black_wins = black_wins + 1
-            if game.result == "1/2-1/2":
-                draws = draws + 1
-        if white_wins + black_wins + draws != 0:
-            percentage_white_wins = round((white_wins / (white_wins + black_wins + draws)) * 100, 2)
-            percentage_black_wins = round((black_wins / (white_wins + black_wins + draws)) * 100, 2)
-            percentage_draws = round((draws / (white_wins + black_wins + draws)) * 100, 2)
-        setattr(opening, "database_evaluation", {"percentage_white_wins": percentage_white_wins,
-                                                 "percentage_black_wins": percentage_black_wins,
-                                                 "percentage_draws_wins": percentage_draws})
-        opening.save()
+# slow
+def evaluate_opening_database(opening, min_elo, tournament):
+    cached_fields = FieldsCache.objects.first()
+    filtered_games = Games.objects.filter((Q(eco="") | Q(opening_id=ObjectId("000000000000000000000000")))
+                                          & Q(moves__startswith=opening.moves))
+    filtered_openings = Openings.objects.filter(Q(id__ne=opening.id) & Q(moves__startswith=opening.moves))
+    filtered_games_final = []
+    for g in filtered_games:
+        flag = False
+        for op in filtered_openings:
+            if g.moves.startswith(op.moves):
+                flag = True
+        if not flag:
+            filtered_games_final.append(g)
+    for gm in filtered_games_final:
+        setattr(gm, "eco", opening.eco)
+        setattr(gm, "opening_id", opening.id)
+        gm.save()
+    if getattr(opening, "eco") not in getattr(cached_fields, "eco"):
+        temp = getattr(cached_fields, "eco")
+        temp.append(getattr(opening, "eco"))
+        setattr(cached_fields, "eco", temp)
+        cached_fields.save()
+    if getattr(opening, "id") not in getattr(cached_fields, "opening_id"):
+        temp = getattr(cached_fields, "opening_id")
+        temp.append(getattr(opening, "id"))
+        setattr(cached_fields, "opening_id", temp)
+        cached_fields.save()
+    if tournament == "true":
+        games = Games.objects.filter(Q(opening_id=opening.id) & Q(event__contains="tournament") &
+                                     Q(white_elo__gte=min_elo) & Q(black_elo__gte=min_elo))
+    else:
+        games = Games.objects.filter(Q(opening_id=opening.id) & Q(white_elo__gte=min_elo) & Q(black_elo__gte=min_elo))
+    white_wins = 0
+    black_wins = 0
+    draws = 0
+    percentage_white_wins = 0.
+    percentage_black_wins = 0.
+    percentage_draws = 0.
+    for game in games:
+        if game.result == "1-0":
+            white_wins = white_wins + 1
+        if game.result == "0-1":
+            black_wins = black_wins + 1
+        if game.result == "1/2-1/2":
+            draws = draws + 1
+    if white_wins + black_wins + draws != 0:
+        percentage_white_wins = round((white_wins / (white_wins + black_wins + draws)) * 100, 2)
+        percentage_black_wins = round((black_wins / (white_wins + black_wins + draws)) * 100, 2)
+        percentage_draws = round((draws / (white_wins + black_wins + draws)) * 100, 2)
+    return {"white_wins": white_wins, "black_wins": black_wins, "draws": draws,
+            "percentage_white_wins": percentage_white_wins, "percentage_black_wins": percentage_black_wins,
+            "percentage_draws_wins": percentage_draws}
 
 
 # find good book? how to use it to evaluate boards?

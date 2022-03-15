@@ -14,6 +14,7 @@ def handle_pgn_uploads(f):
     thr.start()
 
 
+# check if game already exists in the database?
 def parse_pgn():
     cached_fields = FieldsCache.objects.first()
     fields = ["event", "termination"]

@@ -37,4 +37,3 @@ class Openings(Document):
     black_opening = StringField()
     moves = StringField()
     engine_evaluation = StringField()
-    database_evaluation = DictField()

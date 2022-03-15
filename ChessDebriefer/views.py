@@ -1,6 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from ChessDebriefer.Logic.accuracy import calculate_accuracy
+from ChessDebriefer.Logic.openings import calculate_eco_stats
 from ChessDebriefer.Logic.percentages import calculate_percentages, calculate_event_percentages, \
     calculate_opening_percentages, calculate_termination_percentages
 from ChessDebriefer.forms import UploadPGNForm
@@ -64,3 +65,7 @@ def termination_percentages(request, name):
 
 def accuracy(request, name):
     return JsonResponse({"accuracy_percentage": calculate_accuracy(name)})
+
+
+def opening_stats(request, eco):
+    return JsonResponse(calculate_eco_stats(eco, request.GET))
