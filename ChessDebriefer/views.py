@@ -65,7 +65,7 @@ def termination_percentages(request, name):
 
 
 def accuracy(request, name):
-    return JsonResponse({"accuracy_percentage": calculate_accuracy(name)})
+    return JsonResponse(calculate_accuracy(name))
 
 
 def opening_stats(request, eco):

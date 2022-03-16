@@ -1106,7 +1106,8 @@ A backend that parses and analyses pgn files
   
   ```json
 	{
-		"accuracy_percentage": 31.28
+		"general accuracy": 28.98,
+		"accuracy after opening": 30.21
 	}
   ```
 </details>
