@@ -17,6 +17,7 @@ def success(request):
                         "hours for the process to complete")
 
 
+# try it without the form
 def upload(request):
     if request.method == 'GET':
         form = UploadPGNForm()

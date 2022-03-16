@@ -82,19 +82,19 @@ def find_opening(game, update=False):
 
 
 # slow
-def evaluate_opening_engine(game):
-    if not game.engine_evaluation:
-        pgn = io.StringIO(game.moves)
+def evaluate_opening_engine(opening):
+    if not opening.engine_evaluation:
+        pgn = io.StringIO(opening.moves)
         parsed_game = chess.pgn.read_game(pgn)
         engine = chess.engine.SimpleEngine.popen_uci("stockfish_14.1_win_x64_avx2.exe")
         info = engine.analyse(parsed_game.end().board(), chess.engine.Limit(time=1))
         t = str(info["score"].pov(True))
         if t.startswith("#"):
-            setattr(game, "engine_evaluation", t)
+            setattr(opening, "engine_evaluation", t)
         else:
-            setattr(game, "engine_evaluation", str(round(int(t) / 100., 2)))
+            setattr(opening, "engine_evaluation", str(round(int(t) / 100., 2)))
         engine.quit()
-        game.save()
+        opening.save()
 
 
 # slow

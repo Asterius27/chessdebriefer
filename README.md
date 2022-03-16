@@ -1133,262 +1133,77 @@ A backend that parses and analyses pgn files
   
   ```json
 	{
-		"A00": {
-			"white_wins": 25988,
-			"black_wins": 29046,
-			"draws": 1696,
-			"percentage_white_wins": 45.81,
-			"percentage_black_wins": 51.2,
-			"percentage_draws_wins": 2.99
+		"A04": {
+			"white_wins": 5414,
+			"black_wins": 4767,
+			"draws": 323,
+			"percentage_white_wins": 51.54,
+			"percentage_black_wins": 45.38,
+			"percentage_draws_wins": 3.08
 		},
 		"variations": {
-			"Polish (Sokolsky) opening": {
-				"white_wins": 1535,
-				"black_wins": 1511,
-				"draws": 103,
-				"percentage_white_wins": 48.75,
-				"percentage_black_wins": 47.98,
-				"percentage_draws_wins": 3.27
+			"Reti Opening": {
+				"white_wins": 4733,
+				"black_wins": 4112,
+				"draws": 284,
+				"percentage_white_wins": 51.85,
+				"percentage_black_wins": 45.04,
+				"percentage_draws_wins": 3.11,
+				"engine_evaluation": 0.49
 			},
-			"PolishTuebingen Variation ": {
-				"white_wins": 0,
-				"black_wins": 0,
-				"draws": 0,
-				"percentage_white_wins": 0.0,
-				"percentage_black_wins": 0.0,
-				"percentage_draws_wins": 0.0
+			"Reti v Dutch": {
+				"white_wins": 114,
+				"black_wins": 121,
+				"draws": 4,
+				"percentage_white_wins": 47.7,
+				"percentage_black_wins": 50.63,
+				"percentage_draws_wins": 1.67,
+				"engine_evaluation": 0.75
 			},
-			"PolishOutflank Variation ": {
-				"white_wins": 36,
-				"black_wins": 36,
+			"Reti Pirc-Lisitsin gambit": {
+				"white_wins": 11,
+				"black_wins": 4,
 				"draws": 1,
-				"percentage_white_wins": 49.32,
-				"percentage_black_wins": 49.32,
-				"percentage_draws_wins": 1.37
+				"percentage_white_wins": 68.75,
+				"percentage_black_wins": 25.0,
+				"percentage_draws_wins": 6.25,
+				"engine_evaluation": -0.1
 			},
-			"Benko's Opening": {
-				"white_wins": 6156,
-				"black_wins": 6124,
-				"draws": 372,
-				"percentage_white_wins": 48.66,
-				"percentage_black_wins": 48.4,
-				"percentage_draws_wins": 2.94
-			},
-			"Lasker simul special": {
-				"white_wins": 13,
-				"black_wins": 17,
+			"Reti Lisitsin gambit deferred": {
+				"white_wins": 5,
+				"black_wins": 2,
 				"draws": 0,
-				"percentage_white_wins": 43.33,
-				"percentage_black_wins": 56.67,
-				"percentage_draws_wins": 0.0
+				"percentage_white_wins": 71.43,
+				"percentage_black_wins": 28.57,
+				"percentage_draws_wins": 0.0,
+				"engine_evaluation": 0.62
 			},
-			"Benko's Openingreversed Alekhine": {
-				"white_wins": 70,
-				"black_wins": 38,
-				"draws": 2,
-				"percentage_white_wins": 63.64,
-				"percentage_black_wins": 34.55,
-				"percentage_draws_wins": 1.82
-			},
-			"Grob's attack": {
-				"white_wins": 421,
-				"black_wins": 576,
+			"Reti Opening 0": {
+				"white_wins": 545,
+				"black_wins": 521,
 				"draws": 33,
-				"percentage_white_wins": 40.87,
-				"percentage_black_wins": 55.92,
-				"percentage_draws_wins": 3.2
+				"percentage_white_wins": 49.59,
+				"percentage_black_wins": 47.41,
+				"percentage_draws_wins": 3.0,
+				"engine_evaluation": 0.94
 			},
-			"GrobSpike attack": {
+			"Reti Wade defense": {
 				"white_wins": 1,
-				"black_wins": 0,
-				"draws": 0,
-				"percentage_white_wins": 100.0,
-				"percentage_black_wins": 0.0,
-				"percentage_draws_wins": 0.0
-			},
-			"GrobFritz gambit": {
-				"white_wins": 25,
-				"black_wins": 15,
-				"draws": 5,
-				"percentage_white_wins": 55.56,
-				"percentage_black_wins": 33.33,
-				"percentage_draws_wins": 11.11
-			},
-			"GrobRomford counter-gambit": {
-				"white_wins": 0,
-				"black_wins": 0,
-				"draws": 0,
-				"percentage_white_wins": 0.0,
-				"percentage_black_wins": 0.0,
-				"percentage_draws_wins": 0.0
-			},
-			"Clemenz (Mead's, Basman's or de Klerk's) Opening": {
-				"white_wins": 136,
-				"black_wins": 357,
-				"draws": 11,
-				"percentage_white_wins": 26.98,
-				"percentage_black_wins": 70.83,
-				"percentage_draws_wins": 2.18
-			},
-			"Global Opening": {
-				"white_wins": 17,
-				"black_wins": 20,
-				"draws": 0,
-				"percentage_white_wins": 45.95,
-				"percentage_black_wins": 54.05,
-				"percentage_draws_wins": 0.0
-			},
-			"Amar (Paris) Opening": {
-				"white_wins": 26,
-				"black_wins": 82,
+				"black_wins": 5,
 				"draws": 1,
-				"percentage_white_wins": 23.85,
-				"percentage_black_wins": 75.23,
-				"percentage_draws_wins": 0.92
-			},
-			"Amar gambit": {
-				"white_wins": 0,
-				"black_wins": 0,
-				"draws": 0,
-				"percentage_white_wins": 0.0,
-				"percentage_black_wins": 0.0,
-				"percentage_draws_wins": 0.0
-			},
-			"Dunst (Sleipner, Heinrichsen) Opening": {
-				"white_wins": 1416,
-				"black_wins": 1256,
-				"draws": 93,
-				"percentage_white_wins": 51.21,
-				"percentage_black_wins": 45.42,
-				"percentage_draws_wins": 3.36
-			},
-			"Dunst (Sleipner,Heinrichsen) Opening": {
-				"white_wins": 561,
-				"black_wins": 561,
-				"draws": 38,
-				"percentage_white_wins": 48.36,
-				"percentage_black_wins": 48.36,
-				"percentage_draws_wins": 3.28
-			},
-			"Battambang Opening": {
-				"white_wins": 7,
-				"black_wins": 8,
-				"draws": 1,
-				"percentage_white_wins": 43.75,
-				"percentage_black_wins": 50.0,
-				"percentage_draws_wins": 6.25
-			},
-			"Novosibirsk Opening": {
-				"white_wins": 0,
-				"black_wins": 0,
-				"draws": 0,
-				"percentage_white_wins": 0.0,
-				"percentage_black_wins": 0.0,
-				"percentage_draws_wins": 0.0
-			},
-			"Anderssen's Opening": {
-				"white_wins": 680,
-				"black_wins": 644,
-				"draws": 54,
-				"percentage_white_wins": 49.35,
-				"percentage_black_wins": 46.73,
-				"percentage_draws_wins": 3.92
-			},
-			"Ware (Meadow Hay) Opening": {
-				"white_wins": 80,
-				"black_wins": 225,
-				"draws": 8,
-				"percentage_white_wins": 25.56,
-				"percentage_black_wins": 71.88,
-				"percentage_draws_wins": 2.56
-			},
-			"Crab Opening": {
-				"white_wins": 9,
-				"black_wins": 17,
-				"draws": 0,
-				"percentage_white_wins": 34.62,
-				"percentage_black_wins": 65.38,
-				"percentage_draws_wins": 0.0
-			},
-			"Saragossa Opening": {
-				"white_wins": 1245,
-				"black_wins": 1300,
-				"draws": 69,
-				"percentage_white_wins": 47.63,
-				"percentage_black_wins": 49.73,
-				"percentage_draws_wins": 2.64
-			},
-			"Mieses Opening": {
-				"white_wins": 612,
-				"black_wins": 815,
-				"draws": 44,
-				"percentage_white_wins": 41.6,
-				"percentage_black_wins": 55.4,
-				"percentage_draws_wins": 2.99
-			},
-			"Valencia Opening": {
-				"white_wins": 8,
-				"black_wins": 6,
-				"draws": 0,
-				"percentage_white_wins": 57.14,
-				"percentage_black_wins": 42.86,
-				"percentage_draws_wins": 0.0
-			},
-			"Venezolana Opening": {
-				"white_wins": 0,
-				"black_wins": 0,
-				"draws": 0,
-				"percentage_white_wins": 0.0,
-				"percentage_black_wins": 0.0,
-				"percentage_draws_wins": 0.0
-			},
-			"Van't Kruijs Opening": {
-				"white_wins": 10510,
-				"black_wins": 12251,
-				"draws": 693,
-				"percentage_white_wins": 44.81,
-				"percentage_black_wins": 52.23,
-				"percentage_draws_wins": 2.95
-			},
-			"Amsterdam attack": {
-				"white_wins": 0,
-				"black_wins": 0,
-				"draws": 0,
-				"percentage_white_wins": 0.0,
-				"percentage_black_wins": 0.0,
-				"percentage_draws_wins": 0.0
-			},
-			"Gedult's Opening": {
-				"white_wins": 267,
-				"black_wins": 358,
-				"draws": 16,
-				"percentage_white_wins": 41.65,
-				"percentage_black_wins": 55.85,
-				"percentage_draws_wins": 2.5
-			},
-			"Hammerschlag (Fried fox/Pork chop Opening)": {
-				"white_wins": 3,
-				"black_wins": 8,
-				"draws": 0,
-				"percentage_white_wins": 27.27,
-				"percentage_black_wins": 72.73,
-				"percentage_draws_wins": 0.0
-			},
-			"Anti-Borg (Desprez) Opening": {
-				"white_wins": 250,
-				"black_wins": 476,
-				"draws": 17,
-				"percentage_white_wins": 33.65,
-				"percentage_black_wins": 64.06,
-				"percentage_draws_wins": 2.29
-			},
-			"Durkin's attack": {
-				"white_wins": 8,
-				"black_wins": 45,
-				"draws": 3,
 				"percentage_white_wins": 14.29,
-				"percentage_black_wins": 80.36,
-				"percentage_draws_wins": 5.36
+				"percentage_black_wins": 71.43,
+				"percentage_draws_wins": 14.29,
+				"engine_evaluation": 1.02
+			},
+			"Reti Herrstroem gambit": {
+				"white_wins": 5,
+				"black_wins": 2,
+				"draws": 0,
+				"percentage_white_wins": 71.43,
+				"percentage_black_wins": 28.57,
+				"percentage_draws_wins": 0.0,
+				"engine_evaluation": 1.98
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 import re
 from mongoengine import Q
-from ChessDebriefer.Logic.games import evaluate_opening_database
+from ChessDebriefer.Logic.games import evaluate_opening_database, evaluate_opening_engine
 from ChessDebriefer.models import Openings
 
 
@@ -33,13 +33,20 @@ def calculate_eco_stats(eco, params):
     percentage_eco_white_wins = 0.
     percentage_eco_black_wins = 0.
     percentage_eco_draws = 0.
+    i = 0
     for opening in openings:
         if opening.black_opening != "?":
-            name = opening.white_opening + opening.black_opening
+            name = opening.white_opening + " " + opening.black_opening
         else:
             name = opening.white_opening
         dictionary = evaluate_opening_database(opening, min_elo, tournament)
-        variations[name] = dictionary
+        evaluate_opening_engine(opening)
+        dictionary["engine_evaluation"] = float(opening.engine_evaluation)
+        if name not in variations.keys():
+            variations[name] = dictionary
+        else:
+            variations[name + " " + str(i)] = dictionary
+            i = i + 1
         eco_white_wins = eco_white_wins + dictionary["white_wins"]
         eco_black_wins = eco_black_wins + dictionary["black_wins"]
         eco_draws = eco_draws + dictionary["draws"]
