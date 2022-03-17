@@ -31,10 +31,31 @@ def calculate_event_percentages(name, params):
     return filter_games(games, name, "event")
 
 
-# does it count only if you are white?
 def calculate_opening_percentages(name, params):
     games, white_games, black_games = database_query(name, params)
-    return filter_games(games, name, "eco")
+    if "eco" not in params.keys():
+        return filter_games(games, name, "eco")
+    else:
+        dictionary = {}
+        side_dict = {}
+        filtered_games = list(filter(lambda g: g.eco == params["eco"], games))
+        filtered_white_games = list(filter(lambda g: g.eco == params["eco"], white_games))
+        filtered_black_games = list(filter(lambda g: g.eco == params["eco"], black_games))
+        general_dict = create_dictionary(filtered_games, name)
+        white_dict = create_dictionary(filtered_white_games, name)
+        black_dict = create_dictionary(filtered_black_games, name)
+        if general_dict:
+            dictionary["general stats"] = general_dict
+            dictionary["events"] = event_filter(filtered_games, name)
+        if white_dict:
+            side_dict["white"] = white_dict
+            side_dict["white events"] = event_filter(filtered_white_games, name)
+        if black_dict:
+            side_dict["black"] = black_dict
+            side_dict["black events"] = event_filter(filtered_black_games, name)
+        if side_dict:
+            dictionary["side stats"] = side_dict
+        return dictionary
 
 
 def calculate_termination_percentages(name, params):
