@@ -1230,7 +1230,8 @@ A backend that parses and analyses pgn files
 <details>
   <summary>Body</summary>
   
-  The pgn file
+  KEY: file
+  VALUE: the pgn file
 </details>
   
   #### Response
@@ -1264,7 +1265,8 @@ A backend that parses and analyses pgn files
 <details>
   <summary>Body</summary>
   
-  The pgn file
+  KEY: file
+  VALUE: the pgn file
 </details>
   
   #### Response
