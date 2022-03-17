@@ -141,6 +141,7 @@ A backend that parses and analyses pgn files
   * **to** : (optional) find only the matches played before this date
   * **minelo** : (optional) find only the matches played where your elo was greater than this
   * **maxelo** : (optional) find only the matches played where your elo was lower than this
+  * **eco** : (optional) get only and more specific stats of this eco
   
   #### Response
   Headers
