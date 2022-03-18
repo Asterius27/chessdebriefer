@@ -214,3 +214,83 @@ def filter_throws_comebacks(games, name):
         return {}
     return {"throws": throws, "losses": losses, "percentage_throws": percentage_throws, "comebacks": comebacks,
             "wins": wins, "percentage_comebacks": percentage_comebacks}
+
+
+# TODO find a way to make it faster
+def calculate_opening_comparisons(name, params):
+    dictionary = {}
+    compare_dictionary = {}
+    r = 10  # 150
+    elo = 0
+    cached_fields = FieldsCache.objects.first()
+    if "elo" in params.keys():
+        elo = params["elo"]
+    else:
+        game = Games.objects.filter(Q(white=name) | Q(black=name)).order_by('-date').first()
+        if name == game.white:
+            elo = game.white_elo
+        if name == game.black:
+            elo = game.black_elo
+    if "range" in params.keys():
+        r = params["range"]
+    if "eco" in params.keys():
+        ecos = params["eco"].split(",")
+    else:
+        ecos = []
+        temps = Games.objects.filter(Q(white=name) | Q(black=name))
+        for temp in temps:
+            if temp.eco not in ecos:
+                ecos.append(temp.eco)
+    print(elo, ecos)
+    i = 0
+    for player in cached_fields.player:
+        i = i + 1
+        temp = Games.objects.filter(Q(white=player) | Q(black=player)).order_by('-date').first()
+        if (temp.white == player and elo - r <= temp.white_elo <= elo + r) or (
+                temp.black == player and elo - r <= temp.black_elo <= elo + r):
+            print(i, player, compare_dictionary)
+            games, white_games, black_games = database_query(player, params)
+            temp_dictionary = filter_games(games, name, "eco")
+            for eco in ecos:
+                if eco not in compare_dictionary.keys():
+                    compare_dictionary[eco] = {"compare_wins": 0, "compare_losses": 0, "compare_draws": 0}
+                if eco in temp_dictionary.keys():
+                    compare_dictionary[eco] = {"compare_wins": compare_dictionary[eco]["compare_wins"] +
+                                                               temp_dictionary[eco]["won_games"],
+                                               "compare_losses": compare_dictionary[eco]["compare_losses"] +
+                                                                 temp_dictionary[eco]["lost_games"],
+                                               "compare_draws": compare_dictionary[eco]["compare_draws"] +
+                                                                temp_dictionary[eco]["drawn_games"]}
+    games, white_games, black_games = database_query(name, params)
+    temp_dictionary = filter_games(games, name, "eco")
+    for eco in ecos:
+        compare_win_percentages = 0.
+        compare_loss_percentages = 0.
+        compare_draw_percentages = 0.
+        if compare_dictionary[eco]["compare_wins"] + compare_dictionary[eco]["compare_losses"] + \
+                compare_dictionary[eco]["compare_draws"] != 0:
+            compare_win_percentages = round((compare_dictionary[eco]["compare_wins"] /
+                                             (compare_dictionary[eco]["compare_wins"] +
+                                              compare_dictionary[eco]["compare_losses"] +
+                                              compare_dictionary[eco]["compare_draws"])) * 100, 2)
+            compare_loss_percentages = round((compare_dictionary[eco]["compare_losses"] /
+                                             (compare_dictionary[eco]["compare_wins"] +
+                                              compare_dictionary[eco]["compare_losses"] +
+                                              compare_dictionary[eco]["compare_draws"])) * 100, 2)
+            compare_draw_percentages = round((compare_dictionary[eco]["compare_draws"] /
+                                             (compare_dictionary[eco]["compare_wins"] +
+                                              compare_dictionary[eco]["compare_losses"] +
+                                              compare_dictionary[eco]["compare_draws"])) * 100, 2)
+        dictionary[eco] = {"your wins": temp_dictionary[eco]["won_games"],
+                           "other players wins": compare_dictionary[eco]["compare_wins"],
+                           "your losses": temp_dictionary[eco]["lost_games"],
+                           "other players losses": compare_dictionary[eco]["compare_losses"],
+                           "your draws": temp_dictionary[eco]["drawn_games"],
+                           "other players draws": compare_dictionary[eco]["compare_draws"],
+                           "your win percentages": temp_dictionary[eco]["percentage_won"],
+                           "other players win percentages": compare_win_percentages,
+                           "your loss percentages": temp_dictionary[eco]["percentage_lost"],
+                           "other players loss percentages": compare_loss_percentages,
+                           "your draw percentages": temp_dictionary[eco]["percentage_drawn"],
+                           "other players draw percentages": compare_draw_percentages}
+    return dictionary

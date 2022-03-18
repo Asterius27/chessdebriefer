@@ -17,7 +17,7 @@ def handle_pgn_uploads(f):
 # check if game already exists in the database?
 def parse_pgn():
     cached_fields = FieldsCache.objects.first()
-    fields = ["event", "termination"]
+    fields = ["player", "event", "termination"]
     if not cached_fields:
         cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
     with open('temp.pgn') as pgn:
@@ -44,6 +44,17 @@ def parse_pgn():
                             temp = getattr(cached_fields, field)
                             temp.append(' '.join(new))
                             setattr(cached_fields, field, temp)
+                            cached_fields.save()
+                    elif field == "player":
+                        if saved_game.white not in cached_fields.player:
+                            temp = getattr(cached_fields, "player")
+                            temp.append(getattr(saved_game, "white"))
+                            setattr(cached_fields, "player", temp)
+                            cached_fields.save()
+                        if saved_game.black not in cached_fields.player:
+                            temp = getattr(cached_fields, "player")
+                            temp.append(getattr(saved_game, "black"))
+                            setattr(cached_fields, "player", temp)
                             cached_fields.save()
                     elif getattr(saved_game, field) not in getattr(cached_fields, field):
                         temp = getattr(cached_fields, field)
