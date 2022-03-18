@@ -31,16 +31,18 @@ def calculate_event_percentages(name, params):
     return filter_games(games, name, "event")
 
 
+# TODO add from to eco query, ex. A01..B30
 def calculate_opening_percentages(name, params):
     games, white_games, black_games = database_query(name, params)
     if "eco" not in params.keys():
         return filter_games(games, name, "eco")
     else:
         dictionary = {}
+        ecos = params["eco"].split(",")
         side_dict = {}
-        filtered_games = list(filter(lambda g: g.eco == params["eco"], games))
-        filtered_white_games = list(filter(lambda g: g.eco == params["eco"], white_games))
-        filtered_black_games = list(filter(lambda g: g.eco == params["eco"], black_games))
+        filtered_games = list(filter(lambda g: g.eco in ecos, games))
+        filtered_white_games = list(filter(lambda g: g.eco in ecos, white_games))
+        filtered_black_games = list(filter(lambda g: g.eco in ecos, black_games))
         general_dict = create_dictionary(filtered_games, name)
         white_dict = create_dictionary(filtered_white_games, name)
         black_dict = create_dictionary(filtered_black_games, name)
