@@ -25,11 +25,16 @@ class Games(Document):
 
 # document used as cache
 class FieldsCache(Document):
-    player = ListField(StringField())
     event = ListField(StringField())
     opening_id = ListField(ObjectIdField())
     eco = ListField(StringField())
     termination = ListField(StringField())
+
+
+class Players(Document):
+    name = StringField()
+    elo = IntField()
+    elo_date = DateField()
 
 
 class Openings(Document):

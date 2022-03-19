@@ -2,7 +2,8 @@ import datetime
 import os
 import threading
 import chess.pgn
-from ChessDebriefer.models import Games, FieldsCache, Openings
+from mongoengine import Q
+from ChessDebriefer.models import Games, FieldsCache, Openings, Players
 
 
 # only works with 1 file upload at a time, and it takes a lot of time to parse everything
@@ -17,7 +18,7 @@ def handle_pgn_uploads(f):
 # check if game already exists in the database?
 def parse_pgn():
     cached_fields = FieldsCache.objects.first()
-    fields = ["player", "event", "termination"]
+    fields = ["event", "termination"]
     if not cached_fields:
         cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
     with open('temp.pgn') as pgn:
@@ -45,22 +46,27 @@ def parse_pgn():
                             temp.append(' '.join(new))
                             setattr(cached_fields, field, temp)
                             cached_fields.save()
-                    elif field == "player":
-                        if saved_game.white not in cached_fields.player:
-                            temp = getattr(cached_fields, "player")
-                            temp.append(getattr(saved_game, "white"))
-                            setattr(cached_fields, "player", temp)
-                            cached_fields.save()
-                        if saved_game.black not in cached_fields.player:
-                            temp = getattr(cached_fields, "player")
-                            temp.append(getattr(saved_game, "black"))
-                            setattr(cached_fields, "player", temp)
-                            cached_fields.save()
                     elif getattr(saved_game, field) not in getattr(cached_fields, field):
                         temp = getattr(cached_fields, field)
                         temp.append(getattr(saved_game, field))
                         setattr(cached_fields, field, temp)
                         cached_fields.save()
+                white_player = Players.objects.filter(Q(name=saved_game.white)).first()
+                black_player = Players.objects.filter(Q(name=saved_game.black)).first()
+                if white_player:
+                    if white_player.elo_date < saved_game.date:
+                        setattr(white_player, "elo", saved_game.white_elo)
+                        setattr(white_player, "elo_date", saved_game.date)
+                        white_player.save()
+                else:
+                    Players(name=saved_game.white, elo=saved_game.white_elo, elo_date=saved_game.date).save()
+                if black_player:
+                    if black_player.elo_date < saved_game.date:
+                        setattr(black_player, "elo", saved_game.white_elo)
+                        setattr(black_player, "elo_date", saved_game.date)
+                        black_player.save()
+                else:
+                    Players(name=saved_game.black, elo=saved_game.black_elo, elo_date=saved_game.date).save()
     os.remove("temp.pgn")
 
 

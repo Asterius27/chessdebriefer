@@ -2,7 +2,7 @@ import datetime
 import re
 from mongoengine import Q
 from ChessDebriefer.Logic.games import average_game_centipawn, find_opening
-from ChessDebriefer.models import Games, FieldsCache
+from ChessDebriefer.models import Games, FieldsCache, Players
 
 
 def calculate_percentages(name, params):
@@ -216,53 +216,52 @@ def filter_throws_comebacks(games, name):
             "wins": wins, "percentage_comebacks": percentage_comebacks}
 
 
-# TODO find a way to make it faster
+# TODO find a way to make it faster (maybe use evaluate opening database?) problem is find opening function
+# TODO update readme
 def calculate_opening_comparisons(name, params):
     dictionary = {}
     compare_dictionary = {}
-    r = 10  # 150
+    r = 10
     elo = 0
-    cached_fields = FieldsCache.objects.first()
     if "elo" in params.keys():
         elo = params["elo"]
     else:
-        game = Games.objects.filter(Q(white=name) | Q(black=name)).order_by('-date').first()
-        if name == game.white:
-            elo = game.white_elo
-        if name == game.black:
-            elo = game.black_elo
+        player = Players.objects.filter(Q(name=name)).first()
+        if player:
+            elo = player.elo
     if "range" in params.keys():
         r = params["range"]
     if "eco" in params.keys():
         ecos = params["eco"].split(",")
     else:
         ecos = []
-        temps = Games.objects.filter(Q(white=name) | Q(black=name))
-        for temp in temps:
-            if temp.eco not in ecos:
-                ecos.append(temp.eco)
-    print(elo, ecos)
+        games = Games.objects.filter(Q(white=name) | Q(black=name))
+        for game in games:
+            if game.eco not in ecos:
+                ecos.append(game.eco)
+    players = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r))
+    print(elo, ecos, len(players))
     i = 0
-    for player in cached_fields.player:
+    for player in players:
+        print(i)
         i = i + 1
-        temp = Games.objects.filter(Q(white=player) | Q(black=player)).order_by('-date').first()
-        if (temp.white == player and elo - r <= temp.white_elo <= elo + r) or (
-                temp.black == player and elo - r <= temp.black_elo <= elo + r):
-            print(i, player, compare_dictionary)
-            games, white_games, black_games = database_query(player, params)
-            temp_dictionary = filter_games(games, name, "eco")
-            for eco in ecos:
-                if eco not in compare_dictionary.keys():
-                    compare_dictionary[eco] = {"compare_wins": 0, "compare_losses": 0, "compare_draws": 0}
-                if eco in temp_dictionary.keys():
-                    compare_dictionary[eco] = {"compare_wins": compare_dictionary[eco]["compare_wins"] +
-                                                               temp_dictionary[eco]["won_games"],
-                                               "compare_losses": compare_dictionary[eco]["compare_losses"] +
-                                                                 temp_dictionary[eco]["lost_games"],
-                                               "compare_draws": compare_dictionary[eco]["compare_draws"] +
-                                                                temp_dictionary[eco]["drawn_games"]}
+        games = Games.objects.filter(Q(white=player.name) | Q(black=player.name))
+        for game in games:
+            find_opening(game)
+        temp_dictionary = filter_games(games, name, "eco")
+        for eco in ecos:
+            if eco not in compare_dictionary.keys():
+                compare_dictionary[eco] = {"compare_wins": 0, "compare_losses": 0, "compare_draws": 0}
+            if eco in temp_dictionary.keys():
+                compare_dictionary[eco] = {"compare_wins": compare_dictionary[eco]["compare_wins"] +
+                                                           temp_dictionary[eco]["won_games"],
+                                           "compare_losses": compare_dictionary[eco]["compare_losses"] +
+                                                             temp_dictionary[eco]["lost_games"],
+                                           "compare_draws": compare_dictionary[eco]["compare_draws"] +
+                                                            temp_dictionary[eco]["drawn_games"]}
     games, white_games, black_games = database_query(name, params)
     temp_dictionary = filter_games(games, name, "eco")
+    print("Done phase 1!")
     for eco in ecos:
         compare_win_percentages = 0.
         compare_loss_percentages = 0.
