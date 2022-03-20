@@ -1044,6 +1044,412 @@ A backend that parses and analyses pgn files
 
 <details>
   <summary> 
+  <h3> GET /:name/percentages/openings/compare </h3>
+  
+  </summary>
+  
+  #### URI parameters
+  * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
+  * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
+  * **eco** : (optional) which ecos to find stats on, otherwise all of your ecos are used
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"A01": {
+			"your wins": 18,
+			"other players wins": 118,
+			"your losses": 12,
+			"other players losses": 127,
+			"your draws": 0,
+			"other players draws": 14,
+			"your win percentages": 60.0,
+			"other players win percentages": 45.56,
+			"your loss percentages": 40.0,
+			"other players loss percentages": 49.03,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 5.41
+		},
+		"A00": {
+			"your wins": 50,
+			"other players wins": 849,
+			"your losses": 42,
+			"other players losses": 1033,
+			"your draws": 1,
+			"other players draws": 43,
+			"your win percentages": 53.76,
+			"other players win percentages": 44.1,
+			"your loss percentages": 45.16,
+			"other players loss percentages": 53.66,
+			"your draw percentages": 1.08,
+			"other players draw percentages": 2.23
+		},
+		"C00": {
+			"your wins": 10,
+			"other players wins": 553,
+			"your losses": 11,
+			"other players losses": 750,
+			"your draws": 0,
+			"other players draws": 32,
+			"your win percentages": 47.62,
+			"other players win percentages": 41.42,
+			"your loss percentages": 52.38,
+			"other players loss percentages": 56.18,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 2.4
+		},
+		"B01": {
+			"your wins": 4,
+			"other players wins": 546,
+			"your losses": 2,
+			"other players losses": 571,
+			"your draws": 0,
+			"other players draws": 38,
+			"your win percentages": 66.67,
+			"other players win percentages": 47.27,
+			"your loss percentages": 33.33,
+			"other players loss percentages": 49.44,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 3.29
+		},
+		"A40": {
+			"your wins": 8,
+			"other players wins": 663,
+			"your losses": 14,
+			"other players losses": 921,
+			"your draws": 0,
+			"other players draws": 39,
+			"your win percentages": 36.36,
+			"other players win percentages": 40.85,
+			"your loss percentages": 63.64,
+			"other players loss percentages": 56.75,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 2.4
+		},
+		"C20": {
+			"your wins": 1,
+			"other players wins": 718,
+			"your losses": 2,
+			"other players losses": 924,
+			"your draws": 1,
+			"other players draws": 56,
+			"your win percentages": 25.0,
+			"other players win percentages": 42.29,
+			"your loss percentages": 50.0,
+			"other players loss percentages": 54.42,
+			"your draw percentages": 25.0,
+			"other players draw percentages": 3.3
+		},
+		"D00": {
+			"your wins": 1,
+			"other players wins": 717,
+			"your losses": 6,
+			"other players losses": 968,
+			"your draws": 0,
+			"other players draws": 51,
+			"your win percentages": 14.29,
+			"other players win percentages": 41.3,
+			"your loss percentages": 85.71,
+			"other players loss percentages": 55.76,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 2.94
+		},
+		"A04": {
+			"your wins": 4,
+			"other players wins": 210,
+			"your losses": 0,
+			"other players losses": 224,
+			"your draws": 0,
+			"other players draws": 7,
+			"your win percentages": 100.0,
+			"other players win percentages": 47.62,
+			"your loss percentages": 0.0,
+			"other players loss percentages": 50.79,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 1.59
+		},
+		"A45": {
+			"your wins": 1,
+			"other players wins": 150,
+			"your losses": 0,
+			"other players losses": 178,
+			"your draws": 0,
+			"other players draws": 6,
+			"your win percentages": 100.0,
+			"other players win percentages": 44.91,
+			"your loss percentages": 0.0,
+			"other players loss percentages": 53.29,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 1.8
+		},
+		"B02": {
+			"your wins": 3,
+			"other players wins": 89,
+			"your losses": 0,
+			"other players losses": 122,
+			"your draws": 0,
+			"other players draws": 4,
+			"your win percentages": 100.0,
+			"other players win percentages": 41.4,
+			"your loss percentages": 0.0,
+			"other players loss percentages": 56.74,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 1.86
+		},
+		"B03": {
+			"your wins": 1,
+			"other players wins": 11,
+			"your losses": 0,
+			"other players losses": 3,
+			"your draws": 0,
+			"other players draws": 1,
+			"your win percentages": 100.0,
+			"other players win percentages": 73.33,
+			"your loss percentages": 0.0,
+			"other players loss percentages": 20.0,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 6.67
+		},
+		"A15": {
+			"your wins": 1,
+			"other players wins": 8,
+			"your losses": 0,
+			"other players losses": 16,
+			"your draws": 0,
+			"other players draws": 0,
+			"your win percentages": 100.0,
+			"other players win percentages": 33.33,
+			"your loss percentages": 0.0,
+			"other players loss percentages": 66.67,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 0.0
+		},
+		"A41": {
+			"your wins": 1,
+			"other players wins": 75,
+			"your losses": 2,
+			"other players losses": 112,
+			"your draws": 0,
+			"other players draws": 4,
+			"your win percentages": 33.33,
+			"other players win percentages": 39.27,
+			"your loss percentages": 66.67,
+			"other players loss percentages": 58.64,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 2.09
+		},
+		"B06": {
+			"your wins": 0,
+			"other players wins": 262,
+			"your losses": 1,
+			"other players losses": 282,
+			"your draws": 0,
+			"other players draws": 19,
+			"your win percentages": 0.0,
+			"other players win percentages": 46.54,
+			"your loss percentages": 100.0,
+			"other players loss percentages": 50.09,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 3.37
+		},
+		"B20": {
+			"your wins": 2,
+			"other players wins": 422,
+			"your losses": 1,
+			"other players losses": 422,
+			"your draws": 0,
+			"other players draws": 28,
+			"your win percentages": 66.67,
+			"other players win percentages": 48.39,
+			"your loss percentages": 33.33,
+			"other players loss percentages": 48.39,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 3.21
+		},
+		"A80": {
+			"your wins": 0,
+			"other players wins": 12,
+			"your losses": 1,
+			"other players losses": 26,
+			"your draws": 0,
+			"other players draws": 1,
+			"your win percentages": 0.0,
+			"other players win percentages": 30.77,
+			"your loss percentages": 100.0,
+			"other players loss percentages": 66.67,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 2.56
+		},
+		"A02": {
+			"your wins": 2,
+			"other players wins": 58,
+			"your losses": 4,
+			"other players losses": 56,
+			"your draws": 0,
+			"other players draws": 4,
+			"your win percentages": 33.33,
+			"other players win percentages": 49.15,
+			"your loss percentages": 66.67,
+			"other players loss percentages": 47.46,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 3.39
+		},
+		"A43": {
+			"your wins": 4,
+			"other players wins": 125,
+			"your losses": 1,
+			"other players losses": 121,
+			"your draws": 1,
+			"other players draws": 9,
+			"your win percentages": 66.67,
+			"other players win percentages": 49.02,
+			"your loss percentages": 16.67,
+			"other players loss percentages": 47.45,
+			"your draw percentages": 16.67,
+			"other players draw percentages": 3.53
+		},
+		"B12": {
+			"your wins": 0,
+			"other players wins": 53,
+			"your losses": 1,
+			"other players losses": 62,
+			"your draws": 0,
+			"other players draws": 3,
+			"your win percentages": 0.0,
+			"other players win percentages": 44.92,
+			"your loss percentages": 100.0,
+			"other players loss percentages": 52.54,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 2.54
+		},
+		"B00": {
+			"your wins": 4,
+			"other players wins": 537,
+			"your losses": 3,
+			"other players losses": 699,
+			"your draws": 0,
+			"other players draws": 41,
+			"your win percentages": 57.14,
+			"other players win percentages": 42.05,
+			"your loss percentages": 42.86,
+			"other players loss percentages": 54.74,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 3.21
+		},
+		"C40": {
+			"your wins": 1,
+			"other players wins": 247,
+			"your losses": 1,
+			"other players losses": 362,
+			"your draws": 0,
+			"other players draws": 19,
+			"your win percentages": 50.0,
+			"other players win percentages": 39.33,
+			"your loss percentages": 50.0,
+			"other players loss percentages": 57.64,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 3.03
+		},
+		"C02": {
+			"your wins": 0,
+			"other players wins": 71,
+			"your losses": 1,
+			"other players losses": 85,
+			"your draws": 0,
+			"other players draws": 5,
+			"your win percentages": 0.0,
+			"other players win percentages": 44.1,
+			"your loss percentages": 100.0,
+			"other players loss percentages": 52.8,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 3.11
+		},
+		"B10": {
+			"your wins": 0,
+			"other players wins": 118,
+			"your losses": 2,
+			"other players losses": 198,
+			"your draws": 0,
+			"other players draws": 5,
+			"your win percentages": 0.0,
+			"other players win percentages": 36.76,
+			"your loss percentages": 100.0,
+			"other players loss percentages": 61.68,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 1.56
+		},
+		"A10": {
+			"your wins": 1,
+			"other players wins": 59,
+			"your losses": 0,
+			"other players losses": 77,
+			"your draws": 0,
+			"other players draws": 4,
+			"your win percentages": 100.0,
+			"other players win percentages": 42.14,
+			"your loss percentages": 0.0,
+			"other players loss percentages": 55.0,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 2.86
+		},
+		"B21": {
+			"your wins": 0,
+			"other players wins": 133,
+			"your losses": 1,
+			"other players losses": 166,
+			"your draws": 0,
+			"other players draws": 4,
+			"your win percentages": 0.0,
+			"other players win percentages": 43.89,
+			"your loss percentages": 100.0,
+			"other players loss percentages": 54.79,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 1.32
+		},
+		"A03": {
+			"your wins": 0,
+			"other players wins": 20,
+			"your losses": 1,
+			"other players losses": 25,
+			"your draws": 0,
+			"other players draws": 1,
+			"your win percentages": 0.0,
+			"other players win percentages": 43.48,
+			"your loss percentages": 100.0,
+			"other players loss percentages": 54.35,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 2.17
+		},
+		"C30": {
+			"your wins": 0,
+			"other players wins": 147,
+			"your losses": 1,
+			"other players losses": 122,
+			"your draws": 0,
+			"other players draws": 6,
+			"your win percentages": 0.0,
+			"other players win percentages": 53.45,
+			"your loss percentages": 100.0,
+			"other players loss percentages": 44.36,
+			"your draw percentages": 0.0,
+			"other players draw percentages": 2.18
+		}
+	}
+  ```
+</details>
+	
+</details>
+
+<details>
+  <summary> 
   <h3> GET /:name/percentages/terminations </h3>
   
   </summary>

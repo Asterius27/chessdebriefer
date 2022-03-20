@@ -3,6 +3,7 @@ import os
 import threading
 import chess.pgn
 from mongoengine import Q
+from ChessDebriefer.Logic.games import find_opening
 from ChessDebriefer.models import Games, FieldsCache, Openings, Players
 
 
@@ -37,37 +38,56 @@ def parse_pgn():
                                    opening_id="000000000000000000000000", time_control=game.headers["TimeControl"],
                                    termination=game.headers["Termination"], moves=str(game.mainline_moves()),
                                    best_moves=[], moves_evaluation=[]).save()
-                for field in fields:
-                    if "https" in getattr(saved_game, field):
-                        new = saved_game.event.split(" ")
-                        del new[-1]
-                        if ' '.join(new) not in getattr(cached_fields, field):
-                            temp = getattr(cached_fields, field)
-                            temp.append(' '.join(new))
-                            setattr(cached_fields, field, temp)
-                            cached_fields.save()
-                    elif getattr(saved_game, field) not in getattr(cached_fields, field):
-                        temp = getattr(cached_fields, field)
-                        temp.append(getattr(saved_game, field))
-                        setattr(cached_fields, field, temp)
-                        cached_fields.save()
-                white_player = Players.objects.filter(Q(name=saved_game.white)).first()
-                black_player = Players.objects.filter(Q(name=saved_game.black)).first()
-                if white_player:
-                    if white_player.elo_date < saved_game.date:
-                        setattr(white_player, "elo", saved_game.white_elo)
-                        setattr(white_player, "elo_date", saved_game.date)
-                        white_player.save()
-                else:
-                    Players(name=saved_game.white, elo=saved_game.white_elo, elo_date=saved_game.date).save()
-                if black_player:
-                    if black_player.elo_date < saved_game.date:
-                        setattr(black_player, "elo", saved_game.white_elo)
-                        setattr(black_player, "elo_date", saved_game.date)
-                        black_player.save()
-                else:
-                    Players(name=saved_game.black, elo=saved_game.black_elo, elo_date=saved_game.date).save()
+                find_opening(saved_game)
+                update_cache(saved_game, fields, cached_fields)
     os.remove("temp.pgn")
+
+
+def update_cache(game, fields, cached_fields):
+    for field in fields:
+        if "https" in getattr(game, field):
+            new = game.event.split(" ")
+            del new[-1]
+            if ' '.join(new) not in getattr(cached_fields, field):
+                temp = getattr(cached_fields, field)
+                temp.append(' '.join(new))
+                setattr(cached_fields, field, temp)
+                cached_fields.save()
+        elif getattr(game, field) not in getattr(cached_fields, field):
+            temp = getattr(cached_fields, field)
+            temp.append(getattr(game, field))
+            setattr(cached_fields, field, temp)
+            cached_fields.save()
+    white_player = Players.objects.filter(Q(name=game.white)).first()
+    black_player = Players.objects.filter(Q(name=game.black)).first()
+    if not white_player:
+        white_player = Players(name=game.white, elo=game.white_elo, elo_date=game.date, openings={}).save()
+    if game.eco not in white_player.openings.keys():
+        white_player.openings[game.eco] = {"wins": 0, "losses": 0, "draws": 0}
+    if game.result == "1-0":
+        white_player.openings[game.eco]["wins"] += 1
+    if game.result == "0-1":
+        white_player.openings[game.eco]["losses"] += 1
+    if game.result == "1/2-1/2":
+        white_player.openings[game.eco]["draws"] += 1
+    if white_player.elo_date < game.date:
+        setattr(white_player, "elo", game.white_elo)
+        setattr(white_player, "elo_date", game.date)
+    white_player.save()
+    if not black_player:
+        black_player = Players(name=game.black, elo=game.black_elo, elo_date=game.date, openings={}).save()
+    if game.eco not in black_player.openings.keys():
+        black_player.openings[game.eco] = {"wins": 0, "losses": 0, "draws": 0}
+    if game.result == "0-1":
+        black_player.openings[game.eco]["wins"] += 1
+    if game.result == "1-0":
+        black_player.openings[game.eco]["losses"] += 1
+    if game.result == "1/2-1/2":
+        black_player.openings[game.eco]["draws"] += 1
+    if black_player.elo_date < game.date:
+        setattr(black_player, "elo", game.white_elo)
+        setattr(black_player, "elo_date", game.date)
+    black_player.save()
 
 
 def handle_pgn_openings_upload(f):

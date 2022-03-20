@@ -31,10 +31,12 @@ class FieldsCache(Document):
     termination = ListField(StringField())
 
 
+# document used as cache
 class Players(Document):
     name = StringField()
     elo = IntField()
     elo_date = DateField()
+    openings = DictField()
 
 
 class Openings(Document):

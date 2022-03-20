@@ -216,7 +216,6 @@ def filter_throws_comebacks(games, name):
             "wins": wins, "percentage_comebacks": percentage_comebacks}
 
 
-# TODO find a way to make it faster (maybe use evaluate opening database?) problem is find opening function
 # TODO update readme
 def calculate_opening_comparisons(name, params):
     dictionary = {}
@@ -240,28 +239,19 @@ def calculate_opening_comparisons(name, params):
             if game.eco not in ecos:
                 ecos.append(game.eco)
     players = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r))
-    print(elo, ecos, len(players))
-    i = 0
     for player in players:
-        print(i)
-        i = i + 1
-        games = Games.objects.filter(Q(white=player.name) | Q(black=player.name))
-        for game in games:
-            find_opening(game)
-        temp_dictionary = filter_games(games, name, "eco")
         for eco in ecos:
             if eco not in compare_dictionary.keys():
                 compare_dictionary[eco] = {"compare_wins": 0, "compare_losses": 0, "compare_draws": 0}
-            if eco in temp_dictionary.keys():
+            if eco in player.openings.keys():
                 compare_dictionary[eco] = {"compare_wins": compare_dictionary[eco]["compare_wins"] +
-                                                           temp_dictionary[eco]["won_games"],
+                                                           player.openings[eco]["wins"],
                                            "compare_losses": compare_dictionary[eco]["compare_losses"] +
-                                                             temp_dictionary[eco]["lost_games"],
+                                                             player.openings[eco]["losses"],
                                            "compare_draws": compare_dictionary[eco]["compare_draws"] +
-                                                            temp_dictionary[eco]["drawn_games"]}
+                                                            player.openings[eco]["draws"]}
     games, white_games, black_games = database_query(name, params)
     temp_dictionary = filter_games(games, name, "eco")
-    print("Done phase 1!")
     for eco in ecos:
         compare_win_percentages = 0.
         compare_loss_percentages = 0.
@@ -273,13 +263,13 @@ def calculate_opening_comparisons(name, params):
                                               compare_dictionary[eco]["compare_losses"] +
                                               compare_dictionary[eco]["compare_draws"])) * 100, 2)
             compare_loss_percentages = round((compare_dictionary[eco]["compare_losses"] /
-                                             (compare_dictionary[eco]["compare_wins"] +
-                                              compare_dictionary[eco]["compare_losses"] +
-                                              compare_dictionary[eco]["compare_draws"])) * 100, 2)
+                                              (compare_dictionary[eco]["compare_wins"] +
+                                               compare_dictionary[eco]["compare_losses"] +
+                                               compare_dictionary[eco]["compare_draws"])) * 100, 2)
             compare_draw_percentages = round((compare_dictionary[eco]["compare_draws"] /
-                                             (compare_dictionary[eco]["compare_wins"] +
-                                              compare_dictionary[eco]["compare_losses"] +
-                                              compare_dictionary[eco]["compare_draws"])) * 100, 2)
+                                              (compare_dictionary[eco]["compare_wins"] +
+                                               compare_dictionary[eco]["compare_losses"] +
+                                               compare_dictionary[eco]["compare_draws"])) * 100, 2)
         dictionary[eco] = {"your wins": temp_dictionary[eco]["won_games"],
                            "other players wins": compare_dictionary[eco]["compare_wins"],
                            "your losses": temp_dictionary[eco]["lost_games"],
