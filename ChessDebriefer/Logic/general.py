@@ -16,30 +16,45 @@ def handle_pgn_uploads(f):
     thr.start()
 
 
-# check if game already exists in the database?
 def parse_pgn():
+    i = 0
     cached_fields = FieldsCache.objects.first()
     fields = ["event", "termination"]
     if not cached_fields:
         cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
     with open('temp.pgn') as pgn:
         while True:
+            if i % 10000 == 0:
+                print(i)
             game = chess.pgn.read_game(pgn)
             if game is None:
                 break
             arr = game.headers["UTCDate"].split(".")
             date = datetime.datetime(int(arr[0]), int(arr[1]), int(arr[2]))
             if game.headers["Black"] != "?" and game.headers["White"] != "?":
-                saved_game = Games(event=game.headers["Event"], site=game.headers["Site"], white=game.headers["White"],
-                                   black=game.headers["Black"], result=game.headers["Result"], date=date,
-                                   white_elo=game.headers["WhiteElo"], black_elo=game.headers["BlackElo"],
-                                   white_rating_diff=game.headers["WhiteRatingDiff"],
-                                   black_rating_diff=game.headers["BlackRatingDiff"], eco="",
-                                   opening_id="000000000000000000000000", time_control=game.headers["TimeControl"],
-                                   termination=game.headers["Termination"], moves=str(game.mainline_moves()),
-                                   best_moves=[], moves_evaluation=[]).save()
-                find_opening(saved_game)
-                update_cache(saved_game, fields, cached_fields)
+                exist = Games.objects.filter(Q(event=game.headers["Event"]) & Q(site=game.headers["Site"]) &
+                                             Q(white=game.headers["White"]) & Q(black=game.headers["Black"]) &
+                                             Q(result=game.headers["Result"]) & Q(date=date) &
+                                             Q(white_elo=game.headers["WhiteElo"]) &
+                                             Q(black_elo=game.headers["BlackElo"]) &
+                                             Q(white_rating_diff=game.headers["WhiteRatingDiff"]) &
+                                             Q(black_rating_diff=game.headers["BlackRatingDiff"]) &
+                                             Q(time_control=game.headers["TimeControl"]) &
+                                             Q(termination=game.headers["Termination"]) &
+                                             Q(moves=str(game.mainline_moves()))).first()
+                if not exist:
+                    saved_game = Games(event=game.headers["Event"], site=game.headers["Site"],
+                                       white=game.headers["White"], black=game.headers["Black"],
+                                       result=game.headers["Result"], date=date, white_elo=game.headers["WhiteElo"],
+                                       black_elo=game.headers["BlackElo"],
+                                       white_rating_diff=game.headers["WhiteRatingDiff"],
+                                       black_rating_diff=game.headers["BlackRatingDiff"], eco="",
+                                       opening_id="000000000000000000000000", time_control=game.headers["TimeControl"],
+                                       termination=game.headers["Termination"], moves=str(game.mainline_moves()),
+                                       best_moves=[], moves_evaluation=[]).save()
+                    find_opening(saved_game)
+                    update_cache(saved_game, fields, cached_fields)
+            i += 1
     os.remove("temp.pgn")
 
 
@@ -58,38 +73,76 @@ def update_cache(game, fields, cached_fields):
             temp.append(getattr(game, field))
             setattr(cached_fields, field, temp)
             cached_fields.save()
-    white_player = Players.objects.filter(Q(name=game.white)).first()
-    black_player = Players.objects.filter(Q(name=game.black)).first()
-    if not white_player:
-        white_player = Players(name=game.white, elo=game.white_elo, elo_date=game.date, openings={}).save()
-    if game.eco not in white_player.openings.keys():
-        white_player.openings[game.eco] = {"wins": 0, "losses": 0, "draws": 0}
-    if game.result == "1-0":
-        white_player.openings[game.eco]["wins"] += 1
-    if game.result == "0-1":
-        white_player.openings[game.eco]["losses"] += 1
-    if game.result == "1/2-1/2":
-        white_player.openings[game.eco]["draws"] += 1
-    if white_player.elo_date < game.date:
-        setattr(white_player, "elo", game.white_elo)
-        setattr(white_player, "elo_date", game.date)
-    white_player.save()
-    if not black_player:
-        black_player = Players(name=game.black, elo=game.black_elo, elo_date=game.date, openings={}).save()
-    if game.eco not in black_player.openings.keys():
-        black_player.openings[game.eco] = {"wins": 0, "losses": 0, "draws": 0}
-    if game.result == "0-1":
-        black_player.openings[game.eco]["wins"] += 1
-    if game.result == "1-0":
-        black_player.openings[game.eco]["losses"] += 1
-    if game.result == "1/2-1/2":
-        black_player.openings[game.eco]["draws"] += 1
-    if black_player.elo_date < game.date:
-        setattr(black_player, "elo", game.white_elo)
-        setattr(black_player, "elo_date", game.date)
-    black_player.save()
+    update_player_cache(game.white, game.white_elo, game)
+    update_player_cache(game.black, game.black_elo, game)
 
 
+def update_player_cache(name, elo, game):
+    player = Players.objects.filter(Q(name=name)).first()
+    if "https" in game.event:
+        new = game.event.split(" ")
+        del new[-1]
+        event = ' '.join(new)
+    else:
+        event = game.event
+    if not player:
+        player = Players(name=name, elo=elo, elo_date=game.date, openings={}, terminations={}, events={}, accuracy={},
+                         percentages={}).save()
+    if not player.percentages:
+        player.percentages = {"general percentages": {"wins": 0, "losses": 0, "draws": 0},
+                              "side percentages": {"white": {"wins": 0, "losses": 0, "draws": 0},
+                                                   "black": {"wins": 0, "losses": 0, "draws": 0}}}
+    if game.termination not in player.terminations.keys():
+        player.terminations[game.termination] = {"wins": 0, "losses": 0, "draws": 0}
+    if event not in player.events.keys():
+        player.events[event] = {"wins": 0, "losses": 0, "draws": 0}
+    if game.eco not in player.openings.keys():
+        player.openings[game.eco] = {"wins": 0, "losses": 0, "draws": 0}
+    if game.white == name:
+        if game.result == "1-0":
+            player.percentages["general percentages"]["wins"] += 1
+            player.percentages["side percentages"]["white"]["wins"] += 1
+            player.events[event]["wins"] += 1
+            player.terminations[game.termination]["wins"] += 1
+            player.openings[game.eco]["wins"] += 1
+        if game.result == "0-1":
+            player.percentages["general percentages"]["losses"] += 1
+            player.percentages["side percentages"]["white"]["losses"] += 1
+            player.events[event]["losses"] += 1
+            player.terminations[game.termination]["losses"] += 1
+            player.openings[game.eco]["losses"] += 1
+        if game.result == "1/2-1/2":
+            player.percentages["general percentages"]["draws"] += 1
+            player.percentages["side percentages"]["white"]["draws"] += 1
+            player.events[event]["draws"] += 1
+            player.terminations[game.termination]["draws"] += 1
+            player.openings[game.eco]["draws"] += 1
+    if game.black == name:
+        if game.result == "0-1":
+            player.percentages["general percentages"]["wins"] += 1
+            player.percentages["side percentages"]["black"]["wins"] += 1
+            player.events[event]["wins"] += 1
+            player.terminations[game.termination]["wins"] += 1
+            player.openings[game.eco]["wins"] += 1
+        if game.result == "1-0":
+            player.percentages["general percentages"]["losses"] += 1
+            player.percentages["side percentages"]["black"]["losses"] += 1
+            player.events[event]["losses"] += 1
+            player.terminations[game.termination]["losses"] += 1
+            player.openings[game.eco]["losses"] += 1
+        if game.result == "1/2-1/2":
+            player.percentages["general percentages"]["draws"] += 1
+            player.percentages["side percentages"]["black"]["draws"] += 1
+            player.events[event]["draws"] += 1
+            player.terminations[game.termination]["draws"] += 1
+            player.openings[game.eco]["draws"] += 1
+    if player.elo_date < game.date:
+        setattr(player, "elo", elo)
+        setattr(player, "elo_date", game.date)
+    player.save()
+
+
+# TODO make it async, add caching and pre processing
 def handle_pgn_openings_upload(f):
     cached_fields = FieldsCache.objects.first()
     fields = ["opening_id", "eco"]

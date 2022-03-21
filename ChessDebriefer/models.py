@@ -33,10 +33,14 @@ class FieldsCache(Document):
 
 # document used as cache
 class Players(Document):
-    name = StringField()
+    name = StringField(unique=True)
     elo = IntField()
     elo_date = DateField()
     openings = DictField()
+    terminations = DictField()
+    events = DictField()
+    accuracy = DictField()
+    percentages = DictField()
 
 
 class Openings(Document):

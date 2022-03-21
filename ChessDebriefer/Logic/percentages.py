@@ -26,9 +26,13 @@ def calculate_percentages(name, params):
     return response
 
 
+# TODO test it
 def calculate_event_percentages(name, params):
-    games, white_games, black_games = database_query(name, params)
-    return filter_games(games, name, "event")
+    if params:
+        games, white_games, black_games = database_query(name, params)
+        return filter_games(games, name, "event")
+    else:
+        return cached_response("events", name)
 
 
 # TODO add from to eco query, ex. A01..B30
@@ -60,9 +64,32 @@ def calculate_opening_percentages(name, params):
         return dictionary
 
 
+# TODO test it
 def calculate_termination_percentages(name, params):
-    games, white_games, black_games = database_query(name, params)
-    return filter_games(games, name, "termination")
+    if params:
+        games, white_games, black_games = database_query(name, params)
+        return filter_games(games, name, "termination")
+    else:
+        return cached_response("terminations", name)
+
+
+# TODO test it
+def cached_response(attribute, name):
+    response = {}
+    player = Players.objects.filter(Q(name=name)).first()
+    dictionary = getattr(player, attribute)
+    for key in dictionary.keys():
+        percentage_won = round((dictionary[key]["wins"] / (dictionary[key]["wins"] + dictionary[key]["losses"] +
+                                                           dictionary[key]["draws"])) * 100, 2)
+        percentage_lost = round((dictionary[key]["losses"] / (dictionary[key]["wins"] + dictionary[key]["losses"] +
+                                                              dictionary[key]["draws"])) * 100, 2)
+        percentage_drawn = round((dictionary[key]["draws"] / (dictionary[key]["wins"] + dictionary[key]["losses"] +
+                                                              dictionary[key]["draws"])) * 100, 2)
+        response[key] = player.terminations[key]
+        response[key]["percentage won"] = percentage_won
+        response[key]["percentage lost"] = percentage_lost
+        response[key]["percentage drawn"] = percentage_drawn
+    return response
 
 
 # group by?
@@ -216,7 +243,6 @@ def filter_throws_comebacks(games, name):
             "wins": wins, "percentage_comebacks": percentage_comebacks}
 
 
-# TODO update readme
 def calculate_opening_comparisons(name, params):
     dictionary = {}
     compare_dictionary = {}
