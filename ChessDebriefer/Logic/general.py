@@ -17,15 +17,12 @@ def handle_pgn_uploads(f):
 
 
 def parse_pgn():
-    i = 0
     cached_fields = FieldsCache.objects.first()
     fields = ["event", "termination"]
     if not cached_fields:
         cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
     with open('temp.pgn') as pgn:
         while True:
-            if i % 10000 == 0:
-                print(i)
             game = chess.pgn.read_game(pgn)
             if game is None:
                 break
@@ -54,7 +51,6 @@ def parse_pgn():
                                        best_moves=[], moves_evaluation=[]).save()
                     find_opening(saved_game)
                     update_cache(saved_game, fields, cached_fields)
-            i += 1
     os.remove("temp.pgn")
 
 
