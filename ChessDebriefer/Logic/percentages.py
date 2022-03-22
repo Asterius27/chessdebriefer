@@ -309,3 +309,8 @@ def calculate_opening_comparisons(name, params):
                            "your draw percentages": temp_dictionary[eco]["percentage_drawn"],
                            "other players draw percentages": compare_draw_percentages}
     return dictionary
+
+
+# TODO
+def calculate_opening_comparisons_database(name, params):
+    pass
