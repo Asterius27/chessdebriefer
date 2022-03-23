@@ -58,6 +58,7 @@ def average_game_centipawn(game, name):
 
 
 # pretty slow
+# TODO find a way to make it faster using database queries
 def find_opening(game, update=False):
     if not game.eco or str(game.opening_id) == "000000000000000000000000" or update:
         openings = Openings.objects

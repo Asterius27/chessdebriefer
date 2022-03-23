@@ -311,7 +311,7 @@ def calculate_opening_comparisons(name, params):
     return dictionary
 
 
-# TODO complete it with percentages
+# TODO complete it with percentages, find a way to retrieve player elo with a query on Games, without using Players
 def calculate_opening_comparisons_database(name, params):
     response = {}
     r = 10
