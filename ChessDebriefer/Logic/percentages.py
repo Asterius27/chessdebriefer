@@ -311,6 +311,91 @@ def calculate_opening_comparisons(name, params):
     return dictionary
 
 
-# TODO
+# TODO complete it with percentages
 def calculate_opening_comparisons_database(name, params):
-    pass
+    response = {}
+    r = 10
+    elo = 0
+    ecos = []
+    if "elo" in params.keys():
+        elo = params["elo"]
+    else:
+        player = Players.objects.filter(Q(name=name)).first()
+        if player:
+            elo = player.elo
+    if "range" in params.keys():
+        r = params["range"]
+    if "eco" in params.keys():
+        ecos = params["eco"].split(",")
+    names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
+    eco_stats = Games.objects.aggregate([
+        {
+            '$match': {'$or': [{'white': {'$in': names}}, {'black': {'$in': names}}]}
+        },
+        {
+            '$project': {
+                'eco': 1,
+                'win': {'$cond': {'if': {'$or': [
+                    {'$and': [{'$eq': ['$result', '1-0']}, {'$in': ['$white', names]}]},
+                    {'$and': [{'$eq': ['$result', '0-1']}, {'$in': ['$black', names]}]}
+                ]}, 'then': 1, 'else': 0}},
+                'loss': {'$cond': {'if': {'$or': [
+                    {'$and': [{'$eq': ['$result', '1-0']}, {'$in': ['$black', names]}]},
+                    {'$and': [{'$eq': ['$result', '0-1']}, {'$in': ['$white', names]}]}
+                ]}, 'then': 1, 'else': 0}},
+                'draw': {'$cond': {'if': {'$and': [
+                    {'$eq': ['$result', '1/2-1/2']},
+                    {'$in': ['$black', names]},
+                    {'$in': ['$white', names]}
+                ]}, 'then': 2, 'else': {'$cond': {'if': {'$eq': ['$result', '1/2-1/2']}, 'then': 1, 'else': 0}}}}
+            }
+        },
+        {
+            '$group': {
+                '_id': '$eco',
+                'wins': {'$sum': '$win'},
+                'losses': {'$sum': '$loss'},
+                'draws': {'$sum': '$draw'}
+            }
+        }
+    ])
+    player_eco_stats = Games.objects.aggregate([
+        {
+            '$match': {'$or': [{'white': name}, {'black': name}]}
+        },
+        {
+            '$project': {
+                'eco': 1,
+                'win': {'$cond': {'if': {'$or': [
+                    {'$and': [{'$eq': ['$result', '1-0']}, {'$eq': ['$white', name]}]},
+                    {'$and': [{'$eq': ['$result', '0-1']}, {'$eq': ['$black', name]}]}
+                ]}, 'then': 1, 'else': 0}},
+                'loss': {'$cond': {'if': {'$or': [
+                    {'$and': [{'$eq': ['$result', '1-0']}, {'$eq': ['$black', name]}]},
+                    {'$and': [{'$eq': ['$result', '0-1']}, {'$eq': ['$white', name]}]}
+                ]}, 'then': 1, 'else': 0}},
+                'draw': {'$cond': {'if': {'$eq': ['$result', '1/2-1/2']}, 'then': 1, 'else': 0}}
+            }
+        },
+        {
+            '$group': {
+                '_id': '$eco',
+                'wins': {'$sum': '$win'},
+                'losses': {'$sum': '$loss'},
+                'draws': {'$sum': '$draw'}
+            }
+        }
+    ])
+    temp = list(eco_stats)
+    for player_eco in player_eco_stats:
+        if not ecos or player_eco['_id'] in ecos:
+            for eco in temp:
+                if player_eco['_id'] == eco['_id']:
+                    response[eco['_id']] = {'your wins': player_eco['wins'], 'other players wins': eco['wins'],
+                                            'your losses': player_eco['losses'], 'other players losses': eco['losses'],
+                                            'your draws': player_eco['draws'], 'other players draws': eco['draws']}
+            if player_eco['_id'] not in response.keys():
+                response[player_eco['_id']] = {'your wins': player_eco['wins'], 'other players wins': 0,
+                                               'your losses': player_eco['losses'], 'other players losses': 0,
+                                               'your draws': player_eco['draws'], 'other players draws': 0}
+    return response

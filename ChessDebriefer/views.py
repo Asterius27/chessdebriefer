@@ -3,7 +3,8 @@ from django.views.decorators.csrf import csrf_exempt
 from ChessDebriefer.Logic.accuracy import calculate_accuracy
 from ChessDebriefer.Logic.openings import calculate_eco_stats
 from ChessDebriefer.Logic.percentages import calculate_percentages, calculate_event_percentages, \
-    calculate_opening_percentages, calculate_termination_percentages, calculate_opening_comparisons
+    calculate_opening_percentages, calculate_termination_percentages, calculate_opening_comparisons, \
+    calculate_opening_comparisons_database
 from ChessDebriefer.Logic.general import handle_pgn_uploads, handle_pgn_openings_upload
 
 
@@ -69,7 +70,8 @@ def accuracy(request, name):
 
 def compare_openings(request, name):
     if request.method == 'GET':
-        return JsonResponse(calculate_opening_comparisons(name, request.GET))
+        return JsonResponse(calculate_opening_comparisons_database(name, request.GET))
+        # return JsonResponse(calculate_opening_comparisons(name, request.GET))
     else:
         return HttpResponse(status=405)
 
