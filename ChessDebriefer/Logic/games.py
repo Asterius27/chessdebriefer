@@ -95,11 +95,11 @@ def find_opening(game, update=False):
             if len(split1) > len(split2):
                 opening = opn
         """
-        cached_fields = FieldsCache.objects.first()
-        fields = ["eco", "opening_id"]
         setattr(game, "eco", eco)
         setattr(game, "opening_id", idd)
         game.save()
+        cached_fields = FieldsCache.objects.first()
+        fields = ["eco", "opening_id"]
         for field in fields:
             if getattr(game, field) not in getattr(cached_fields, field):
                 temp = getattr(cached_fields, field)
