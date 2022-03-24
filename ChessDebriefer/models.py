@@ -5,6 +5,7 @@ from mongoengine import *
 # required fields, other constraints?
 class Games(Document):
     event = StringField()
+    tournament_site = StringField()
     site = URLField()
     white = StringField()
     black = StringField()
@@ -23,6 +24,7 @@ class Games(Document):
     moves_evaluation = ListField(StringField())
 
 
+# TODO remove it if it is no longer needed
 # document used as cache
 class FieldsCache(Document):
     event = ListField(StringField())

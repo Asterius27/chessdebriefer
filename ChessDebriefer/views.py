@@ -1,7 +1,8 @@
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from ChessDebriefer.Logic.accuracy import calculate_accuracy
-from ChessDebriefer.Logic.compare import calculate_opening_comparisons, calculate_percentages_comparisons
+from ChessDebriefer.Logic.compare import calculate_opening_comparisons, calculate_percentages_comparisons, \
+    calculate_event_comparisons
 from ChessDebriefer.Logic.openings import calculate_eco_stats
 from ChessDebriefer.Logic.percentages import calculate_percentages, calculate_event_percentages, \
     calculate_opening_percentages, calculate_termination_percentages
@@ -54,9 +55,23 @@ def event_percentages(request, name):
         return HttpResponse(status=405)
 
 
+def compare_events(request, name):
+    if request.method == 'GET':
+        return JsonResponse(calculate_event_comparisons(name, request.GET))
+    else:
+        return HttpResponse(status=405)
+
+
 def opening_percentages(request, name):
     if request.method == 'GET':
         return JsonResponse(calculate_opening_percentages(name, request.GET))
+    else:
+        return HttpResponse(status=405)
+
+
+def compare_openings(request, name):
+    if request.method == 'GET':
+        return JsonResponse(calculate_opening_comparisons(name, request.GET))
     else:
         return HttpResponse(status=405)
 
@@ -71,13 +86,6 @@ def termination_percentages(request, name):
 def accuracy(request, name):
     if request.method == 'GET':
         return JsonResponse(calculate_accuracy(name))
-    else:
-        return HttpResponse(status=405)
-
-
-def compare_openings(request, name):
-    if request.method == 'GET':
-        return JsonResponse(calculate_opening_comparisons(name, request.GET))
     else:
         return HttpResponse(status=405)
 

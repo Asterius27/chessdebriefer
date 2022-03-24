@@ -28,11 +28,19 @@ def parse_pgn():
                 break
             arr = game.headers["UTCDate"].split(".")
             date = datetime.datetime(int(arr[0]), int(arr[1]), int(arr[2]))
+            if "https" in game.headers["Event"]:
+                temp = game.headers["Event"].split(" ")
+                tournament_site = temp[-1]
+                del temp[-1]
+                event = ' '.join(temp)
+            else:
+                tournament_site = ""
+                event = game.headers["Event"]
             if game.headers["Black"] != "?" and game.headers["White"] != "?":
-                exist = Games.objects.filter(Q(event=game.headers["Event"]) & Q(site=game.headers["Site"]) &
-                                             Q(white=game.headers["White"]) & Q(black=game.headers["Black"]) &
-                                             Q(result=game.headers["Result"]) & Q(date=date) &
-                                             Q(white_elo=game.headers["WhiteElo"]) &
+                exist = Games.objects.filter(Q(event=event) & Q(tournament_site=tournament_site) &
+                                             Q(site=game.headers["Site"]) & Q(white=game.headers["White"]) &
+                                             Q(black=game.headers["Black"]) & Q(result=game.headers["Result"]) &
+                                             Q(date=date) & Q(white_elo=game.headers["WhiteElo"]) &
                                              Q(black_elo=game.headers["BlackElo"]) &
                                              Q(white_rating_diff=game.headers["WhiteRatingDiff"]) &
                                              Q(black_rating_diff=game.headers["BlackRatingDiff"]) &
@@ -40,7 +48,7 @@ def parse_pgn():
                                              Q(termination=game.headers["Termination"]) &
                                              Q(moves=str(game.mainline_moves()))).first()
                 if not exist:
-                    saved_game = Games(event=game.headers["Event"], site=game.headers["Site"],
+                    saved_game = Games(event=event, tournament_site=tournament_site, site=game.headers["Site"],
                                        white=game.headers["White"], black=game.headers["Black"],
                                        result=game.headers["Result"], date=date, white_elo=game.headers["WhiteElo"],
                                        black_elo=game.headers["BlackElo"],
