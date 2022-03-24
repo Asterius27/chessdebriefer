@@ -311,7 +311,7 @@ def calculate_opening_comparisons(name, params):
     return dictionary
 
 
-# TODO complete it with percentages, find a way to retrieve player elo with a query on Games, without using Players
+# TODO find a way to retrieve player elo with a query on Games, without using Players
 def calculate_opening_comparisons_database(name, params):
     response = {}
     r = 10
@@ -328,6 +328,33 @@ def calculate_opening_comparisons_database(name, params):
     if "eco" in params.keys():
         ecos = params["eco"].split(",")
     names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
+    player_eco_stats = Games.objects.aggregate([
+        {
+            '$match': {'$or': [{'white': name}, {'black': name}]}
+        },
+        {
+            '$project': {
+                'eco': 1,
+                'win': {'$cond': {'if': {'$or': [
+                    {'$and': [{'$eq': ['$result', '1-0']}, {'$eq': ['$white', name]}]},
+                    {'$and': [{'$eq': ['$result', '0-1']}, {'$eq': ['$black', name]}]}
+                ]}, 'then': 1, 'else': 0}},
+                'loss': {'$cond': {'if': {'$or': [
+                    {'$and': [{'$eq': ['$result', '1-0']}, {'$eq': ['$black', name]}]},
+                    {'$and': [{'$eq': ['$result', '0-1']}, {'$eq': ['$white', name]}]}
+                ]}, 'then': 1, 'else': 0}},
+                'draw': {'$cond': {'if': {'$eq': ['$result', '1/2-1/2']}, 'then': 1, 'else': 0}}
+            }
+        },
+        {
+            '$group': {
+                '_id': '$eco',
+                'wins': {'$sum': '$win'},
+                'losses': {'$sum': '$loss'},
+                'draws': {'$sum': '$draw'}
+            }
+        }
+    ])
     eco_stats = Games.objects.aggregate([
         {
             '$match': {'$or': [{'white': {'$in': names}}, {'black': {'$in': names}}]}
@@ -359,43 +386,37 @@ def calculate_opening_comparisons_database(name, params):
             }
         }
     ])
-    player_eco_stats = Games.objects.aggregate([
-        {
-            '$match': {'$or': [{'white': name}, {'black': name}]}
-        },
-        {
-            '$project': {
-                'eco': 1,
-                'win': {'$cond': {'if': {'$or': [
-                    {'$and': [{'$eq': ['$result', '1-0']}, {'$eq': ['$white', name]}]},
-                    {'$and': [{'$eq': ['$result', '0-1']}, {'$eq': ['$black', name]}]}
-                ]}, 'then': 1, 'else': 0}},
-                'loss': {'$cond': {'if': {'$or': [
-                    {'$and': [{'$eq': ['$result', '1-0']}, {'$eq': ['$black', name]}]},
-                    {'$and': [{'$eq': ['$result', '0-1']}, {'$eq': ['$white', name]}]}
-                ]}, 'then': 1, 'else': 0}},
-                'draw': {'$cond': {'if': {'$eq': ['$result', '1/2-1/2']}, 'then': 1, 'else': 0}}
-            }
-        },
-        {
-            '$group': {
-                '_id': '$eco',
-                'wins': {'$sum': '$win'},
-                'losses': {'$sum': '$loss'},
-                'draws': {'$sum': '$draw'}
-            }
-        }
-    ])
     temp = list(eco_stats)
     for player_eco in player_eco_stats:
         if not ecos or player_eco['_id'] in ecos:
+            win_percentage = round((player_eco['wins'] / (player_eco['wins'] + player_eco['losses'] +
+                                                          player_eco['draws'])) * 100, 2)
+            loss_percentage = round((player_eco['losses'] / (player_eco['wins'] + player_eco['losses'] +
+                                                             player_eco['draws'])) * 100, 2)
+            draw_percentage = round((player_eco['draws'] / (player_eco['wins'] + player_eco['losses'] +
+                                                            player_eco['draws'])) * 100, 2)
             for eco in temp:
                 if player_eco['_id'] == eco['_id']:
+                    other_win_percentage = round((eco['wins'] / (eco['wins'] + eco['losses'] + eco['draws'])) * 100, 2)
+                    other_loss_percentage = round((eco['losses'] / (eco['wins'] + eco['losses'] + eco['draws'])) * 100,
+                                                  2)
+                    other_draw_percentage = round((eco['draws'] / (eco['wins'] + eco['losses'] + eco['draws'])) * 100,
+                                                  2)
                     response[eco['_id']] = {'your wins': player_eco['wins'], 'other players wins': eco['wins'],
+                                            'your win percentage': win_percentage,
+                                            'other players win percentage': other_win_percentage,
                                             'your losses': player_eco['losses'], 'other players losses': eco['losses'],
-                                            'your draws': player_eco['draws'], 'other players draws': eco['draws']}
+                                            'your loss percentage': loss_percentage,
+                                            'other players loss percentage': other_loss_percentage,
+                                            'your draws': player_eco['draws'], 'other players draws': eco['draws'],
+                                            'your draw percentage': draw_percentage,
+                                            'other players draw percentage': other_draw_percentage}
             if player_eco['_id'] not in response.keys():
                 response[player_eco['_id']] = {'your wins': player_eco['wins'], 'other players wins': 0,
+                                               'your win percentage': win_percentage, 'other players win percentage': 0,
                                                'your losses': player_eco['losses'], 'other players losses': 0,
-                                               'your draws': player_eco['draws'], 'other players draws': 0}
+                                               'your loss percentage': loss_percentage,
+                                               'other players loss percentage': 0, 'your draws': player_eco['draws'],
+                                               'other players draws': 0, 'your draw percentage': draw_percentage,
+                                               'other players draw percentage': 0}
     return response
