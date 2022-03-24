@@ -23,6 +23,7 @@ urlpatterns = [
     path('upload', views.upload),
     path('upload/openings', views.upload_openings),
     path('<slug:name>/percentages', views.percentages),
+    path('<slug:name>/percentages/compare', views.compare_percentages),
     path('<slug:name>/percentages/events', views.event_percentages),
     path('<slug:name>/percentages/openings', views.opening_percentages),
     path('<slug:name>/percentages/openings/compare', views.compare_openings),

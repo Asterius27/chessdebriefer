@@ -1,9 +1,10 @@
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from ChessDebriefer.Logic.accuracy import calculate_accuracy
+from ChessDebriefer.Logic.compare import calculate_opening_comparisons, calculate_percentages_comparisons
 from ChessDebriefer.Logic.openings import calculate_eco_stats
 from ChessDebriefer.Logic.percentages import calculate_percentages, calculate_event_percentages, \
-    calculate_opening_percentages, calculate_termination_percentages, calculate_opening_comparisons
+    calculate_opening_percentages, calculate_termination_percentages
 from ChessDebriefer.Logic.general import handle_pgn_uploads, handle_pgn_openings_upload
 
 
@@ -35,6 +36,13 @@ def upload_openings(request):
 def percentages(request, name):
     if request.method == 'GET':
         return JsonResponse(calculate_percentages(name, request.GET))
+    else:
+        return HttpResponse(status=405)
+
+
+def compare_percentages(request, name):
+    if request.method == 'GET':
+        return JsonResponse(calculate_percentages_comparisons(name, request.GET))
     else:
         return HttpResponse(status=405)
 
