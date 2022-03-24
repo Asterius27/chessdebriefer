@@ -58,12 +58,35 @@ def average_game_centipawn(game, name):
 
 
 # pretty slow
-# TODO find a way to make it faster using database queries
 def find_opening(game, update=False):
     if not game.eco or str(game.opening_id) == "000000000000000000000000" or update:
+        openings = Openings.objects.aggregate([
+            {
+                '$addFields': {'searchIndex': {'$indexOfCP': [game.moves, '$moves']}}
+            },
+            {
+                '$match': {'searchIndex': {'$ne': -1}}
+            },
+            {
+                '$project': {
+                    '_id': 1,
+                    'eco': 1,
+                    'moves': 1,
+                    'moves_length': {'$strLenCP': '$moves'}
+                }
+            },
+            {
+                '$sort': {'moves_length': 1}
+            }
+        ])
+        eco = ""
+        idd = ""
+        for opening in openings:
+            if game.moves.startswith(opening['moves']):
+                eco = opening['eco']
+                idd = opening['_id']
+        """
         openings = Openings.objects
-        cached_fields = FieldsCache.objects.first()
-        fields = ["eco", "opening_id"]
         filtered_openings = list(filter(lambda op: game.moves.startswith(op.moves), openings))
         opening = filtered_openings[0]
         for opn in filtered_openings:
@@ -71,8 +94,11 @@ def find_opening(game, update=False):
             split2 = opening.moves.split(" ")
             if len(split1) > len(split2):
                 opening = opn
-        setattr(game, "eco", opening.eco)
-        setattr(game, "opening_id", opening.id)
+        """
+        cached_fields = FieldsCache.objects.first()
+        fields = ["eco", "opening_id"]
+        setattr(game, "eco", eco)
+        setattr(game, "opening_id", idd)
         game.save()
         for field in fields:
             if getattr(game, field) not in getattr(cached_fields, field):
