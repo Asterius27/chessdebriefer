@@ -69,6 +69,59 @@ A backend that parses and analyses pgn files
 
 <details>
   <summary> 
+  <h3> GET /:name/percentages/compare </h3>
+  
+  </summary>
+  
+  #### URI parameters
+  * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
+  * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"general percentages": {
+			"your wins": 117,
+			"other players wins": 35435,
+			"your losses": 93,
+			"other players losses": 42096,
+			"your draws": 9,
+			"other players draws": 2448
+		},
+		"side percentages": {
+			"white": {
+				"your wins": 20,
+				"your losses": 22,
+				"your draws": 4,
+				"other players wins": 19063,
+				"other players losses": 19879,
+				"other players draws": 1242
+			},
+			"black": {
+				"your wins": 97,
+				"your losses": 71,
+				"your draws": 5,
+				"other players wins": 16372,
+				"other players losses": 22217,
+				"other players draws": 1206
+			}
+		}
+	}
+  ```
+</details>
+	
+</details>
+
+<details>
+  <summary> 
   <h3> GET /:name/percentages/events </h3>
   
   </summary>
@@ -122,6 +175,62 @@ A backend that parses and analyses pgn files
 			"won_games": 3,
 			"lost_games": 1,
 			"drawn_games": 0
+		}
+	}
+  ```
+</details>
+	
+</details>
+
+<details>
+  <summary> 
+  <h3> GET /:name/percentages/events/compare </h3>
+  
+  </summary>
+  
+  #### URI parameters
+  * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
+  * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
+  * **event** : (optional) which events to find stats on, otherwise all of your events are used
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"Rated Classical game": {
+			"your wins": 116,
+			"other players wins": 14870,
+			"your win percentage": 53.46,
+			"other players win percentage": 45.77,
+			"your losses": 92,
+			"other players losses": 16505,
+			"your loss percentage": 42.4,
+			"other players loss percentage": 50.81,
+			"your draws": 9,
+			"other players draws": 1110,
+			"your draw percentage": 4.15,
+			"other players draw percentage": 3.42
+		},
+		"Rated Blitz game": {
+			"your wins": 1,
+			"other players wins": 13940,
+			"your win percentage": 50.0,
+			"other players win percentage": 44.8,
+			"your losses": 1,
+			"other players losses": 16231,
+			"your loss percentage": 50.0,
+			"other players loss percentage": 52.16,
+			"your draws": 0,
+			"other players draws": 946,
+			"your draw percentage": 0.0,
+			"other players draw percentage": 3.04
 		}
 	}
   ```
@@ -1487,6 +1596,62 @@ A backend that parses and analyses pgn files
 			"won_games": 47,
 			"lost_games": 30,
 			"drawn_games": 0
+		}
+	}
+  ```
+</details>
+	
+</details>
+
+<details>
+  <summary> 
+  <h3> GET /:name/percentages/terminations/compare </h3>
+  
+  </summary>
+  
+  #### URI parameters
+  * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
+  * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
+  * **termination** : (optional) which terminations to find stats on, otherwise all of your terminations are used
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"Time forfeit": {
+			"your wins": 18,
+			"other players wins": 14084,
+			"your win percentage": 75.0,
+			"other players win percentage": 49.38,
+			"your losses": 6,
+			"other players losses": 14116,
+			"your loss percentage": 25.0,
+			"other players loss percentage": 49.5,
+			"your draws": 0,
+			"other players draws": 319,
+			"your draw percentage": 0.0,
+			"other players draw percentage": 1.12
+		},
+		"Normal": {
+			"your wins": 84,
+			"other players wins": 30879,
+			"your win percentage": 52.17,
+			"other players win percentage": 49.27,
+			"your losses": 68,
+			"other players losses": 29081,
+			"your loss percentage": 42.24,
+			"other players loss percentage": 46.4,
+			"your draws": 9,
+			"other players draws": 2710,
+			"your draw percentage": 5.59,
+			"other players draw percentage": 4.32
 		}
 	}
   ```
