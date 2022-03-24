@@ -4,6 +4,8 @@ from mongoengine import Q
 from ChessDebriefer.Logic.games import average_game_centipawn, find_opening
 from ChessDebriefer.models import Games, FieldsCache, Players
 
+# TODO use database queries
+
 
 def calculate_percentages(name, params):
     games, white_games, black_games = database_query(name, params)
