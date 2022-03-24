@@ -1,6 +1,8 @@
 from mongoengine import Q
 from ChessDebriefer.models import Games, Players
 
+# TODO code cleanup
+
 
 # TODO add percentages to response
 def calculate_percentages_comparisons(name, params):
@@ -279,6 +281,160 @@ def calculate_event_comparisons(name, params):
                                              'your draws': player_event['draws'], 'other players draws': 0,
                                              'your draw percentage': draw_percentage,
                                              'other players draw percentage': 0}
+    return response
+
+
+def calculate_termination_comparisons(name, params):
+    response = {}
+    if "elo" in params.keys():
+        elo = params["elo"]
+    else:
+        player = Games.objects.filter(Q(white=name) | Q(black=name)).order_by('-date').first()
+        if player:
+            if player.white == name:
+                elo = player.white_elo
+            else:
+                elo = player.black_elo
+        else:
+            elo = 0
+    if "range" in params.keys():
+        r = params["range"]
+    else:
+        r = 100
+    if "termination" in params.keys():
+        terminations = params["termination"].split(",")
+        player_termination_stats = Games.objects.aggregate([
+            {
+                '$match': {'$and': [{'$or': [{'white': name}, {'black': name}]},
+                                    {'termination': {'$in': terminations}}]}
+            },
+            {
+                '$project': {
+                    'termination': 1,
+                    'win': {'$cond': {'if': {'$or': [
+                        {'$and': [{'$eq': ['$result', '1-0']}, {'$eq': ['$white', name]}]},
+                        {'$and': [{'$eq': ['$result', '0-1']}, {'$eq': ['$black', name]}]}
+                    ]}, 'then': 1, 'else': 0}},
+                    'loss': {'$cond': {'if': {'$or': [
+                        {'$and': [{'$eq': ['$result', '1-0']}, {'$eq': ['$black', name]}]},
+                        {'$and': [{'$eq': ['$result', '0-1']}, {'$eq': ['$white', name]}]}
+                    ]}, 'then': 1, 'else': 0}},
+                    'draw': {'$cond': {'if': {'$eq': ['$result', '1/2-1/2']}, 'then': 1, 'else': 0}}
+                }
+            },
+            {
+                '$group': {
+                    '_id': '$termination',
+                    'wins': {'$sum': '$win'},
+                    'losses': {'$sum': '$loss'},
+                    'draws': {'$sum': '$draw'}
+                }
+            }
+        ])
+        player_termination_stats_list = list(player_termination_stats)
+    else:
+        player_termination_stats = Games.objects.aggregate([
+            {
+                '$match': {'$or': [{'white': name}, {'black': name}]}
+            },
+            {
+                '$project': {
+                    'termination': 1,
+                    'win': {'$cond': {'if': {'$or': [
+                        {'$and': [{'$eq': ['$result', '1-0']}, {'$eq': ['$white', name]}]},
+                        {'$and': [{'$eq': ['$result', '0-1']}, {'$eq': ['$black', name]}]}
+                    ]}, 'then': 1, 'else': 0}},
+                    'loss': {'$cond': {'if': {'$or': [
+                        {'$and': [{'$eq': ['$result', '1-0']}, {'$eq': ['$black', name]}]},
+                        {'$and': [{'$eq': ['$result', '0-1']}, {'$eq': ['$white', name]}]}
+                    ]}, 'then': 1, 'else': 0}},
+                    'draw': {'$cond': {'if': {'$eq': ['$result', '1/2-1/2']}, 'then': 1, 'else': 0}}
+                }
+            },
+            {
+                '$group': {
+                    '_id': '$termination',
+                    'wins': {'$sum': '$win'},
+                    'losses': {'$sum': '$loss'},
+                    'draws': {'$sum': '$draw'}
+                }
+            }
+        ])
+        player_termination_stats_list = list(player_termination_stats)
+        terminations = []
+        for e in player_termination_stats_list:
+            terminations.append(e['_id'])
+    names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
+    termination_stats = Games.objects.aggregate([
+        {
+            '$match': {'$and': [{'$or': [{'white': {'$in': names}}, {'black': {'$in': names}}]},
+                                {'termination': {'$in': terminations}}]}
+        },
+        {
+            '$project': {
+                'termination': 1,
+                'win': {'$cond': {'if': {'$or': [
+                    {'$and': [{'$eq': ['$result', '1-0']}, {'$in': ['$white', names]}]},
+                    {'$and': [{'$eq': ['$result', '0-1']}, {'$in': ['$black', names]}]}
+                ]}, 'then': 1, 'else': 0}},
+                'loss': {'$cond': {'if': {'$or': [
+                    {'$and': [{'$eq': ['$result', '1-0']}, {'$in': ['$black', names]}]},
+                    {'$and': [{'$eq': ['$result', '0-1']}, {'$in': ['$white', names]}]}
+                ]}, 'then': 1, 'else': 0}},
+                'draw': {'$cond': {'if': {'$and': [
+                    {'$eq': ['$result', '1/2-1/2']},
+                    {'$in': ['$black', names]},
+                    {'$in': ['$white', names]}
+                ]}, 'then': 2, 'else': {'$cond': {'if': {'$eq': ['$result', '1/2-1/2']}, 'then': 1, 'else': 0}}}}
+            }
+        },
+        {
+            '$group': {
+                '_id': '$termination',
+                'wins': {'$sum': '$win'},
+                'losses': {'$sum': '$loss'},
+                'draws': {'$sum': '$draw'}
+            }
+        }
+    ])  # TODO not too fast don't know if it's fixable
+    temp = list(termination_stats)
+    for player_termination in player_termination_stats_list:
+        win_percentage = round((player_termination['wins'] / (player_termination['wins'] + player_termination['losses']
+                                                              + player_termination['draws'])) * 100, 2)
+        loss_percentage = round((player_termination['losses'] / (player_termination['wins'] +
+                                 player_termination['losses'] + player_termination['draws'])) * 100, 2)
+        draw_percentage = round((player_termination['draws'] / (player_termination['wins'] +
+                                 player_termination['losses'] + player_termination['draws'])) * 100, 2)
+        for termination in temp:
+            if player_termination['_id'] == termination['_id']:
+                other_win_percentage = round((termination['wins'] / (termination['wins'] + termination['losses'] +
+                                                                     termination['draws'])) * 100, 2)
+                other_loss_percentage = round((termination['losses'] / (termination['wins'] + termination['losses'] +
+                                                                        termination['draws'])) * 100, 2)
+                other_draw_percentage = round((termination['draws'] / (termination['wins'] + termination['losses'] +
+                                                                       termination['draws'])) * 100, 2)
+                response[termination['_id']] = {'your wins': player_termination['wins'],
+                                                'other players wins': termination['wins'],
+                                                'your win percentage': win_percentage,
+                                                'other players win percentage': other_win_percentage,
+                                                'your losses': player_termination['losses'],
+                                                'other players losses': termination['losses'],
+                                                'your loss percentage': loss_percentage,
+                                                'other players loss percentage': other_loss_percentage,
+                                                'your draws': player_termination['draws'],
+                                                'other players draws': termination['draws'],
+                                                'your draw percentage': draw_percentage,
+                                                'other players draw percentage': other_draw_percentage}
+        if player_termination['_id'] not in response.keys():
+            response[player_termination['_id']] = {'your wins': player_termination['wins'], 'other players wins': 0,
+                                                   'your win percentage': win_percentage,
+                                                   'other players win percentage': 0,
+                                                   'your losses': player_termination['losses'],
+                                                   'other players losses': 0, 'your loss percentage': loss_percentage,
+                                                   'other players loss percentage': 0,
+                                                   'your draws': player_termination['draws'], 'other players draws': 0,
+                                                   'your draw percentage': draw_percentage,
+                                                   'other players draw percentage': 0}
     return response
 
 

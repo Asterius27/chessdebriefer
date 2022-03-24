@@ -85,8 +85,8 @@ def cached_response(attribute, name):
                                                               dictionary[key]["draws"])) * 100, 2)
         percentage_drawn = round((dictionary[key]["draws"] / (dictionary[key]["wins"] + dictionary[key]["losses"] +
                                                               dictionary[key]["draws"])) * 100, 2)
-        # response[key] = player.terminations[key]
-        response[key] = player.events[key]
+        response[key] = player.terminations[key]
+        # response[key] = player.events[key]
         response[key]["percentage won"] = percentage_won
         response[key]["percentage lost"] = percentage_lost
         response[key]["percentage drawn"] = percentage_drawn
