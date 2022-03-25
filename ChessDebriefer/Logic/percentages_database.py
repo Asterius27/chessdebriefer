@@ -129,9 +129,14 @@ def create_percentages_dictionary(name, params, group, specific):
                 group_query
             ])
     for g in games_stats:
-        percentage_won = round((g['wins'] / (g['wins'] + g['losses'] + g['draws'])) * 100, 2)
-        percentage_lost = round((g['losses'] / (g['wins'] + g['losses'] + g['draws'])) * 100, 2)
-        percentage_drawn = round((g['draws'] / (g['wins'] + g['losses'] + g['draws'])) * 100, 2)
+        if g['wins'] + g['losses'] + g['draws'] != 0:
+            percentage_won = round((g['wins'] / (g['wins'] + g['losses'] + g['draws'])) * 100, 2)
+            percentage_lost = round((g['losses'] / (g['wins'] + g['losses'] + g['draws'])) * 100, 2)
+            percentage_drawn = round((g['draws'] / (g['wins'] + g['losses'] + g['draws'])) * 100, 2)
+        else:
+            percentage_won = 0.
+            percentage_lost = 0.
+            percentage_drawn = 0.
         dictionary[g['_id']] = {'your wins': g['wins'], 'your losses': g['losses'], 'your draws': g['draws'],
                                 'your win percentage': percentage_won, 'your loss percentage': percentage_lost,
                                 'your draw percentage': percentage_drawn}
