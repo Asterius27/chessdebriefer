@@ -2,10 +2,10 @@ from mongoengine import Q
 from ChessDebriefer.Logic.percentages_database import create_side_percentages_dictionary, create_percentages_dictionary
 from ChessDebriefer.models import Games, Players
 
-# TODO code cleanup
+# TODO code cleanup, find a way to retrieve player elo with a query on Games, without using Players
 
 
-# TODO add percentages to response, (add params like date?)
+# TODO add params like date (from - to)?
 def calculate_percentages_comparisons(name, params):
     response = {}
     elo, r = check_params_comparisons(name, params)
@@ -19,94 +19,94 @@ def calculate_percentages_comparisons(name, params):
     side_percentages['black'].update(other_players_black_percentages['black'])
     response['general percentages'] = {'your wins': side_percentages['white']['your wins'] +
                                                     side_percentages['black']['your wins'],
-                                       'other players wins': side_percentages['white']['other players wins'] +
-                                                             side_percentages['black']['other players wins'],
                                        'your losses': side_percentages['white']['your losses'] +
                                                       side_percentages['black']['your losses'],
-                                       'other players losses': side_percentages['white']['other players losses'] +
-                                                               side_percentages['black']['other players losses'],
                                        'your draws': side_percentages['white']['your draws'] +
                                                      side_percentages['black']['your draws'],
+                                       'your win percentage': 0., 'your loss percentage': 0.,
+                                       'your draw percentage': 0.,
+                                       'other players wins': side_percentages['white']['other players wins'] +
+                                                             side_percentages['black']['other players wins'],
+                                       'other players losses': side_percentages['white']['other players losses'] +
+                                                               side_percentages['black']['other players losses'],
                                        'other players draws': side_percentages['white']['other players draws'] +
-                                                              side_percentages['black']['other players draws']}
+                                                              side_percentages['black']['other players draws'],
+                                       'other players win percentage': 0., 'other players loss percentage': 0.,
+                                       'other players draw percentage': 0.}
+    response['general percentages']['your win percentage'] = round((response['general percentages']['your wins'] /
+        (response['general percentages']['your wins'] + response['general percentages']['your losses'] +
+         response['general percentages']['your draws'])) * 100, 2)
+    response['general percentages']['your loss percentage'] = round((response['general percentages']['your losses'] /
+        (response['general percentages']['your wins'] + response['general percentages']['your losses'] +
+         response['general percentages']['your draws'])) * 100, 2)
+    response['general percentages']['your draw percentage'] = round((response['general percentages']['your draws'] /
+        (response['general percentages']['your wins'] + response['general percentages']['your losses'] +
+         response['general percentages']['your draws'])) * 100, 2)
+    response['general percentages']['other players win percentage'] = round(
+        (response['general percentages']['other players wins'] / (response['general percentages']['other players wins']
+         + response['general percentages']['other players losses'] +
+         response['general percentages']['other players draws'])) * 100, 2)
+    response['general percentages']['other players loss percentage'] = round(
+        (response['general percentages']['other players losses'] /
+         (response['general percentages']['other players wins'] +
+          response['general percentages']['other players losses'] +
+          response['general percentages']['other players draws'])) * 100, 2)
+    response['general percentages']['other players draw percentage'] = round(
+        (response['general percentages']['other players draws'] / (response['general percentages']['other players wins']
+         + response['general percentages']['other players losses'] +
+         response['general percentages']['other players draws'])) * 100, 2)
     response['side percentages'] = {'white': side_percentages['white'], 'black': side_percentages['black']}
     return response
 
 
 def calculate_event_comparisons(name, params):
-    response = {}
     elo, r = check_params_comparisons(name, params)
-    if "event" in params.keys():
-        events = params["event"].split(",")
-        player_event_stats = create_percentages_dictionary(name, {}, 'event', events)
-    else:
-        player_event_stats = create_percentages_dictionary(name, {}, 'event', [])
-        events = []
-        for key in player_event_stats.keys():
-            events.append(key)
+    player_event_stats, events = calculate_player_stats(name, params, 'event')
     names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
     event_stats = create_other_players_percentages_dictionary(names, {}, 'event', events)
-    for key in player_event_stats:
-        if key in event_stats.keys():
-            response[key] = player_event_stats[key]
-            response[key].update(event_stats[key])
-        if key not in response.keys():
-            response[key] = player_event_stats[key]
-            response[key].update({'other players wins': 0, 'other players win percentage': 0, 'other players losses': 0,
-                                  'other players loss percentage': 0, 'other players draws': 0,
-                                  'other players draw percentage': 0})
-    return response
+    return create_response(player_event_stats, event_stats)
 
 
 def calculate_termination_comparisons(name, params):
-    response = {}
     elo, r = check_params_comparisons(name, params)
-    if "termination" in params.keys():
-        terminations = params["termination"].split(",")
-        player_termination_stats = create_percentages_dictionary(name, {}, 'termination', terminations)
-    else:
-        player_termination_stats = create_percentages_dictionary(name, {}, 'termination', [])
-        terminations = []
-        for key in player_termination_stats.keys():
-            terminations.append(key)
+    player_termination_stats, terminations = calculate_player_stats(name, params, 'termination')
     names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
     termination_stats = create_other_players_percentages_dictionary(names, {}, 'termination', terminations)
-    for key in player_termination_stats:
-        if key in termination_stats.keys():
-            response[key] = player_termination_stats[key]
-            response[key].update(termination_stats[key])
-        if key not in response.keys():
-            response[key] = player_termination_stats[key]
-            response[key].update({'other players wins': 0, 'other players win percentage': 0, 'other players losses': 0,
-                                  'other players loss percentage': 0, 'other players draws': 0,
-                                  'other players draw percentage': 0})
-    return response
+    return create_response(player_termination_stats, termination_stats)
 
 
-# TODO find a way to retrieve player elo with a query on Games, without using Players
 def calculate_opening_comparisons(name, params):
-    response = {}
     elo, r = check_params_comparisons(name, params)
-    if "eco" in params.keys():
-        ecos = params["eco"].split(",")
-        player_eco_stats = create_percentages_dictionary(name, {}, 'eco', ecos)
-    else:
-        player_eco_stats = create_percentages_dictionary(name, {}, 'eco', [])
-        ecos = []
-        for key in player_eco_stats:
-            ecos.append(key)
+    player_eco_stats, ecos = calculate_player_stats(name, params, 'eco')
     names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
     eco_stats = create_other_players_percentages_dictionary(names, {}, 'eco', ecos)
-    for key in player_eco_stats:
-        if key in eco_stats.keys():
-            response[key] = player_eco_stats[key]
-            response[key].update(eco_stats[key])
+    return create_response(player_eco_stats, eco_stats)
+
+
+def create_response(your_stats, other_players_stats):
+    response = {}
+    for key in your_stats:
+        if key in other_players_stats.keys():
+            response[key] = your_stats[key]
+            response[key].update(other_players_stats[key])
         if key not in response.keys():
-            response[key] = player_eco_stats[key]
+            response[key] = your_stats[key]
             response[key].update({'other players wins': 0, 'other players win percentage': 0, 'other players losses': 0,
                                   'other players loss percentage': 0, 'other players draws': 0,
                                   'other players draw percentage': 0})
     return response
+
+
+def calculate_player_stats(name, params, specific):
+    if specific in params.keys():
+        specifics = params[specific].split(",")
+        player_stats = create_percentages_dictionary(name, {}, specific, specifics)
+    else:
+        player_stats = create_percentages_dictionary(name, {}, specific, [])
+        specifics = []
+        for key in player_stats:
+            specifics.append(key)
+    return player_stats, specifics
 
 
 def create_other_players_side_percentages_dictionary(names, params, side):

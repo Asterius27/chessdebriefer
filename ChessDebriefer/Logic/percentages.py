@@ -36,7 +36,6 @@ def calculate_event_percentages(name, params):
         return cached_response("events", name)
 
 
-# TODO add from to eco query, ex. A01..B30
 def calculate_opening_percentages(name, params):
     games, white_games, black_games = database_query(name, params)
     if "eco" not in params.keys():

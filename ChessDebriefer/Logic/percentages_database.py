@@ -33,7 +33,7 @@ def calculate_event_percentages_database(name, params):
     return create_percentages_dictionary(name, params, 'event', [])
 
 
-# TODO add management of eco param
+# TODO add management of eco param, add from to eco query, ex. A01..B30
 def calculate_opening_percentages_database(name, params):
     if "eco" not in params.keys():
         return create_percentages_dictionary(name, params, 'eco', [])
