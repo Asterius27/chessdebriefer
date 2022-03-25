@@ -4,7 +4,7 @@ from mongoengine import Q
 from ChessDebriefer.Logic.games import average_game_centipawn, find_opening
 from ChessDebriefer.models import Games, FieldsCache, Players
 
-# TODO use database queries
+'''DEPRECATED'''
 
 
 def calculate_percentages(name, params):
@@ -28,7 +28,6 @@ def calculate_percentages(name, params):
     return response
 
 
-# TODO test it
 def calculate_event_percentages(name, params):
     if params:
         games, white_games, black_games = database_query(name, params)
@@ -66,7 +65,6 @@ def calculate_opening_percentages(name, params):
         return dictionary
 
 
-# TODO test it
 def calculate_termination_percentages(name, params):
     if params:
         games, white_games, black_games = database_query(name, params)
@@ -75,7 +73,6 @@ def calculate_termination_percentages(name, params):
         return cached_response("terminations", name)
 
 
-# TODO test it
 def cached_response(attribute, name):
     response = {}
     player = Players.objects.filter(Q(name=name)).first()
@@ -95,7 +92,6 @@ def cached_response(attribute, name):
     return response
 
 
-# TODO group by
 def database_query(name, params):
     date_pattern = re.compile(r'^\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$')
     elo_pattern = re.compile(r'^\d{1,4}$')

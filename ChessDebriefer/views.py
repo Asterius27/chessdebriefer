@@ -4,9 +4,10 @@ from ChessDebriefer.Logic.accuracy import calculate_accuracy
 from ChessDebriefer.Logic.compare import calculate_opening_comparisons, calculate_percentages_comparisons, \
     calculate_event_comparisons, calculate_termination_comparisons
 from ChessDebriefer.Logic.openings import calculate_eco_stats
-from ChessDebriefer.Logic.percentages import calculate_percentages, calculate_event_percentages, \
-    calculate_opening_percentages, calculate_termination_percentages
 from ChessDebriefer.Logic.general import handle_pgn_uploads, handle_pgn_openings_upload
+from ChessDebriefer.Logic.percentages_database import calculate_percentages_database, \
+    calculate_event_percentages_database, calculate_termination_percentages_database, \
+    calculate_opening_percentages_database
 
 
 # TODO remove
@@ -36,7 +37,8 @@ def upload_openings(request):
 
 def percentages(request, name):
     if request.method == 'GET':
-        return JsonResponse(calculate_percentages(name, request.GET))
+        return JsonResponse(calculate_percentages_database(name, request.GET))
+        # return JsonResponse(calculate_percentages(name, request.GET))
     else:
         return HttpResponse(status=405)
 
@@ -50,7 +52,8 @@ def compare_percentages(request, name):
 
 def event_percentages(request, name):
     if request.method == 'GET':
-        return JsonResponse(calculate_event_percentages(name, request.GET))
+        return JsonResponse(calculate_event_percentages_database(name, request.GET))
+        # return JsonResponse(calculate_event_percentages(name, request.GET))
     else:
         return HttpResponse(status=405)
 
@@ -64,7 +67,8 @@ def compare_events(request, name):
 
 def opening_percentages(request, name):
     if request.method == 'GET':
-        return JsonResponse(calculate_opening_percentages(name, request.GET))
+        return JsonResponse(calculate_opening_percentages_database(name, request.GET))
+        # return JsonResponse(calculate_opening_percentages(name, request.GET))
     else:
         return HttpResponse(status=405)
 
@@ -78,7 +82,8 @@ def compare_openings(request, name):
 
 def termination_percentages(request, name):
     if request.method == 'GET':
-        return JsonResponse(calculate_termination_percentages(name, request.GET))
+        return JsonResponse(calculate_termination_percentages_database(name, request.GET))
+        # return JsonResponse(calculate_termination_percentages(name, request.GET))
     else:
         return HttpResponse(status=405)
 
