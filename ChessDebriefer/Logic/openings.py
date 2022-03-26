@@ -4,7 +4,7 @@ from ChessDebriefer.Logic.games import evaluate_opening_database, evaluate_openi
 from ChessDebriefer.models import Openings
 
 
-# TODO use database queries instead
+# TODO use database queries instead, add specific elo in the params (elo - r, elo + r) and specific eco
 def calculate_eco_stats(eco, params):
     elo_pattern = re.compile(r'^\d{1,4}$')
     if params:

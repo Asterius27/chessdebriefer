@@ -6,6 +6,7 @@ from ChessDebriefer.models import Games, Players
 # TODO update readme
 
 
+# TODO best and worst openings of other players in my rank?
 def calculate_openings_best_worst(name, params):
     response = {}
     ecos = []
