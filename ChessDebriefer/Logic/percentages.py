@@ -1,7 +1,7 @@
 import datetime
 import re
 from mongoengine import Q
-from ChessDebriefer.Logic.games import average_game_centipawn, find_opening
+from ChessDebriefer.Logic.games import find_opening
 from ChessDebriefer.models import Games, FieldsCache, Players
 
 '''DEPRECATED'''
@@ -211,31 +211,3 @@ def create_dictionary(games, name):
     percentage_drawn = round((drawn_games / (won_games + lost_games + drawn_games)) * 100, 2)
     return {"percentage_won": percentage_won, "percentage_lost": percentage_lost, "percentage_drawn": percentage_drawn,
             "won_games": won_games, "lost_games": lost_games, "drawn_games": drawn_games}
-
-
-def filter_throws_comebacks(games, name):
-    throws = 0
-    comebacks = 0
-    losses = 0
-    wins = 0
-    percentage_throws = 0
-    percentage_comebacks = 0
-    for game in games:
-        if (game.white == name and game.result == "0-1") or (game.black == name and game.result == "1-0"):
-            cp = average_game_centipawn(game, name)
-            losses = losses + 1
-            if cp > 0:
-                throws = throws + 1
-        if (game.white == name and game.result == "1-0") or (game.black == name and game.result == "0-1"):
-            cp = average_game_centipawn(game, name)
-            wins = wins + 1
-            if cp < 0:
-                comebacks = comebacks + 1
-    if losses != 0:
-        percentage_throws = round((throws * 1. / losses) * 100, 2)
-    if wins != 0:
-        percentage_comebacks = round((comebacks * 1. / wins) * 100, 2)
-    if wins == 0 and losses == 0:
-        return {}
-    return {"throws": throws, "losses": losses, "percentage_throws": percentage_throws, "comebacks": comebacks,
-            "wins": wins, "percentage_comebacks": percentage_comebacks}

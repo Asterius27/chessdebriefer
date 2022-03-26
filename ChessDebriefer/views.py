@@ -7,7 +7,7 @@ from ChessDebriefer.Logic.openings import calculate_eco_stats
 from ChessDebriefer.Logic.general import handle_pgn_uploads, handle_pgn_openings_upload
 from ChessDebriefer.Logic.percentages_database import calculate_percentages_database, \
     calculate_event_percentages_database, calculate_termination_percentages_database, \
-    calculate_opening_percentages_database
+    calculate_opening_percentages_database, calculate_throws_comebacks
 
 
 # TODO remove
@@ -91,6 +91,13 @@ def termination_percentages(request, name):
 def compare_terminations(request, name):
     if request.method == 'GET':
         return JsonResponse(calculate_termination_comparisons(name, request.GET))
+    else:
+        return HttpResponse(status=405)
+
+
+def throw_comeback_percentages(request, name):
+    if request.method == 'GET':
+        return JsonResponse(calculate_throws_comebacks(name, request.GET))
     else:
         return HttpResponse(status=405)
 

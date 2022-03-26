@@ -1,13 +1,14 @@
 import datetime
 import re
+from mongoengine import Q
+from ChessDebriefer.Logic.games import average_game_centipawn
 from ChessDebriefer.models import Games
 
 
-# TODO add throw comeback percentages
 def calculate_percentages_database(name, params):
     response = {}
-    white = create_side_percentages_dictionary(name, params, True)
-    black = create_side_percentages_dictionary(name, params, False)
+    white = create_side_percentages_dictionary(name, params, True, '', '')
+    black = create_side_percentages_dictionary(name, params, False, '', '')
     side_percentages = {'white': white['white'], 'black': black['black']}
     response['general percentages'] = {'your wins': side_percentages['white']['your wins'] +
                                                     side_percentages['black']['your wins'],
@@ -25,7 +26,6 @@ def calculate_percentages_database(name, params):
         round((response['general percentages']['your draws'] / (response['general percentages']['your wins'] +
               response['general percentages']['your losses'] + response['general percentages']['your draws'])) * 100, 2)
     response['side percentages'] = side_percentages
-    response['throw comeback percentages'] = {}
     return response
 
 
@@ -33,17 +33,43 @@ def calculate_event_percentages_database(name, params):
     return create_percentages_dictionary(name, params, 'event', [])
 
 
-# TODO add management of eco param, add from to eco query, ex. A01..B30
+# TODO add other params with eco param, add from to eco query, ex. A01..B30
 def calculate_opening_percentages_database(name, params):
     if "eco" not in params.keys():
         return create_percentages_dictionary(name, params, 'eco', [])
     else:
-        ecos = params["ecos"].split(",")
-        return create_percentages_dictionary(name, params, 'eco', ecos)
+        response = {}
+        ecos = params["eco"].split(",")
+        variations_dictionary = eco_variations_query(name, ecos)
+        general_dictionary = create_percentages_dictionary(name, {}, 'eco', ecos)
+        for eco in ecos:
+            if eco in variations_dictionary.keys() and eco in general_dictionary.keys():
+                response[eco] = {}
+                response[eco]["general stats"] = general_dictionary[eco]
+                response[eco]["side stats"] = {}
+                response[eco]["side stats"]["white"] = create_side_percentages_dictionary(name, {}, True, 'eco', eco)
+                response[eco]["side stats"]["black"] = create_side_percentages_dictionary(name, {}, False, 'eco', eco)
+                response[eco]["variations stats"] = variations_dictionary[eco]
+        return response
 
 
 def calculate_termination_percentages_database(name, params):
     return create_percentages_dictionary(name, params, 'termination', [])
+
+
+def calculate_throws_comebacks(name, params):
+    from_date, to_date, min_elo, max_elo, opponent = check_params(params)
+    if "opponent" not in params.keys():
+        games = Games.objects.filter(((Q(white=name) & Q(white_elo__gte=min_elo) & Q(white_elo__lte=max_elo)) |
+                                      (Q(black=name) & Q(black_elo__gte=min_elo) & Q(black_elo__lte=max_elo)))
+                                     & Q(date__gte=from_date) & Q(date__lte=to_date))
+    else:
+        games = Games.objects.filter(((Q(white=name) & Q(black=params["opponent"]) & Q(white_elo__gte=min_elo) &
+                                       Q(white_elo__lte=max_elo)) | (Q(black=name) & Q(white=params["opponent"]) &
+                                                                     Q(black_elo__gte=min_elo) &
+                                                                     Q(black_elo__lte=max_elo))) &
+                                     Q(date__gte=from_date) & Q(date__lte=to_date))
+    return filter_throws_comebacks(games, name)
 
 
 def create_percentages_dictionary(name, params, group, specific):
@@ -143,7 +169,7 @@ def create_percentages_dictionary(name, params, group, specific):
     return dictionary
 
 
-def create_side_percentages_dictionary(name, params, side):
+def create_side_percentages_dictionary(name, params, side, select, specific):
     dictionary = {}
     from_date, to_date, min_elo, max_elo, opponent = check_params(params)
     if side:
@@ -174,24 +200,45 @@ def create_side_percentages_dictionary(name, params, side):
         }
     }
     if opponent:
-        player_percentages = Games.objects.aggregate([
-            {
-                '$match': {'$and': [{player: name}, {player_opponent: opponent},
-                                    {player_elo: {'$gt': min_elo, '$lt': max_elo}},
-                                    {'date': {'$gt': from_date, '$lt': to_date}}]}
-            },
-            project_query,
-            group_query
-        ])
+        if specific and select:
+            player_percentages = Games.objects.aggregate([
+                {
+                    '$match': {'$and': [{player: name}, {player_opponent: opponent},
+                                        {player_elo: {'$gt': min_elo, '$lt': max_elo}},
+                                        {'date': {'$gt': from_date, '$lt': to_date}}, {select: specific}]}
+                },
+                project_query,
+                group_query
+            ])
+        else:
+            player_percentages = Games.objects.aggregate([
+                {
+                    '$match': {'$and': [{player: name}, {player_opponent: opponent},
+                                        {player_elo: {'$gt': min_elo, '$lt': max_elo}},
+                                        {'date': {'$gt': from_date, '$lt': to_date}}]}
+                },
+                project_query,
+                group_query
+            ])
     else:
-        player_percentages = Games.objects.aggregate([
-            {
-                '$match': {'$and': [{player: name}, {player_elo: {'$gt': min_elo, '$lt': max_elo}},
-                                    {'date': {'$gt': from_date, '$lt': to_date}}]}
-            },
-            project_query,
-            group_query
-        ])
+        if specific and select:
+            player_percentages = Games.objects.aggregate([
+                {
+                    '$match': {'$and': [{player: name}, {player_elo: {'$gt': min_elo, '$lt': max_elo}},
+                                        {'date': {'$gt': from_date, '$lt': to_date}}, {select: specific}]}
+                },
+                project_query,
+                group_query
+            ])
+        else:
+            player_percentages = Games.objects.aggregate([
+                {
+                    '$match': {'$and': [{player: name}, {player_elo: {'$gt': min_elo, '$lt': max_elo}},
+                                        {'date': {'$gt': from_date, '$lt': to_date}}]}
+                },
+                project_query,
+                group_query
+            ])
     for s in player_percentages:
         percentage_won = round((s['wins'] / (s['wins'] + s['losses'] + s['draws'])) * 100, 2)
         percentage_lost = round((s['losses'] / (s['wins'] + s['losses'] + s['draws'])) * 100, 2)
@@ -199,6 +246,78 @@ def create_side_percentages_dictionary(name, params, side):
         dictionary[player] = {'your wins': s['wins'], 'your losses': s['losses'], 'your draws': s['draws'],
                               'your win percentage': percentage_won, 'your loss percentage': percentage_lost,
                               'your draw percentage': percentage_drawn}
+    return dictionary
+
+
+def eco_variations_query(name, ecos):
+    dictionary = {}
+    variation_percentages = Games.objects.aggregate([
+        {
+            '$match': {'$and': [
+                {'$or': [{'white': name}, {'black': name}]},
+                {'eco': {'$in': ecos}}
+            ]}
+        },
+        {
+            '$lookup': {
+                'from': 'openings',
+                'let': {'op': '$opening_id'},
+                'pipeline': [
+                    {'$match': {'$expr': {'$eq': ['$_id', '$$op']}}},
+                    {'$project': {'_id': 0, 'eco': 0, 'moves': 0, 'engine_evaluation': 0}}
+                ],
+                'as': 'opening_name'
+            }
+        },
+        {
+            '$replaceRoot': {'newRoot': {'$mergeObjects': [{'$arrayElemAt': ['$opening_name', 0]}, '$$ROOT']}}
+        },
+        {
+            '$project': {
+                'eco': 1,
+                'opening_id': 1,
+                'white_opening': 1,
+                'black_opening': 1,
+                'win': {'$cond': {'if': {'$or': [
+                    {'$and': [{'$eq': ['$result', '1-0']}, {'$eq': ['$white', name]}]},
+                    {'$and': [{'$eq': ['$result', '0-1']}, {'$eq': ['$black', name]}]}
+                ]}, 'then': 1, 'else': 0}},
+                'loss': {'$cond': {'if': {'$or': [
+                    {'$and': [{'$eq': ['$result', '1-0']}, {'$eq': ['$black', name]}]},
+                    {'$and': [{'$eq': ['$result', '0-1']}, {'$eq': ['$white', name]}]}
+                ]}, 'then': 1, 'else': 0}},
+                'draw': {'$cond': {'if': {'$eq': ['$result', '1/2-1/2']}, 'then': 1, 'else': 0}}
+            }
+        },
+        {
+            '$group': {
+                '_id': '$opening_id',
+                'eco': {'$first': '$eco'},
+                'white_opening': {'$first': '$white_opening'},
+                'black_opening': {'$first': '$black_opening'},
+                'wins': {'$sum': '$win'},
+                'losses': {'$sum': '$loss'},
+                'draws': {'$sum': '$draw'}
+            }
+        }
+    ])
+    i = 0
+    for s in variation_percentages:
+        if s['eco'] not in dictionary.keys():
+            dictionary[s['eco']] = {}
+        percentage_won = round((s['wins'] / (s['wins'] + s['losses'] + s['draws'])) * 100, 2)
+        percentage_lost = round((s['losses'] / (s['wins'] + s['losses'] + s['draws'])) * 100, 2)
+        percentage_drawn = round((s['draws'] / (s['wins'] + s['losses'] + s['draws'])) * 100, 2)
+        if s['black_opening'] != '?':
+            key = s['white_opening'] + " " + s['black_opening']
+        else:
+            key = s['white_opening']
+        if key in dictionary[s['eco']].keys():
+            key = key + " " + str(i)
+            i += 1
+        dictionary[s['eco']][key] = {'your wins': s['wins'], 'your losses': s['losses'], 'your draws': s['draws'],
+                                     'your win percentage': percentage_won, 'your loss percentage': percentage_lost,
+                                     'your draw percentage': percentage_drawn}
     return dictionary
 
 
@@ -246,3 +365,31 @@ def check_params(params):
     else:
         opponent = params["opponent"]
     return from_date, to_date, min_elo, max_elo, opponent
+
+
+def filter_throws_comebacks(games, name):
+    throws = 0
+    comebacks = 0
+    losses = 0
+    wins = 0
+    percentage_throws = 0
+    percentage_comebacks = 0
+    for game in games:
+        if (game.white == name and game.result == "0-1") or (game.black == name and game.result == "1-0"):
+            cp = average_game_centipawn(game, name)
+            losses = losses + 1
+            if cp > 0:
+                throws = throws + 1
+        if (game.white == name and game.result == "1-0") or (game.black == name and game.result == "0-1"):
+            cp = average_game_centipawn(game, name)
+            wins = wins + 1
+            if cp < 0:
+                comebacks = comebacks + 1
+    if losses != 0:
+        percentage_throws = round((throws * 1. / losses) * 100, 2)
+    if wins != 0:
+        percentage_comebacks = round((comebacks * 1. / wins) * 100, 2)
+    if wins == 0 and losses == 0:
+        return {}
+    return {"throws": throws, "losses": losses, "percentage_throws": percentage_throws, "comebacks": comebacks,
+            "wins": wins, "percentage_comebacks": percentage_comebacks}

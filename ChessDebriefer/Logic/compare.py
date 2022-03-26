@@ -9,8 +9,8 @@ from ChessDebriefer.models import Games, Players
 def calculate_percentages_comparisons(name, params):
     response = {}
     elo, r = check_params_comparisons(name, params)
-    white_percentages = create_side_percentages_dictionary(name, {}, True)
-    black_percentages = create_side_percentages_dictionary(name, {}, False)
+    white_percentages = create_side_percentages_dictionary(name, {}, True, '', '')
+    black_percentages = create_side_percentages_dictionary(name, {}, False, '', '')
     side_percentages = {'white': white_percentages['white'], 'black': black_percentages['black']}
     names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
     other_players_white_percentages = create_other_players_side_percentages_dictionary(names, {}, True)
