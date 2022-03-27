@@ -1559,6 +1559,53 @@ A backend that parses and analyses pgn files
 
 <details>
   <summary> 
+  <h3> GET /:name/percentages/openings/best-worst </h3>
+  
+  </summary>
+  
+  #### URI parameters
+  * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
+  * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"your best": [
+			"B01",
+			"C02",
+			"C23"
+		],
+		"your worst": [
+			"C24",
+			"C00",
+			"B20"
+		],
+		"other players best": [
+			"C28",
+			"C48",
+			"D01"
+		],
+		"other players worst": [
+			"C80",
+			"B31",
+			"C11"
+		]
+	}
+  ```
+</details>
+	
+</details>
+
+<details>
+  <summary> 
   <h3> GET /:name/percentages/terminations </h3>
   
   </summary>
@@ -1653,6 +1700,42 @@ A backend that parses and analyses pgn files
 			"your draw percentage": 5.59,
 			"other players draw percentage": 4.32
 		}
+	}
+  ```
+</details>
+	
+</details>
+
+<details>
+  <summary> 
+  <h3> GET /:name/percentages/throws-comebacks </h3>
+  
+  </summary>
+  
+  #### URI parameters
+  * **opponent** : (optional) find only the matches played against this opponent
+  * **from** : (optional) find only the matches played after this date
+  * **to** : (optional) find only the matches played before this date
+  * **minelo** : (optional) find only the matches played where your elo was greater than this
+  * **maxelo** : (optional) find only the matches played where your elo was lower than this
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"throws": 34,
+		"losses": 86,
+		"percentage_throws": 39.53,
+		"comebacks": 10,
+		"wins": 105,
+		"percentage_comebacks": 9.52
 	}
   ```
 </details>
