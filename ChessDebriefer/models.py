@@ -1,7 +1,7 @@
 from mongoengine import *
 
 
-# missing fields: time
+# TODO add time to the date field
 # required fields, other constraints?
 class Games(Document):
     event = StringField()

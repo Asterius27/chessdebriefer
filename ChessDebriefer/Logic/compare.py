@@ -2,8 +2,6 @@ from mongoengine import Q
 from ChessDebriefer.Logic.percentages_database import create_side_percentages_dictionary, create_percentages_dictionary
 from ChessDebriefer.models import Games, Players
 
-# TODO find a way to retrieve player elo with a query on Games, without using Players
-
 
 # TODO add params like date (from - to)?
 def calculate_percentages_comparisons(name, params):
@@ -150,7 +148,7 @@ def create_other_players_side_percentages_dictionary(names, params, side):
     return dictionary
 
 
-# $in query slows things down
+# TODO $in query slows things down (2-5 seconds)
 def create_other_players_percentages_dictionary(names, params, group, specific):
     dictionary = {}
     dollar_group = '$' + group
@@ -219,3 +217,63 @@ def check_params_comparisons(name, params):
     else:
         r = 100
     return elo, r
+
+
+# TODO works but it is slow (20 seconds more or less), use this or cache?
+def find_players(name, elo, r):
+    players = Games.objects.aggregate([
+        {
+            '$sort': {'date': -1}
+        },
+        {
+            '$group': {
+                '_id': '$white',
+                'elo': {'$first': '$white_elo'},
+                'date': {'$first': '$date'}
+            }
+        },
+        {
+            '$lookup': {
+                'from': 'games',
+                'let': {'player': '$_id', 'white_date': '$date'},
+                'pipeline': [
+                    {'$sort': {'date': -1}},
+                    {'$group': {
+                        '_id': '$black',
+                        'new_elo': {'$first': '$black_elo'},
+                        'date': {'$first': '$date'}
+                    }},
+                    {'$match': {'$expr': {'$and': [
+                        {'$eq': ['$_id', '$$player']},
+                        {'$gt': ['$date', '$$white_date']}
+                    ]}}},
+                    {'$project': {'_id': 0, 'date': 0}}
+                ],
+                'as': 'arr'
+            }
+        },
+        {
+            '$replaceRoot': {'newRoot': {'$mergeObjects': [{'$arrayElemAt': ['$arr', 0]}, '$$ROOT']}}
+        },
+        {
+            '$project': {
+                '_id': 1,
+                'elo': {'$ifNull': ['$new_elo', '$elo']}
+            }
+        },
+        {
+            '$match': {
+                '$and': [{'_id': {'$ne': name}}, {'elo': {'$gte': elo - r, '$lte': elo + r}}]
+            }
+        },
+        {
+            '$group': {
+                '_id': 'null',
+                'names': {'$push': '$_id'}
+            }
+        }
+    ])
+    names = []
+    for player in players:
+        names = player['names']
+    return names
