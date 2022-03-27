@@ -52,14 +52,6 @@ A backend that parses and analyses pgn files
 				"lost_games": 50,
 				"drawn_games": 5
 			}
-		},
-		"Throw comeback percentages": {
-			"throws": 34,
-			"losses": 86,
-			"percentage_throws": 39.53,
-			"comebacks": 10,
-			"wins": 105,
-			"percentage_comebacks": 9.52
 		}
 	}
   ```
