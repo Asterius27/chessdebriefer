@@ -6,6 +6,8 @@ from mongoengine import Q
 from ChessDebriefer.Logic.games import find_opening
 from ChessDebriefer.models import Games, FieldsCache, Openings, Players
 
+# TODO code cleanup
+
 
 # only works with 1 file upload at a time, and it takes a lot of time to parse everything
 def handle_pgn_uploads(f):

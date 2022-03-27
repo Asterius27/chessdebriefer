@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from ChessDebriefer.Logic.accuracy import calculate_accuracy
 from ChessDebriefer.Logic.compare import calculate_opening_comparisons, calculate_percentages_comparisons, \
     calculate_event_comparisons, calculate_termination_comparisons
-from ChessDebriefer.Logic.demo import calculate_openings_best_worst
+from ChessDebriefer.Logic.demo import calculate_openings_best_worst, calculate_openings_best_worst_simplified
 from ChessDebriefer.Logic.openings import calculate_eco_stats
 from ChessDebriefer.Logic.general import handle_pgn_uploads, handle_pgn_openings_upload
 from ChessDebriefer.Logic.percentages_database import calculate_percentages_database, \
@@ -83,7 +83,8 @@ def compare_openings(request, name):
 
 def openings_best_worst(request, name):
     if request.method == 'GET':
-        return JsonResponse(calculate_openings_best_worst(name, request.GET))
+        return JsonResponse(calculate_openings_best_worst_simplified(name, request.GET))
+        # return JsonResponse(calculate_openings_best_worst(name, request.GET))
     else:
         return HttpResponse(status=405)
 
