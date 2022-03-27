@@ -124,7 +124,7 @@ def evaluate_opening_engine(opening):
         opening.save()
 
 
-# slow
+# slow, deprecated
 def evaluate_opening_database(opening, min_elo, tournament):
     cached_fields = FieldsCache.objects.first()
     filtered_games = Games.objects.filter((Q(eco="") | Q(opening_id=ObjectId("000000000000000000000000")))

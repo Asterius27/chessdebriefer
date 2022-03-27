@@ -1,10 +1,10 @@
 import re
 from mongoengine import Q
-from ChessDebriefer.Logic.games import evaluate_opening_database, evaluate_opening_engine
-from ChessDebriefer.models import Openings
+from ChessDebriefer.Logic.games import evaluate_opening_engine
+from ChessDebriefer.models import Openings, Games
 
 
-# TODO use database queries instead, add specific elo in the params (elo - r, elo + r) and specific eco
+# TODO add specific elo in the params (elo - r, elo + r)
 def calculate_eco_stats(eco, params):
     elo_pattern = re.compile(r'^\d{1,4}$')
     if params:
@@ -40,7 +40,7 @@ def calculate_eco_stats(eco, params):
             name = opening.white_opening + " " + opening.black_opening
         else:
             name = opening.white_opening
-        dictionary = evaluate_opening_database(opening, min_elo, tournament)
+        dictionary = calculate_variation_stats(opening.id, min_elo, tournament)
         evaluate_opening_engine(opening)
         dictionary["engine_evaluation"] = float(opening.engine_evaluation)
         if name not in variations.keys():
@@ -60,3 +60,62 @@ def calculate_eco_stats(eco, params):
                      "percentage_black_wins": percentage_eco_black_wins, "percentage_draws_wins": percentage_eco_draws}
     response["variations"] = variations
     return response
+
+
+def calculate_variation_stats(opening, min_elo, tournament):
+    dictionary = {'white_wins': 0, 'black_wins': 0, 'draws': 0, 'white_win_percentage': 0., 'black_win_percentage': 0.,
+                  'draw_percentage': 0.}
+    if tournament == "true":
+        match_query = {
+            '$match': {'$and': [{'opening_id': opening}, {'white_elo': {'$gt': min_elo}},
+                                {'black_elo': {'$gt': min_elo}}, {'event': {'$regex': 'tournament'}}]}
+        }
+    else:
+        match_query = {
+            '$match': {'$and': [{'opening_id': opening}, {'white_elo': {'$gt': min_elo}},
+                                {'black_elo': {'$gt': min_elo}}]}
+        }
+    opening_stats = Games.objects.aggregate([
+        match_query,
+        {
+            '$project': {
+                'white_win': {'$cond': {'if': {'$eq': ['$result', '1-0']}, 'then': 1, 'else': 0}},
+                'black_win': {'$cond': {'if': {'$eq': ['$result', '0-1']}, 'then': 1, 'else': 0}},
+                'draw': {'$cond': {'if': {'$eq': ['$result', '1/2-1/2']}, 'then': 1, 'else': 0}},
+            }
+        },
+        {
+            '$group': {
+                '_id': 'null',
+                'white_wins': {'$sum': '$white_win'},
+                'black_wins': {'$sum': '$black_win'},
+                'draws': {'$sum': '$draw'}
+            }
+        },
+        {
+            '$project': {
+                '_id': 0,
+                'white_wins': 1,
+                'black_wins': 1,
+                'draws': 1,
+                'white_win_percentage': {'$round': [
+                    {'$multiply': [{'$divide': [
+                        '$white_wins', {'$add': ['$white_wins', '$black_wins', '$draws']}
+                    ]}, 100]}, 2
+                ]},
+                'black_win_percentage': {'$round': [
+                    {'$multiply': [{'$divide': [
+                        '$black_wins', {'$add': ['$white_wins', '$black_wins', '$draws']}
+                    ]}, 100]}, 2
+                ]},
+                'draw_percentage': {'$round': [
+                    {'$multiply': [{'$divide': [
+                        '$draws', {'$add': ['$white_wins', '$black_wins', '$draws']}
+                    ]}, 100]}, 2
+                ]}
+            }
+        }
+    ])
+    for op in opening_stats:
+        dictionary = op
+    return dictionary
