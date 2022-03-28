@@ -33,22 +33,24 @@ def calculate_event_percentages_database(name, params):
     return create_percentages_dictionary(name, params, 'event', [])
 
 
-# TODO add other params with eco param, add from to eco query, ex. A01..B30
+# TODO add from to eco query, ex. A01..B30
 def calculate_opening_percentages_database(name, params):
     if "eco" not in params.keys():
         return create_percentages_dictionary(name, params, 'eco', [])
     else:
         response = {}
         ecos = params["eco"].split(",")
-        variations_dictionary = eco_variations_query(name, ecos)
-        general_dictionary = create_percentages_dictionary(name, {}, 'eco', ecos)
+        variations_dictionary = eco_variations_query(name, params, ecos)
+        general_dictionary = create_percentages_dictionary(name, params, 'eco', ecos)
         for eco in ecos:
             if eco in variations_dictionary.keys() and eco in general_dictionary.keys():
                 response[eco] = {}
                 response[eco]["general stats"] = general_dictionary[eco]
                 response[eco]["side stats"] = {}
-                response[eco]["side stats"]["white"] = create_side_percentages_dictionary(name, {}, True, 'eco', eco)
-                response[eco]["side stats"]["black"] = create_side_percentages_dictionary(name, {}, False, 'eco', eco)
+                response[eco]["side stats"]["white"] = create_side_percentages_dictionary(name, params, True, 'eco',
+                                                                                          eco)
+                response[eco]["side stats"]["black"] = create_side_percentages_dictionary(name, params, False, 'eco',
+                                                                                          eco)
                 response[eco]["variations stats"] = variations_dictionary[eco]
         return response
 
@@ -249,15 +251,31 @@ def create_side_percentages_dictionary(name, params, side, select, specific):
     return dictionary
 
 
-def eco_variations_query(name, ecos):
+def eco_variations_query(name, params, ecos):
     dictionary = {}
-    variation_percentages = Games.objects.aggregate([
-        {
+    from_date, to_date, min_elo, max_elo, opponent = check_params(params)
+    if opponent:
+        match_query = {
             '$match': {'$and': [
-                {'$or': [{'white': name}, {'black': name}]},
+                {'$or': [{'$and': [{'white': name}, {'black': opponent},
+                                   {'white_elo': {'$gt': min_elo, '$lt': max_elo}}]},
+                         {'$and': [{'black': name}, {'white': opponent},
+                                   {'black_elo': {'$gt': min_elo, '$lt': max_elo}}]}]},
+                {'date': {'$gt': from_date, '$lt': to_date}},
                 {'eco': {'$in': ecos}}
             ]}
-        },
+        }
+    else:
+        match_query = {
+            '$match': {'$and': [
+                {'$or': [{'$and': [{'white': name}, {'white_elo': {'$gt': min_elo, '$lt': max_elo}}]},
+                         {'$and': [{'black': name}, {'black_elo': {'$gt': min_elo, '$lt': max_elo}}]}]},
+                {'date': {'$gt': from_date, '$lt': to_date}},
+                {'eco': {'$in': ecos}}
+            ]}
+        }
+    variation_percentages = Games.objects.aggregate([
+        match_query,
         {
             '$lookup': {
                 'from': 'openings',
