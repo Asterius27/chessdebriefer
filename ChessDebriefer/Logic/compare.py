@@ -200,25 +200,6 @@ def create_other_players_percentages_dictionary(names, params, group, specific):
     return dictionary
 
 
-def check_params_comparisons(name, params):
-    if "elo" in params.keys():
-        elo = params["elo"]
-    else:
-        player = Games.objects.filter(Q(white=name) | Q(black=name)).order_by('-date').first()
-        if player:
-            if player.white == name:
-                elo = player.white_elo
-            else:
-                elo = player.black_elo
-        else:
-            elo = 0
-    if "range" in params.keys():
-        r = params["range"]
-    else:
-        r = 100
-    return elo, r
-
-
 # TODO works but it is slow (20 seconds more or less), use this or cache?
 def find_players(name, elo, r):
     players = Games.objects.aggregate([
@@ -277,3 +258,22 @@ def find_players(name, elo, r):
     for player in players:
         names = player['names']
     return names
+
+
+def check_params_comparisons(name, params):
+    if "elo" in params.keys():
+        elo = params["elo"]
+    else:
+        player = Games.objects.filter(Q(white=name) | Q(black=name)).order_by('-date').first()
+        if player:
+            if player.white == name:
+                elo = player.white_elo
+            else:
+                elo = player.black_elo
+        else:
+            elo = 0
+    if "range" in params.keys():
+        r = params["range"]
+    else:
+        r = 100
+    return elo, r

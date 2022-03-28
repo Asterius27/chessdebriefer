@@ -4,27 +4,34 @@ from ChessDebriefer.Logic.games import evaluate_opening_engine
 from ChessDebriefer.models import Openings, Games
 
 
-# TODO add specific elo in the params (elo - r, elo + r)
 def calculate_eco_stats(eco, params):
     elo_pattern = re.compile(r'^\d{1,4}$')
-    if params:
-        if "min_elo" in params.keys():
-            if elo_pattern.match(params["min_elo"]):
-                min_elo = int(params["min_elo"])
-            else:
-                min_elo = 0
+    if "min_elo" in params.keys():
+        if elo_pattern.match(params["min_elo"]):
+            min_elo = int(params["min_elo"])
         else:
             min_elo = 0
-        if "tournament" in params.keys():
-            if params["tournament"] == "false" or params["tournament"] == "true":
-                tournament = params["tournament"]
-            else:
-                tournament = "false"
+    else:
+        min_elo = 0
+    if "tournament" in params.keys():
+        if params["tournament"] == "false" or params["tournament"] == "true":
+            tournament = params["tournament"]
         else:
             tournament = "false"
     else:
-        min_elo = 0
         tournament = "false"
+    if min_elo == 0:
+        if "elo" in params.keys():
+            if "range" in params.keys():
+                r = params["range"]
+            else:
+                r = 100
+            min_elo = params.keys["elo"] - r
+            max_elo = params.keys["elo"] + r
+        else:
+            max_elo = 9999
+    else:
+        max_elo = 9999
     openings = Openings.objects.filter(Q(eco=eco))
     response = {}
     variations = {}
@@ -40,7 +47,7 @@ def calculate_eco_stats(eco, params):
             name = opening.white_opening + " " + opening.black_opening
         else:
             name = opening.white_opening
-        dictionary = calculate_variation_stats(opening.id, min_elo, tournament)
+        dictionary = calculate_variation_stats(opening.id, min_elo, max_elo, tournament)
         evaluate_opening_engine(opening)
         dictionary["engine_evaluation"] = float(opening.engine_evaluation)
         if name not in variations.keys():
@@ -62,18 +69,18 @@ def calculate_eco_stats(eco, params):
     return response
 
 
-def calculate_variation_stats(opening, min_elo, tournament):
+def calculate_variation_stats(opening, min_elo, max_elo, tournament):
     dictionary = {'white_wins': 0, 'black_wins': 0, 'draws': 0, 'white_win_percentage': 0., 'black_win_percentage': 0.,
                   'draw_percentage': 0.}
     if tournament == "true":
         match_query = {
-            '$match': {'$and': [{'opening_id': opening}, {'white_elo': {'$gt': min_elo}},
-                                {'black_elo': {'$gt': min_elo}}, {'event': {'$regex': 'tournament'}}]}
+            '$match': {'$and': [{'opening_id': opening}, {'white_elo': {'$gt': min_elo, '$lt': max_elo}},
+                                {'black_elo': {'$gt': min_elo, '$lt': max_elo}}, {'event': {'$regex': 'tournament'}}]}
         }
     else:
         match_query = {
-            '$match': {'$and': [{'opening_id': opening}, {'white_elo': {'$gt': min_elo}},
-                                {'black_elo': {'$gt': min_elo}}]}
+            '$match': {'$and': [{'opening_id': opening}, {'white_elo': {'$gt': min_elo, '$lt': max_elo}},
+                                {'black_elo': {'$gt': min_elo, '$lt': max_elo}}]}
         }
     opening_stats = Games.objects.aggregate([
         match_query,
