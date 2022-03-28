@@ -18,13 +18,18 @@ def calculate_percentages_database(name, params):
                                                      side_percentages['black']['your draws']}
     response['general percentages']['your win percentage'] = \
         round((response['general percentages']['your wins'] / (response['general percentages']['your wins'] +
-              response['general percentages']['your losses'] + response['general percentages']['your draws'])) * 100, 2)
+                                                               response['general percentages']['your losses'] +
+                                                               response['general percentages']['your draws'])) * 100, 2)
     response['general percentages']['your loss percentage'] = \
         round((response['general percentages']['your losses'] / (response['general percentages']['your wins'] +
-              response['general percentages']['your losses'] + response['general percentages']['your draws'])) * 100, 2)
+                                                                 response['general percentages']['your losses'] +
+                                                                 response['general percentages']['your draws'])) * 100,
+              2)
     response['general percentages']['your draw percentage'] = \
         round((response['general percentages']['your draws'] / (response['general percentages']['your wins'] +
-              response['general percentages']['your losses'] + response['general percentages']['your draws'])) * 100, 2)
+                                                                response['general percentages']['your losses'] +
+                                                                response['general percentages']['your draws'])) * 100,
+              2)
     response['side percentages'] = side_percentages
     return response
 
@@ -33,13 +38,16 @@ def calculate_event_percentages_database(name, params):
     return create_percentages_dictionary(name, params, 'event', [])
 
 
-# TODO add from to eco query, ex. A01..B30
 def calculate_opening_percentages_database(name, params):
     if "eco" not in params.keys():
         return create_percentages_dictionary(name, params, 'eco', [])
     else:
         response = {}
-        ecos = params["eco"].split(",")
+        if "-" in params["eco"]:
+            boundaries = params["eco"].split("-")
+            ecos = calculate_ecos_list(boundaries)
+        else:
+            ecos = params["eco"].split(",")
         variations_dictionary = eco_variations_query(name, params, ecos)
         general_dictionary = create_percentages_dictionary(name, params, 'eco', ecos)
         for eco in ecos:
@@ -411,3 +419,26 @@ def filter_throws_comebacks(games, name):
         return {}
     return {"throws": throws, "losses": losses, "percentage_throws": percentage_throws, "comebacks": comebacks,
             "wins": wins, "percentage_comebacks": percentage_comebacks}
+
+
+# upper bound is excluded
+def calculate_ecos_list(boundaries):
+    ecos = []
+    letter = boundaries[0][0]
+    number = int(boundaries[0][1] + boundaries[0][2])
+    while letter + new_str(number) != boundaries[1]:
+        ecos.append(letter + new_str(number))
+        if number < 99:
+            number += 1
+        else:
+            number = 0
+            letter = chr(ord(letter) + 1)
+    print(ecos)
+    return ecos
+
+
+def new_str(n):
+    if n < 10:
+        return "0" + str(n)
+    else:
+        return str(n)
