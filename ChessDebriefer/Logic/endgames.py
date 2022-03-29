@@ -1,5 +1,6 @@
 import io
 import chess.pgn
+import chess.syzygy
 from mongoengine import Q
 from ChessDebriefer.models import Games
 
@@ -13,53 +14,73 @@ def calculate_endgame_percentages(name, params):
     draws_adv = 0
     wins_disadv = 0
     draws_disadv = 0
+    tb_adv = 2
+    predicted_wins = 0
+    predicted_losses = 0
+    predicted_draws = 0
     if "pieces" in params.keys():
-        pieces = params["pieces"]
+        pieces = int(params["pieces"])
     else:
         pieces = 10
     games = Games.objects.filter(Q(white=name) | Q(black=name))
     n_endgame_games, n_games, endgame_games = find_endgame_matches(pieces, games)
     percentage_endgames = round((n_endgame_games / (n_games * 1.)) * 100, 2)
-    for (game, parsed_game) in endgame_games:
-        adv = material_advantage(pieces, parsed_game.end())
-        if game.result == '1-0':
-            if game.white == name:
-                wins += 1
-                if adv:
-                    advantage += 1
-                    wins_adv += 1
+    with chess.syzygy.open_tablebase("syzygy345pieces") as tb:
+        for (game, parsed_game) in endgame_games:
+            adv, endgame_board = material_advantage(pieces, parsed_game.end())
+            if pieces <= 5:
+                if game.white == name:
+                    tb_adv = tablebase_evaluation(tb, endgame_board, True)
                 else:
-                    wins_disadv += 1
-            if game.black == name:
-                losses += 1
-                if not adv:
-                    advantage += 1
-        if game.result == '0-1':
-            if game.white == name:
-                losses += 1
-                if adv:
-                    advantage += 1
-            if game.black == name:
-                wins += 1
-                if not adv:
-                    advantage += 1
-                    wins_adv += 1
-                else:
-                    wins_disadv += 1
-        if game.result == '1/2-1/2':
-            draws += 1
-            if game.white == name:
-                if adv:
-                    advantage += 1
-                    draws_adv += 1
-                else:
-                    draws_disadv += 1
-            if game.black == name:
-                if not adv:
-                    advantage += 1
-                    draws_adv += 1
-                else:
-                    draws_disadv += 1
+                    tb_adv = tablebase_evaluation(tb, endgame_board, False)
+            if game.result == '1-0':
+                if game.white == name:
+                    wins += 1
+                    if tb_adv == 1:
+                        predicted_wins += 1
+                    if adv:
+                        advantage += 1
+                        wins_adv += 1
+                    else:
+                        wins_disadv += 1
+                if game.black == name:
+                    losses += 1
+                    if tb_adv == -1:
+                        predicted_losses += 1
+                    if not adv:
+                        advantage += 1
+            if game.result == '0-1':
+                if game.white == name:
+                    losses += 1
+                    if tb_adv == -1:
+                        predicted_losses += 1
+                    if adv:
+                        advantage += 1
+                if game.black == name:
+                    wins += 1
+                    if tb_adv == 1:
+                        predicted_wins += 1
+                    if not adv:
+                        advantage += 1
+                        wins_adv += 1
+                    else:
+                        wins_disadv += 1
+            if game.result == '1/2-1/2':
+                draws += 1
+                if tb_adv == 0:
+                    predicted_draws += 1
+                if game.white == name:
+                    if adv:
+                        advantage += 1
+                        draws_adv += 1
+                    else:
+                        draws_disadv += 1
+                if game.black == name:
+                    if not adv:
+                        advantage += 1
+                        draws_adv += 1
+                    else:
+                        draws_disadv += 1
     return {'endgames': n_endgame_games,
             'percentage of games that finish in the endgame': percentage_endgames, 'wins': wins, 'losses': losses,
             'draws': draws, 'endgames with material advantage': advantage,
@@ -69,7 +90,9 @@ def calculate_endgame_percentages(name, params):
             'draws with material advantage': draws_adv,
             'wins without material advantage': wins_disadv,
             'losses without material advantage': (n_endgame_games - advantage) - (wins_disadv + draws_disadv),
-            'draws without material advantage': draws_disadv}
+            'draws without material advantage': draws_disadv, 'matches you should not have won': wins - predicted_wins,
+            'matches you should not have lost': losses - predicted_losses,
+            'matches you should not have drawn': draws - predicted_draws}
 
 
 # only 6.6% of matches would end in the endgame (7983 out of 121114) (5 pieces or fewer)
@@ -116,5 +139,21 @@ def material_advantage(n, parsed_game):
             black += 1
         if char in pieces.upper():
             white += 1
-    return white > black
+    return white > black, end_game_start.board()
+
+
+def tablebase_evaluation(tb, board, side):
+    res = tb.probe_wdl(board)
+    if res > 0:
+        if board.turn == side:
+            return 1
+        else:
+            return -1
+    if res < 0:
+        if board.turn == side:
+            return -1
+        else:
+            return 1
+    if res == 0:
+        return 0
 
