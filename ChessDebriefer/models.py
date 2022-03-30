@@ -24,13 +24,14 @@ class Games(Document):
     moves_evaluation = ListField(StringField())
 
 
-# TODO remove it if it is no longer needed
+'''DEPRECATED
 # document used as cache
 class FieldsCache(Document):
     event = ListField(StringField())
     opening_id = ListField(ObjectIdField())
     eco = ListField(StringField())
     termination = ListField(StringField())
+'''
 
 
 # document used as cache
@@ -38,11 +39,11 @@ class Players(Document):
     name = StringField(unique=True)
     elo = IntField()
     elo_date = DateField()
-    openings = DictField()
-    terminations = DictField()
-    events = DictField()
     accuracy = DictField()
-    percentages = DictField()
+#    openings = DictField()
+#    terminations = DictField()
+#    events = DictField()
+#    percentages = DictField()
 
 
 class Openings(Document):

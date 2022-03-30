@@ -40,7 +40,6 @@ def upload_openings(request):
 def percentages(request, name):
     if request.method == 'GET':
         return JsonResponse(calculate_percentages_database(name, request.GET))
-        # return JsonResponse(calculate_percentages(name, request.GET))
     else:
         return HttpResponse(status=405)
 
@@ -55,7 +54,6 @@ def compare_percentages(request, name):
 def event_percentages(request, name):
     if request.method == 'GET':
         return JsonResponse(calculate_event_percentages_database(name, request.GET))
-        # return JsonResponse(calculate_event_percentages(name, request.GET))
     else:
         return HttpResponse(status=405)
 
@@ -70,7 +68,6 @@ def compare_events(request, name):
 def opening_percentages(request, name):
     if request.method == 'GET':
         return JsonResponse(calculate_opening_percentages_database(name, request.GET))
-        # return JsonResponse(calculate_opening_percentages(name, request.GET))
     else:
         return HttpResponse(status=405)
 
@@ -93,7 +90,6 @@ def openings_best_worst(request, name):
 def termination_percentages(request, name):
     if request.method == 'GET':
         return JsonResponse(calculate_termination_percentages_database(name, request.GET))
-        # return JsonResponse(calculate_termination_percentages(name, request.GET))
     else:
         return HttpResponse(status=405)
 

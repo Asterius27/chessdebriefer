@@ -1,10 +1,9 @@
+"""DEPRECATED
 import datetime
 import re
 from mongoengine import Q
 from ChessDebriefer.Logic.games import find_opening
 from ChessDebriefer.models import Games, FieldsCache, Players
-
-'''DEPRECATED'''
 
 
 def calculate_percentages(name, params):
@@ -211,3 +210,4 @@ def create_dictionary(games, name):
     percentage_drawn = round((drawn_games / (won_games + lost_games + drawn_games)) * 100, 2)
     return {"percentage_won": percentage_won, "percentage_lost": percentage_lost, "percentage_drawn": percentage_drawn,
             "won_games": won_games, "lost_games": lost_games, "drawn_games": drawn_games}
+"""

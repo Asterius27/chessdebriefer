@@ -2,9 +2,7 @@ import io
 import chess.pgn
 import chess.engine
 import chess.polyglot
-from bson import ObjectId
-from mongoengine import Q
-from ChessDebriefer.models import Openings, FieldsCache, Games
+from ChessDebriefer.models import Openings
 
 
 # TODO do something to make it quicker, maybe background processing of matches?
@@ -85,7 +83,7 @@ def find_opening(game, update=False):
             if game.moves.startswith(opening['moves']):
                 eco = opening['eco']
                 idd = opening['_id']
-        """
+        """DEPRECATED
         openings = Openings.objects
         filtered_openings = list(filter(lambda op: game.moves.startswith(op.moves), openings))
         opening = filtered_openings[0]
@@ -98,6 +96,7 @@ def find_opening(game, update=False):
         setattr(game, "eco", eco)
         setattr(game, "opening_id", idd)
         game.save()
+        """DEPRECATED
         cached_fields = FieldsCache.objects.first()
         fields = ["eco", "opening_id"]
         for field in fields:
@@ -106,6 +105,7 @@ def find_opening(game, update=False):
                 temp.append(getattr(game, field))
                 setattr(cached_fields, field, temp)
                 cached_fields.save()
+        """
 
 
 # slow
@@ -124,7 +124,8 @@ def evaluate_opening_engine(opening):
         opening.save()
 
 
-# slow, deprecated
+"""DEPRECATED
+# slow
 def evaluate_opening_database(opening, min_elo, tournament):
     cached_fields = FieldsCache.objects.first()
     filtered_games = Games.objects.filter((Q(eco="") | Q(opening_id=ObjectId("000000000000000000000000")))
@@ -177,6 +178,7 @@ def evaluate_opening_database(opening, min_elo, tournament):
     return {"white_wins": white_wins, "black_wins": black_wins, "draws": draws,
             "percentage_white_wins": percentage_white_wins, "percentage_black_wins": percentage_black_wins,
             "percentage_draws_wins": percentage_draws}
+"""
 
 
 # find good book? how to use it to evaluate boards?

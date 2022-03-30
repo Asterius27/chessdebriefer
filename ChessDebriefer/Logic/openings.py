@@ -23,11 +23,11 @@ def calculate_eco_stats(eco, params):
     if min_elo == 0:
         if "elo" in params.keys():
             if "range" in params.keys():
-                r = params["range"]
+                r = int(params["range"])
             else:
                 r = 100
-            min_elo = params.keys["elo"] - r
-            max_elo = params.keys["elo"] + r
+            min_elo = int(params["elo"]) - r
+            max_elo = int(params["elo"]) + r
         else:
             max_elo = 9999
     else:

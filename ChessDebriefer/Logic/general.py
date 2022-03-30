@@ -4,11 +4,10 @@ import threading
 import chess.pgn
 from mongoengine import Q
 from ChessDebriefer.Logic.games import find_opening
-from ChessDebriefer.models import Games, FieldsCache, Openings, Players
-
-# TODO code cleanup
+from ChessDebriefer.models import Games, Openings, Players
 
 
+# TODO add handling of multiple simultaneous uploads
 # only works with 1 file upload at a time, and it takes a lot of time to parse everything
 def handle_pgn_uploads(f):
     with open('temp.pgn', 'wb+') as temp:
@@ -19,10 +18,10 @@ def handle_pgn_uploads(f):
 
 
 def parse_pgn():
-    cached_fields = FieldsCache.objects.first()
-    fields = ["event", "termination"]
-    if not cached_fields:
-        cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
+    # cached_fields = FieldsCache.objects.first()
+    # fields = ["event", "termination"]
+    # if not cached_fields:
+    #    cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
     with open('temp.pgn') as pgn:
         while True:
             game = chess.pgn.read_game(pgn)
@@ -60,10 +59,13 @@ def parse_pgn():
                                        termination=game.headers["Termination"], moves=str(game.mainline_moves()),
                                        best_moves=[], moves_evaluation=[]).save()
                     find_opening(saved_game)
-                    update_cache(saved_game, fields, cached_fields)
+                    # update_cache(saved_game, fields, cached_fields)
+                    update_player_cache(saved_game.white, saved_game.white_elo, saved_game)
+                    update_player_cache(saved_game.black, saved_game.black_elo, saved_game)
     os.remove("temp.pgn")
 
 
+'''DEPRECATED
 def update_cache(game, fields, cached_fields):
     for field in fields:
         if "https" in getattr(game, field):
@@ -81,10 +83,12 @@ def update_cache(game, fields, cached_fields):
             cached_fields.save()
     update_player_cache(game.white, game.white_elo, game)
     update_player_cache(game.black, game.black_elo, game)
+'''
 
 
 def update_player_cache(name, elo, game):
     player = Players.objects.filter(Q(name=name)).first()
+    '''
     if "https" in game.event:
         new = game.event.split(" ")
         del new[-1]
@@ -142,31 +146,38 @@ def update_player_cache(name, elo, game):
             player.events[event]["draws"] += 1
             player.terminations[game.termination]["draws"] += 1
             player.openings[game.eco]["draws"] += 1
+    '''
+    if not player:
+        player = Players(name=name, elo=elo, elo_date=game.date, accuracy={}).save()
     if player.elo_date < game.date:
         setattr(player, "elo", elo)
         setattr(player, "elo_date", game.date)
     player.save()
 
 
-# TODO make it async, add caching and pre processing
 def handle_pgn_openings_upload(f):
-    cached_fields = FieldsCache.objects.first()
-    fields = ["opening_id", "eco"]
-    if not cached_fields:
-        cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
+    # cached_fields = FieldsCache.objects.first()
+    # fields = ["opening_id", "eco"]
+    # if not cached_fields:
+    #    cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
     with open('openings.pgn', 'wb+') as temp:
         for chunk in f.chunks():
             temp.write(chunk)
     Openings.drop_collection()
+    thr = threading.Thread(target=parse_pgn_opening)
+    thr.start()
+    # for field in fields:
+    #    setattr(cached_fields, field, [])
+    # cached_fields.save()
+
+
+def parse_pgn_opening():
     with open('openings.pgn') as pgn:
         while True:
             opening = chess.pgn.read_game(pgn)
             if opening is None:
                 break
             Openings(eco=opening.headers["Site"], white_opening=opening.headers["White"],
-                     black_opening=opening.headers["Black"], moves=str(opening.mainline_moves()), engine_evaluation="",
-                     database_evaluation={}).save()
+                     black_opening=opening.headers["Black"], moves=str(opening.mainline_moves()),
+                     engine_evaluation="").save()
     os.remove("openings.pgn")
-    for field in fields:
-        setattr(cached_fields, field, [])
-    cached_fields.save()
