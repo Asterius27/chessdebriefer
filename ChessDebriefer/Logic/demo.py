@@ -3,8 +3,6 @@ from ChessDebriefer.Logic.compare import check_params_comparisons, create_other_
 from ChessDebriefer.Logic.percentages_database import check_params
 from ChessDebriefer.models import Games, Players
 
-# TODO update readme
-
 
 def calculate_openings_best_worst(name, params):
     response = {}
@@ -40,8 +38,8 @@ def calculate_openings_best_worst_simplified(name, params):
         worst.append(key)
     elo, r = check_params_comparisons(name, params)
     names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
-    others_best_dict = create_players_percentages_dictionary(names, {}, -1, 'eco')
-    others_worst_dict = create_players_percentages_dictionary(names, {}, 1, 'eco')
+    others_best_dict = create_players_percentages_dictionary(names, params, -1, 'eco')
+    others_worst_dict = create_players_percentages_dictionary(names, params, 1, 'eco')
     for key in others_best_dict:
         others_best.append(key)
     for key in others_worst_dict:
