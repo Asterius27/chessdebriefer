@@ -27,8 +27,10 @@ def parse_pgn():
             game = chess.pgn.read_game(pgn)
             if game is None:
                 break
-            arr = game.headers["UTCDate"].split(".")
-            date = datetime.datetime(int(arr[0]), int(arr[1]), int(arr[2]))
+            arr_date = game.headers["UTCDate"].split(".")
+            arr_time = game.headers["UTCTime"].split(":")
+            date = datetime.datetime(int(arr_date[0]), int(arr_date[1]), int(arr_date[2]), int(arr_time[0]),
+                                     int(arr_time[1]), int(arr_time[2]))
             if "https" in game.headers["Event"]:
                 temp = game.headers["Event"].split(" ")
                 tournament_site = temp[-1]

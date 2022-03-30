@@ -1,7 +1,6 @@
 from mongoengine import *
 
 
-# TODO add time to the date field
 # required fields, other constraints?
 class Games(Document):
     event = StringField()
@@ -10,7 +9,7 @@ class Games(Document):
     white = StringField()
     black = StringField()
     result = StringField()
-    date = DateField()
+    date = DateTimeField()
     white_elo = IntField()
     black_elo = IntField()
     white_rating_diff = IntField()
@@ -38,7 +37,7 @@ class FieldsCache(Document):
 class Players(Document):
     name = StringField(unique=True)
     elo = IntField()
-    elo_date = DateField()
+    elo_date = DateTimeField()
     accuracy = DictField()
 #    openings = DictField()
 #    terminations = DictField()
