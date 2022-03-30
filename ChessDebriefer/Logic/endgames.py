@@ -5,6 +5,7 @@ from mongoengine import Q
 from ChessDebriefer.models import Games
 
 
+# TODO expand it (how?)
 def calculate_endgame_percentages(name, params):
     wins = 0
     losses = 0

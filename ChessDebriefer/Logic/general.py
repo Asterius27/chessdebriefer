@@ -1,46 +1,51 @@
 import datetime
 import os
 import threading
+from os.path import exists
 import chess.pgn
 from mongoengine import Q
 from ChessDebriefer.Logic.games import find_opening
 from ChessDebriefer.models import Games, Openings, Players
 
 
-# TODO add handling of multiple simultaneous uploads,
-#  handling of different pgn files with missing fields (now only pgn from lichess work)
-# only works with 1 file upload at a time, and it takes a lot of time to parse everything
+# TODO add check if file is a pgn, check headers
+# it takes a lot of time to parse everything
 def handle_pgn_uploads(f):
-    with open('temp.pgn', 'wb+') as temp:
+    i = 0
+    while exists('temp' + str(i) + '.pgn'):
+        i += 1
+    file_name = 'temp' + str(i) + '.pgn'
+    with open(file_name, 'wb+') as temp:
         for chunk in f.chunks():
             temp.write(chunk)
-    thr = threading.Thread(target=parse_pgn)
+    thr = threading.Thread(target=parse_pgn, args=(file_name,))
     thr.start()
 
 
-def parse_pgn():
+def parse_pgn(file_name):
     # cached_fields = FieldsCache.objects.first()
     # fields = ["event", "termination"]
     # if not cached_fields:
     #    cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
-    with open('temp.pgn') as pgn:
+    with open(file_name) as pgn:
         while True:
             game = chess.pgn.read_game(pgn)
             if game is None:
                 break
-            arr_date = game.headers["UTCDate"].split(".")
-            arr_time = game.headers["UTCTime"].split(":")
-            date = datetime.datetime(int(arr_date[0]), int(arr_date[1]), int(arr_date[2]), int(arr_time[0]),
-                                     int(arr_time[1]), int(arr_time[2]))
-            if "https" in game.headers["Event"]:
-                temp = game.headers["Event"].split(" ")
-                tournament_site = temp[-1]
-                del temp[-1]
-                event = ' '.join(temp)
-            else:
-                tournament_site = ""
-                event = game.headers["Event"]
-            if game.headers["Black"] != "?" and game.headers["White"] != "?":
+            if game.headers["Black"] != "?" and game.headers["White"] != "?" and game.headers["UTCDate"] != "?" and \
+                    game.headers["UTCTime"] != "?":
+                arr_date = game.headers["UTCDate"].split(".")
+                arr_time = game.headers["UTCTime"].split(":")
+                date = datetime.datetime(int(arr_date[0]), int(arr_date[1]), int(arr_date[2]), int(arr_time[0]),
+                                         int(arr_time[1]), int(arr_time[2]))
+                if "https" in game.headers["Event"]:
+                    temp = game.headers["Event"].split(" ")
+                    tournament_site = temp[-1]
+                    del temp[-1]
+                    event = ' '.join(temp)
+                else:
+                    tournament_site = ""
+                    event = game.headers["Event"]
                 exist = Games.objects.filter(Q(event=event) & Q(tournament_site=tournament_site) &
                                              Q(site=game.headers["Site"]) & Q(white=game.headers["White"]) &
                                              Q(black=game.headers["Black"]) & Q(result=game.headers["Result"]) &
@@ -65,7 +70,7 @@ def parse_pgn():
                     # update_cache(saved_game, fields, cached_fields)
                     update_player_cache(saved_game.white, saved_game.white_elo, saved_game)
                     update_player_cache(saved_game.black, saved_game.black_elo, saved_game)
-    os.remove("temp.pgn")
+    os.remove(file_name)
 
 
 '''DEPRECATED
