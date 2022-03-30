@@ -1,6 +1,6 @@
 from mongoengine import Q
 from ChessDebriefer.Logic.compare import check_params_comparisons, create_other_players_percentages_dictionary
-from ChessDebriefer.Logic.percentages_database import check_params
+from ChessDebriefer.Logic.percentages import check_params
 from ChessDebriefer.models import Games, Players
 
 

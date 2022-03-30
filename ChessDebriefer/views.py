@@ -6,8 +6,8 @@ from ChessDebriefer.Logic.compare import calculate_opening_comparisons, calculat
 from ChessDebriefer.Logic.demo import calculate_openings_best_worst, calculate_openings_best_worst_simplified
 from ChessDebriefer.Logic.endgames import calculate_endgame_percentages
 from ChessDebriefer.Logic.openings import calculate_eco_stats
-from ChessDebriefer.Logic.general import handle_pgn_uploads, handle_pgn_openings_upload
-from ChessDebriefer.Logic.percentages_database import calculate_percentages_database, \
+from ChessDebriefer.Logic.uploads import handle_pgn_uploads, handle_pgn_openings_upload
+from ChessDebriefer.Logic.percentages import calculate_percentages_database, \
     calculate_event_percentages_database, calculate_termination_percentages_database, \
     calculate_opening_percentages_database, calculate_throws_comebacks
 

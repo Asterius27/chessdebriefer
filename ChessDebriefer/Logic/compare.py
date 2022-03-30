@@ -1,5 +1,5 @@
 from mongoengine import Q
-from ChessDebriefer.Logic.percentages_database import create_side_percentages_dictionary, create_percentages_dictionary
+from ChessDebriefer.Logic.percentages import create_side_percentages_dictionary, create_percentages_dictionary
 from ChessDebriefer.models import Games, Players
 
 
