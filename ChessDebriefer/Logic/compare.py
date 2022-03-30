@@ -3,7 +3,6 @@ from ChessDebriefer.Logic.percentages_database import create_side_percentages_di
 from ChessDebriefer.models import Games, Players
 
 
-# TODO add params like date (from - to)?
 def calculate_percentages_comparisons(name, params):
     response = {}
     elo, r = check_params_comparisons(name, params)
@@ -11,8 +10,8 @@ def calculate_percentages_comparisons(name, params):
     black_percentages = create_side_percentages_dictionary(name, {}, False, '', '')
     side_percentages = {'white': white_percentages['white'], 'black': black_percentages['black']}
     names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
-    other_players_white_percentages = create_other_players_side_percentages_dictionary(names, {}, True)
-    other_players_black_percentages = create_other_players_side_percentages_dictionary(names, {}, False)
+    other_players_white_percentages = create_other_players_side_percentages_dictionary(names, True)
+    other_players_black_percentages = create_other_players_side_percentages_dictionary(names, False)
     side_percentages['white'].update(other_players_white_percentages['white'])
     side_percentages['black'].update(other_players_black_percentages['black'])
     response['general percentages'] = {'your wins': side_percentages['white']['your wins'] +
@@ -61,7 +60,7 @@ def calculate_event_comparisons(name, params):
     elo, r = check_params_comparisons(name, params)
     player_event_stats, events = calculate_player_stats(name, params, 'event')
     names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
-    event_stats = create_other_players_percentages_dictionary(names, {}, 'event', events)
+    event_stats = create_other_players_percentages_dictionary(names, 'event', events)
     return create_response(player_event_stats, event_stats)
 
 
@@ -69,7 +68,7 @@ def calculate_termination_comparisons(name, params):
     elo, r = check_params_comparisons(name, params)
     player_termination_stats, terminations = calculate_player_stats(name, params, 'termination')
     names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
-    termination_stats = create_other_players_percentages_dictionary(names, {}, 'termination', terminations)
+    termination_stats = create_other_players_percentages_dictionary(names, 'termination', terminations)
     return create_response(player_termination_stats, termination_stats)
 
 
@@ -77,7 +76,7 @@ def calculate_opening_comparisons(name, params):
     elo, r = check_params_comparisons(name, params)
     player_eco_stats, ecos = calculate_player_stats(name, params, 'eco')
     names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
-    eco_stats = create_other_players_percentages_dictionary(names, {}, 'eco', ecos)
+    eco_stats = create_other_players_percentages_dictionary(names, 'eco', ecos)
     return create_response(player_eco_stats, eco_stats)
 
 
@@ -107,7 +106,7 @@ def calculate_player_stats(name, params, specific):
     return player_stats, specifics
 
 
-def create_other_players_side_percentages_dictionary(names, params, side):
+def create_other_players_side_percentages_dictionary(names, side):
     dictionary = {}
     if side:
         player = 'white'
@@ -149,7 +148,7 @@ def create_other_players_side_percentages_dictionary(names, params, side):
 
 
 # TODO $in query slows things down (2-5 seconds)
-def create_other_players_percentages_dictionary(names, params, group, specific):
+def create_other_players_percentages_dictionary(names, group, specific):
     dictionary = {}
     dollar_group = '$' + group
     games_stats = Games.objects.aggregate([

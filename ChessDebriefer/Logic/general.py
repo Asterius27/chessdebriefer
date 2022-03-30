@@ -7,7 +7,8 @@ from ChessDebriefer.Logic.games import find_opening
 from ChessDebriefer.models import Games, Openings, Players
 
 
-# TODO add handling of multiple simultaneous uploads
+# TODO add handling of multiple simultaneous uploads,
+#  handling of different pgn files with missing fields (now only pgn from lichess work)
 # only works with 1 file upload at a time, and it takes a lot of time to parse everything
 def handle_pgn_uploads(f):
     with open('temp.pgn', 'wb+') as temp:
