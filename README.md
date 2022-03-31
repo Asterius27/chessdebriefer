@@ -645,6 +645,11 @@ A backend that parses and analyses pgn files
   
   #### URI parameters
   * **pieces** : (optional) how many pieces must be left on the board (at least) to be considered an endgame
+  * **opponent** : (optional) find only the matches played against this opponent
+  * **from** : (optional) find only the matches played after this date
+  * **to** : (optional) find only the matches played before this date
+  * **minelo** : (optional) find only the matches played where your elo was greater than this
+  * **maxelo** : (optional) find only the matches played where your elo was lower than this
   
   #### Response
   Headers
@@ -656,7 +661,112 @@ A backend that parses and analyses pgn files
   <summary>Body</summary>
   
   ```json
-	{}
+	{
+		"general percentages": {
+			"games": 219,
+			"endgames": 54,
+			"percentage of games that finish in the endgame": 24.66,
+			"wins": 23,
+			"losses": 25,
+			"draws": 6,
+			"win percentage": 42.59,
+			"loss percentage": 46.3,
+			"draw percentage": 11.11
+		},
+		"side percentages": {
+			"white": {
+				"wins": 3,
+				"losses": 5,
+				"draws": 2,
+				"win percentage": 30.0,
+				"loss percentage": 50.0,
+				"draw percentage": 20.0
+			},
+			"black": {
+				"wins": 20,
+				"losses": 20,
+				"draws": 4,
+				"win percentage": 45.45,
+				"loss percentage": 45.45,
+				"draw percentage": 9.09
+			}
+		}
+	}
+  ```
+</details>
+	
+</details>
+
+<details>
+  <summary> 
+  <h3> GET /:name/percentages/endgames/material </h3>
+  
+  </summary>
+  
+  #### URI parameters
+  * **pieces** : (optional) how many pieces must be left on the board (at least) to be considered an endgame
+  * **opponent** : (optional) find only the matches played against this opponent
+  * **from** : (optional) find only the matches played after this date
+  * **to** : (optional) find only the matches played before this date
+  * **minelo** : (optional) find only the matches played where your elo was greater than this
+  * **maxelo** : (optional) find only the matches played where your elo was lower than this
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"wins": 23,
+		"matches you should have won (material advantage)": 16,
+		"losses": 25,
+		"matches you should have lost (material disadvantage)": 24,
+		"draws": 6,
+		"draws with material advantage": 2,
+		"draws with material disadvantage": 4
+	}
+  ```
+</details>
+	
+</details>
+
+<details>
+  <summary> 
+  <h3> GET /:name/percentages/endgames/tablebase </h3>
+  
+  </summary>
+  
+  #### URI parameters
+  * **pieces** : (optional) how many pieces must be left on the board (at least) to be considered an endgame
+  * **opponent** : (optional) find only the matches played against this opponent
+  * **from** : (optional) find only the matches played after this date
+  * **to** : (optional) find only the matches played before this date
+  * **minelo** : (optional) find only the matches played where your elo was greater than this
+  * **maxelo** : (optional) find only the matches played where your elo was lower than this
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"wins": 4,
+		"matches you should have won": 4,
+		"losses": 10,
+		"matches you should have lost": 9,
+		"draws": 5,
+		"matches you should have drawn": 4
+	}
   ```
 </details>
 	
