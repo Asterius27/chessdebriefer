@@ -31,6 +31,8 @@ urlpatterns = [
     path('<slug:name>/percentages/terminations/compare', views.compare_terminations),
     path('<slug:name>/percentages/throws-comebacks', views.throw_comeback_percentages),
     path('<slug:name>/percentages/endgames', views.endgame_percentages),
+    path('<slug:name>/percentages/endgames/material', views.endgame_percentages_material),
+    path('<slug:name>/percentages/endgames/tablebase', views.endgame_percentages_tablebase),
     path('<slug:name>/accuracy', views.accuracy),
     path('<slug:eco>/stats', views.opening_stats),
 ]

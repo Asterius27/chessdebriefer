@@ -1,6 +1,6 @@
 import re
 from mongoengine import Q
-from ChessDebriefer.Logic.games import evaluate_game, find_opening
+from ChessDebriefer.Logic.games import evaluate_game
 from ChessDebriefer.models import Games, Openings
 
 
@@ -40,7 +40,6 @@ def calculate_accuracy_post_opening(name):
     total_moves = 0
     games = Games.objects.filter(Q(white=name) | Q(black=name))
     for game in games:
-        find_opening(game)
         opening = Openings.objects.filter(Q(id=game.opening_id)).first()
         if not game.best_moves:
             evaluate_game(game)

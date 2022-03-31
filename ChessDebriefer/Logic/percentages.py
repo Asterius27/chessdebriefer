@@ -165,14 +165,8 @@ def create_percentages_dictionary(name, params, group, specific):
                 group_query
             ])
     for g in games_stats:
-        if g['wins'] + g['losses'] + g['draws'] != 0:
-            percentage_won = round((g['wins'] / (g['wins'] + g['losses'] + g['draws'])) * 100, 2)
-            percentage_lost = round((g['losses'] / (g['wins'] + g['losses'] + g['draws'])) * 100, 2)
-            percentage_drawn = round((g['draws'] / (g['wins'] + g['losses'] + g['draws'])) * 100, 2)
-        else:
-            percentage_won = 0.
-            percentage_lost = 0.
-            percentage_drawn = 0.
+        percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(g['wins'], g['losses'],
+                                                                                      g['draws'])
         dictionary[g['_id']] = {'your wins': g['wins'], 'your losses': g['losses'], 'your draws': g['draws'],
                                 'your win percentage': percentage_won, 'your loss percentage': percentage_lost,
                                 'your draw percentage': percentage_drawn}
@@ -250,9 +244,8 @@ def create_side_percentages_dictionary(name, params, side, select, specific):
                 group_query
             ])
     for s in player_percentages:
-        percentage_won = round((s['wins'] / (s['wins'] + s['losses'] + s['draws'])) * 100, 2)
-        percentage_lost = round((s['losses'] / (s['wins'] + s['losses'] + s['draws'])) * 100, 2)
-        percentage_drawn = round((s['draws'] / (s['wins'] + s['losses'] + s['draws'])) * 100, 2)
+        percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(s['wins'], s['losses'],
+                                                                                      s['draws'])
         dictionary[player] = {'your wins': s['wins'], 'your losses': s['losses'], 'your draws': s['draws'],
                               'your win percentage': percentage_won, 'your loss percentage': percentage_lost,
                               'your draw percentage': percentage_drawn}
@@ -331,9 +324,8 @@ def eco_variations_query(name, params, ecos):
     for s in variation_percentages:
         if s['eco'] not in dictionary.keys():
             dictionary[s['eco']] = {}
-        percentage_won = round((s['wins'] / (s['wins'] + s['losses'] + s['draws'])) * 100, 2)
-        percentage_lost = round((s['losses'] / (s['wins'] + s['losses'] + s['draws'])) * 100, 2)
-        percentage_drawn = round((s['draws'] / (s['wins'] + s['losses'] + s['draws'])) * 100, 2)
+        percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(s['wins'], s['losses'],
+                                                                                      s['draws'])
         if s['black_opening'] != '?':
             key = s['white_opening'] + " " + s['black_opening']
         else:
@@ -442,3 +434,13 @@ def new_str(n):
         return "0" + str(n)
     else:
         return str(n)
+
+
+def calculate_wdl_percentages(wins, losses, draws):
+    if wins + losses + draws != 0:
+        percentage_won = round((wins / (wins + losses + draws)) * 100, 2)
+        percentage_lost = round((losses / (wins + losses + draws)) * 100, 2)
+        percentage_drawn = round((draws / (wins + losses + draws)) * 100, 2)
+        return percentage_won, percentage_lost, percentage_drawn
+    else:
+        return 0., 0., 0.

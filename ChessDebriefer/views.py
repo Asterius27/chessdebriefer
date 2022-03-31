@@ -4,7 +4,8 @@ from ChessDebriefer.Logic.accuracy import calculate_accuracy
 from ChessDebriefer.Logic.compare import calculate_opening_comparisons, calculate_percentages_comparisons, \
     calculate_event_comparisons, calculate_termination_comparisons
 from ChessDebriefer.Logic.demo import calculate_openings_best_worst, calculate_openings_best_worst_simplified
-from ChessDebriefer.Logic.endgames import calculate_endgame_percentages
+from ChessDebriefer.Logic.endgames import calculate_endgame_percentages, calculate_endgame_material_percentages, \
+    calculate_endgame_tablebase_percentages
 from ChessDebriefer.Logic.openings import calculate_eco_stats
 from ChessDebriefer.Logic.uploads import handle_pgn_uploads, handle_pgn_openings_upload
 from ChessDebriefer.Logic.percentages import calculate_percentages_database, \
@@ -111,6 +112,20 @@ def throw_comeback_percentages(request, name):
 def endgame_percentages(request, name):
     if request.method == 'GET':
         return JsonResponse(calculate_endgame_percentages(name, request.GET))
+    else:
+        return HttpResponse(status=405)
+
+
+def endgame_percentages_material(request, name):
+    if request.method == 'GET':
+        return JsonResponse(calculate_endgame_material_percentages(name, request.GET))
+    else:
+        return HttpResponse(status=405)
+
+
+def endgame_percentages_tablebase(request, name):
+    if request.method == 'GET':
+        return JsonResponse(calculate_endgame_tablebase_percentages(name, request.GET))
     else:
         return HttpResponse(status=405)
 
