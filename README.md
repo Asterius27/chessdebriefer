@@ -742,7 +742,7 @@ A backend that parses and analyses pgn files
   </summary>
   
   #### URI parameters
-  * **pieces** : (optional) how many pieces must be left on the board (at least) to be considered an endgame
+  * **pieces** : (optional) how many pieces must be left on the board (at least) to be considered an endgame (maximum is 5 for tablebase)
   * **opponent** : (optional) find only the matches played against this opponent
   * **from** : (optional) find only the matches played after this date
   * **to** : (optional) find only the matches played before this date
