@@ -54,6 +54,7 @@ def calculate_endgame_percentages(name, params):
     return response
 
 
+# TODO endgames with material advantage/disadvantage (wins, losses, draws with material advantage/disadvantage)
 def calculate_endgame_material_percentages(name, params):
     wins = 0
     losses = 0
