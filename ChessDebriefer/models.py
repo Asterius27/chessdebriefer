@@ -21,6 +21,7 @@ class Games(Document):
     moves = StringField()
     best_moves = ListField(StringField())
     moves_evaluation = ListField(StringField())
+    five_piece_endgame_fen = StringField()
 
 
 '''DEPRECATED

@@ -46,6 +46,9 @@ def parse_pgn(file_name):
                 else:
                     tournament_site = ""
                     event = game.headers["Event"]
+                fen = ""
+                if reaches_five_piece_endgame(game):
+                    fen = endgame_start_fen(game.end())
                 exist = Games.objects.filter(Q(event=event) & Q(tournament_site=tournament_site) &
                                              Q(site=game.headers["Site"]) & Q(white=game.headers["White"]) &
                                              Q(black=game.headers["Black"]) & Q(result=game.headers["Result"]) &
@@ -55,7 +58,8 @@ def parse_pgn(file_name):
                                              Q(black_rating_diff=game.headers["BlackRatingDiff"]) &
                                              Q(time_control=game.headers["TimeControl"]) &
                                              Q(termination=game.headers["Termination"]) &
-                                             Q(moves=str(game.mainline_moves()))).first()
+                                             Q(moves=str(game.mainline_moves())) &
+                                             Q(five_piece_endgame_fen=fen)).first()
                 if not exist:
                     saved_game = Games(event=event, tournament_site=tournament_site, site=game.headers["Site"],
                                        white=game.headers["White"], black=game.headers["Black"],
@@ -65,12 +69,40 @@ def parse_pgn(file_name):
                                        black_rating_diff=game.headers["BlackRatingDiff"], eco="",
                                        opening_id="000000000000000000000000", time_control=game.headers["TimeControl"],
                                        termination=game.headers["Termination"], moves=str(game.mainline_moves()),
-                                       best_moves=[], moves_evaluation=[]).save()
+                                       best_moves=[], moves_evaluation=[], five_piece_endgame_fen=fen).save()
                     find_opening(saved_game)
                     # update_cache(saved_game, fields, cached_fields)
                     # update_player_cache(saved_game.white, saved_game.white_elo, saved_game)
                     # update_player_cache(saved_game.black, saved_game.black_elo, saved_game)
     os.remove(file_name)
+    print("Done!")
+
+
+def reaches_five_piece_endgame(parsed_game):
+    i = 0
+    pieces = "rnbqkp"
+    fen = parsed_game.end().board().board_fen().lower()
+    for char in fen:
+        if char in pieces:
+            i += 1
+        if i > 5:
+            return False
+    return True
+
+
+def endgame_start_fen(parsed_game):
+    pieces = "rnbqkp"
+    while True:
+        i = 0
+        fen = parsed_game.board().board_fen().lower()
+        for char in fen:
+            if char in pieces:
+                i += 1
+        if i > 5:
+            end_game_start = parsed_game.variations[0]
+            break
+        parsed_game = parsed_game.parent
+    return end_game_start.board().board_fen()
 
 
 '''DEPRECATED
