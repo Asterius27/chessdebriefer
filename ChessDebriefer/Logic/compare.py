@@ -1,17 +1,19 @@
 from mongoengine import Q
-from ChessDebriefer.Logic.percentages import create_side_percentages_dictionary, create_percentages_dictionary
-from ChessDebriefer.models import Games, Players
+from ChessDebriefer.Logic.percentages import create_side_percentages_dictionary, create_percentages_dictionary, \
+    calculate_wdl_percentages
+from ChessDebriefer.models import Games
 
 
 def calculate_percentages_comparisons(name, params):
     response = {}
     elo, r = check_params_comparisons(name, params)
-    white_percentages = create_side_percentages_dictionary(name, {}, True, '', '')
-    black_percentages = create_side_percentages_dictionary(name, {}, False, '', '')
+    temp = {'minelo': str(elo - r), 'maxelo': str(elo + r)}
+    white_percentages = create_side_percentages_dictionary(name, temp, True, '', '')
+    black_percentages = create_side_percentages_dictionary(name, temp, False, '', '')
     side_percentages = {'white': white_percentages['white'], 'black': black_percentages['black']}
-    names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
-    other_players_white_percentages = create_other_players_side_percentages_dictionary(names, True)
-    other_players_black_percentages = create_other_players_side_percentages_dictionary(names, False)
+    # names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
+    other_players_white_percentages = create_other_players_side_percentages_dictionary(name, elo, r, True)
+    other_players_black_percentages = create_other_players_side_percentages_dictionary(name, elo, r, False)
     side_percentages['white'].update(other_players_white_percentages['white'])
     side_percentages['black'].update(other_players_black_percentages['black'])
     response['general percentages'] = {'your wins': side_percentages['white']['your wins'] +
@@ -58,25 +60,25 @@ def calculate_percentages_comparisons(name, params):
 
 def calculate_event_comparisons(name, params):
     elo, r = check_params_comparisons(name, params)
-    player_event_stats, events = calculate_player_stats(name, params, 'event')
-    names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
-    event_stats = create_other_players_percentages_dictionary(names, 'event', events)
+    player_event_stats, events = calculate_player_stats(name, elo, r, params, 'event')
+    # names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
+    event_stats = create_other_players_percentages_dictionary(name, elo, r, 'event', events)
     return create_response(player_event_stats, event_stats)
 
 
 def calculate_termination_comparisons(name, params):
     elo, r = check_params_comparisons(name, params)
-    player_termination_stats, terminations = calculate_player_stats(name, params, 'termination')
-    names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
-    termination_stats = create_other_players_percentages_dictionary(names, 'termination', terminations)
+    player_termination_stats, terminations = calculate_player_stats(name, elo, r, params, 'termination')
+    # names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
+    termination_stats = create_other_players_percentages_dictionary(name, elo, r, 'termination', terminations)
     return create_response(player_termination_stats, termination_stats)
 
 
 def calculate_opening_comparisons(name, params):
     elo, r = check_params_comparisons(name, params)
-    player_eco_stats, ecos = calculate_player_stats(name, params, 'eco')
-    names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
-    eco_stats = create_other_players_percentages_dictionary(names, 'eco', ecos)
+    player_eco_stats, ecos = calculate_player_stats(name, elo, r, params, 'eco')
+    # names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
+    eco_stats = create_other_players_percentages_dictionary(name, elo, r, 'eco', ecos)
     return create_response(player_eco_stats, eco_stats)
 
 
@@ -94,31 +96,34 @@ def create_response(your_stats, other_players_stats):
     return response
 
 
-def calculate_player_stats(name, params, specific):
+def calculate_player_stats(name, elo, r, params, specific):
+    temp = {'minelo': str(elo - r), 'maxelo': str(elo + r)}
     if specific in params.keys():
         specifics = params[specific].split(",")
-        player_stats = create_percentages_dictionary(name, {}, specific, specifics)
+        player_stats = create_percentages_dictionary(name, temp, specific, specifics)
     else:
-        player_stats = create_percentages_dictionary(name, {}, specific, [])
+        player_stats = create_percentages_dictionary(name, temp, specific, [])
         specifics = []
         for key in player_stats:
             specifics.append(key)
     return player_stats, specifics
 
 
-def create_other_players_side_percentages_dictionary(names, side):
+def create_other_players_side_percentages_dictionary(name, elo, r, side):
     dictionary = {}
     if side:
         player = 'white'
+        player_elo = 'white_elo'
         win = '1-0'
         loss = '0-1'
     else:
         player = 'black'
+        player_elo = 'black_elo'
         win = '0-1'
         loss = '1-0'
     other_players_percentages = Games.objects.aggregate([
         {
-            '$match': {player: {'$in': names}}
+            '$match': {'$and': [{player: {'$ne': name}}, {player_elo: {'$gte': elo - r, '$lte': elo + r}}]}
         },
         {
             '$project': {
@@ -137,9 +142,8 @@ def create_other_players_side_percentages_dictionary(names, side):
         }
     ])
     for s in other_players_percentages:
-        percentage_won = round((s['wins'] / (s['wins'] + s['losses'] + s['draws'])) * 100, 2)
-        percentage_lost = round((s['losses'] / (s['wins'] + s['losses'] + s['draws'])) * 100, 2)
-        percentage_drawn = round((s['draws'] / (s['wins'] + s['losses'] + s['draws'])) * 100, 2)
+        percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(s['wins'], s['losses'],
+                                                                                      s['draws'])
         dictionary[player] = {'other players wins': s['wins'], 'other players losses': s['losses'],
                               'other players draws': s['draws'], 'other players win percentage': percentage_won,
                               'other players loss percentage': percentage_lost,
@@ -147,30 +151,42 @@ def create_other_players_side_percentages_dictionary(names, side):
     return dictionary
 
 
-# TODO $in query slows things down (2-5 seconds)
-def create_other_players_percentages_dictionary(names, group, specific):
+def create_other_players_percentages_dictionary(name, elo, r, group, specific):
     dictionary = {}
     dollar_group = '$' + group
     games_stats = Games.objects.aggregate([
         {
-            '$match': {'$and': [{'$or': [{'white': {'$in': names}}, {'black': {'$in': names}}]},
+            '$match': {'$and': [{'$or': [{'$and': [{'white': {'$ne': name}},
+                                                   {'white_elo': {'$gte': elo - r, '$lte': elo + r}}]},
+                                         {'$and': [{'black': {'$ne': name}},
+                                                   {'black_elo': {'$gte': elo - r, '$lte': elo + r}}]}]},
                                 {group: {'$in': specific}}]}
         },
         {
             '$project': {
                 group: 1,
                 'win': {'$cond': {'if': {'$or': [
-                    {'$and': [{'$eq': ['$result', '1-0']}, {'$in': ['$white', names]}]},
-                    {'$and': [{'$eq': ['$result', '0-1']}, {'$in': ['$black', names]}]}
+                    {'$and': [{'$eq': ['$result', '1-0']},
+                              {'$and': [{'$ne': ['$white', name]},
+                                        {'$gte': ['$white_elo', elo - r]}, {'$lte': ['$white_elo', elo + r]}]}]},
+                    {'$and': [{'$eq': ['$result', '0-1']},
+                              {'$and': [{'$ne': ['$black', name]},
+                                        {'$gte': ['$black_elo', elo - r]}, {'$lte': ['$black_elo', elo + r]}]}]}
                 ]}, 'then': 1, 'else': 0}},
                 'loss': {'$cond': {'if': {'$or': [
-                    {'$and': [{'$eq': ['$result', '1-0']}, {'$in': ['$black', names]}]},
-                    {'$and': [{'$eq': ['$result', '0-1']}, {'$in': ['$white', names]}]}
+                    {'$and': [{'$eq': ['$result', '1-0']},
+                              {'$and': [{'$ne': ['$black', name]},
+                                        {'$gte': ['$black_elo', elo - r]}, {'$lte': ['$black_elo', elo + r]}]}]},
+                    {'$and': [{'$eq': ['$result', '0-1']},
+                              {'$and': [{'$ne': ['$white', name]},
+                                        {'$gte': ['$white_elo', elo - r]}, {'$lte': ['$white_elo', elo + r]}]}]}
                 ]}, 'then': 1, 'else': 0}},
                 'draw': {'$cond': {'if': {'$and': [
                     {'$eq': ['$result', '1/2-1/2']},
-                    {'$in': ['$black', names]},
-                    {'$in': ['$white', names]}
+                    {'$and': [{'$ne': ['$white', name]}, {'$gte': ['$white_elo', elo - r]},
+                              {'$lte': ['$white_elo', elo + r]}]},
+                    {'$and': [{'$ne': ['$black', name]}, {'$gte': ['$black_elo', elo - r]},
+                              {'$lte': ['$black_elo', elo + r]}]}
                 ]}, 'then': 2, 'else': {'$cond': {'if': {'$eq': ['$result', '1/2-1/2']}, 'then': 1, 'else': 0}}}}
             }
         },
@@ -184,14 +200,8 @@ def create_other_players_percentages_dictionary(names, group, specific):
         }
     ])
     for g in games_stats:
-        if g['wins'] + g['losses'] + g['draws'] != 0:
-            percentage_won = round((g['wins'] / (g['wins'] + g['losses'] + g['draws'])) * 100, 2)
-            percentage_lost = round((g['losses'] / (g['wins'] + g['losses'] + g['draws'])) * 100, 2)
-            percentage_drawn = round((g['draws'] / (g['wins'] + g['losses'] + g['draws'])) * 100, 2)
-        else:
-            percentage_won = 0.
-            percentage_lost = 0.
-            percentage_drawn = 0.
+        percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(g['wins'], g['losses'],
+                                                                                      g['draws'])
         dictionary[g['_id']] = {'other players wins': g['wins'], 'other players losses': g['losses'],
                                 'other players draws': g['draws'], 'other players win percentage': percentage_won,
                                 'other players loss percentage': percentage_lost,
@@ -199,7 +209,7 @@ def create_other_players_percentages_dictionary(names, group, specific):
     return dictionary
 
 
-# TODO works but it is slow (20 seconds more or less), use this or cache?
+'''DEPRECATED: too slow (20 seconds more or less)
 def find_players(name, elo, r):
     players = Games.objects.aggregate([
         {
@@ -257,6 +267,7 @@ def find_players(name, elo, r):
     for player in players:
         names = player['names']
     return names
+'''
 
 
 def check_params_comparisons(name, params):

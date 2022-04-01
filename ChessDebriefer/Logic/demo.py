@@ -1,7 +1,6 @@
-from mongoengine import Q
 from ChessDebriefer.Logic.compare import check_params_comparisons, create_other_players_percentages_dictionary
-from ChessDebriefer.Logic.percentages import check_params
-from ChessDebriefer.models import Games, Players
+from ChessDebriefer.Logic.percentages import check_params, calculate_wdl_percentages
+from ChessDebriefer.models import Games
 
 
 def calculate_openings_best_worst(name, params):
@@ -15,8 +14,8 @@ def calculate_openings_best_worst(name, params):
         if key not in ecos:
             ecos.append(key)
     elo, r = check_params_comparisons(name, params)
-    names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
-    eco_stats = create_other_players_percentages_dictionary(names, 'eco', ecos)
+    # names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
+    eco_stats = create_other_players_percentages_dictionary(name, elo, r, 'eco', ecos)
     for key in eco_stats:
         if key in response['best'].keys():
             response['best'][key].update(eco_stats[key])
@@ -37,9 +36,9 @@ def calculate_openings_best_worst_simplified(name, params):
     for key in worst_dict:
         worst.append(key)
     elo, r = check_params_comparisons(name, params)
-    names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
-    others_best_dict = create_players_percentages_dictionary(names, params, -1, 'eco')
-    others_worst_dict = create_players_percentages_dictionary(names, params, 1, 'eco')
+    # names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
+    others_best_dict = create_players_percentages_dictionary(name, elo, r, params, -1, 'eco')
+    others_worst_dict = create_players_percentages_dictionary(name, elo, r, params, 1, 'eco')
     for key in others_best_dict:
         others_best.append(key)
     for key in others_worst_dict:
@@ -86,28 +85,40 @@ def create_percentages_dictionary(name, params, order, group):
     return general_query(params, order, group, match_query, project_query)
 
 
-
-def create_players_percentages_dictionary(names, params, order, group):
+def create_players_percentages_dictionary(name, elo, r, params, order, group):
     project_query = {
         '$project': {
             group: 1,
             'win': {'$cond': {'if': {'$or': [
-                {'$and': [{'$eq': ['$result', '1-0']}, {'$in': ['$white', names]}]},
-                {'$and': [{'$eq': ['$result', '0-1']}, {'$in': ['$black', names]}]}
+                {'$and': [{'$eq': ['$result', '1-0']},
+                          {'$and': [{'$ne': ['$white', name]},
+                                    {'$gte': ['$white_elo', elo - r]}, {'$lte': ['$white_elo', elo + r]}]}]},
+                {'$and': [{'$eq': ['$result', '0-1']},
+                          {'$and': [{'$ne': ['$black', name]},
+                                    {'$gte': ['$black_elo', elo - r]}, {'$lte': ['$black_elo', elo + r]}]}]}
             ]}, 'then': 1, 'else': 0}},
             'loss': {'$cond': {'if': {'$or': [
-                {'$and': [{'$eq': ['$result', '1-0']}, {'$in': ['$black', names]}]},
-                {'$and': [{'$eq': ['$result', '0-1']}, {'$in': ['$white', names]}]}
+                {'$and': [{'$eq': ['$result', '1-0']},
+                          {'$and': [{'$ne': ['$black', name]},
+                                    {'$gte': ['$black_elo', elo - r]}, {'$lte': ['$black_elo', elo + r]}]}]},
+                {'$and': [{'$eq': ['$result', '0-1']},
+                          {'$and': [{'$ne': ['$white', name]},
+                                    {'$gte': ['$white_elo', elo - r]}, {'$lte': ['$white_elo', elo + r]}]}]}
             ]}, 'then': 1, 'else': 0}},
             'draw': {'$cond': {'if': {'$and': [
                 {'$eq': ['$result', '1/2-1/2']},
-                {'$in': ['$black', names]},
-                {'$in': ['$white', names]}
+                {'$and': [{'$ne': ['$white', name]}, {'$gte': ['$white_elo', elo - r]},
+                          {'$lte': ['$white_elo', elo + r]}]},
+                {'$and': [{'$ne': ['$black', name]}, {'$gte': ['$black_elo', elo - r]},
+                          {'$lte': ['$black_elo', elo + r]}]}
             ]}, 'then': 2, 'else': {'$cond': {'if': {'$eq': ['$result', '1/2-1/2']}, 'then': 1, 'else': 0}}}}
         }
     }
     match_query = {
-        '$match': {'$or': [{'white': {'$in': names}}, {'black': {'$in': names}}]}
+        '$match': {'$and': [{'$or': [{'$and': [{'white': {'$ne': name}},
+                                               {'white_elo': {'$gte': elo - r, '$lte': elo + r}}]},
+                                     {'$and': [{'black': {'$ne': name}},
+                                               {'black_elo': {'$gte': elo - r, '$lte': elo + r}}]}]}]}
     }
     return general_query(params, order, group, match_query, project_query)
 
@@ -147,9 +158,8 @@ def general_query(params, order, group, match, project):
     games_stats = Games.objects.aggregate([match, project, group_query, project_query, having_query, sort_query,
                                            limit_query])
     for g in games_stats:
-        percentage_won = round((g['wins'] / (g['wins'] + g['losses'] + g['draws'])) * 100, 2)
-        percentage_lost = round((g['losses'] / (g['wins'] + g['losses'] + g['draws'])) * 100, 2)
-        percentage_drawn = round((g['draws'] / (g['wins'] + g['losses'] + g['draws'])) * 100, 2)
+        percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(g['wins'], g['losses'],
+                                                                                      g['draws'])
         dictionary[g['_id']] = {'your wins': g['wins'], 'your losses': g['losses'], 'your draws': g['draws'],
                                 'your win percentage': percentage_won, 'your loss percentage': percentage_lost,
                                 'your draw percentage': percentage_drawn}

@@ -5,7 +5,7 @@ from os.path import exists
 import chess.pgn
 from mongoengine import Q
 from ChessDebriefer.Logic.games import find_opening
-from ChessDebriefer.models import Games, Openings, Players
+from ChessDebriefer.models import Games, Openings
 
 
 # TODO add check if file is a pgn, check headers
@@ -68,8 +68,8 @@ def parse_pgn(file_name):
                                        best_moves=[], moves_evaluation=[]).save()
                     find_opening(saved_game)
                     # update_cache(saved_game, fields, cached_fields)
-                    update_player_cache(saved_game.white, saved_game.white_elo, saved_game)
-                    update_player_cache(saved_game.black, saved_game.black_elo, saved_game)
+                    # update_player_cache(saved_game.white, saved_game.white_elo, saved_game)
+                    # update_player_cache(saved_game.black, saved_game.black_elo, saved_game)
     os.remove(file_name)
 
 
@@ -93,10 +93,9 @@ def update_cache(game, fields, cached_fields):
     update_player_cache(game.black, game.black_elo, game)
 '''
 
-
+'''DEPRECATED
 def update_player_cache(name, elo, game):
     player = Players.objects.filter(Q(name=name)).first()
-    '''
     if "https" in game.event:
         new = game.event.split(" ")
         del new[-1]
@@ -154,13 +153,13 @@ def update_player_cache(name, elo, game):
             player.events[event]["draws"] += 1
             player.terminations[game.termination]["draws"] += 1
             player.openings[game.eco]["draws"] += 1
-    '''
     if not player:
         player = Players(name=name, elo=elo, elo_date=game.date, accuracy={}).save()
     if player.elo_date < game.date:
         setattr(player, "elo", elo)
         setattr(player, "elo_date", game.date)
     player.save()
+'''
 
 
 def handle_pgn_openings_upload(f):

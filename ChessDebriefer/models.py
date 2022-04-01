@@ -33,16 +33,18 @@ class FieldsCache(Document):
 '''
 
 
+'''DEPRECATED
 # document used as cache
 class Players(Document):
     name = StringField(unique=True)
     elo = IntField()
     elo_date = DateTimeField()
     accuracy = DictField()
-#    openings = DictField()
-#    terminations = DictField()
-#    events = DictField()
-#    percentages = DictField()
+    openings = DictField()
+    terminations = DictField()
+    events = DictField()
+    percentages = DictField()
+'''
 
 
 class Openings(Document):

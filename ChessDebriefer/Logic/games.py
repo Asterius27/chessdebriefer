@@ -5,7 +5,6 @@ import chess.polyglot
 from ChessDebriefer.models import Openings
 
 
-# TODO do something to make it quicker, maybe background processing of matches?
 # evaluation isn't perfect, more time you give it the better the result. Results are more precise in middle game
 # only evaluates in centipawns, positive means an advantage for white, negative means an advantage for black
 # slow

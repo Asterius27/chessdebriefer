@@ -6,7 +6,6 @@ from ChessDebriefer.Logic.percentages import check_params, calculate_wdl_percent
 from ChessDebriefer.models import Games
 
 
-# TODO what to add?
 def calculate_endgame_percentages(name, params):
     response = {}
     white_wins = 0
