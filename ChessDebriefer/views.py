@@ -5,7 +5,8 @@ from ChessDebriefer.Logic.compare import calculate_opening_comparisons, calculat
     calculate_event_comparisons, calculate_termination_comparisons
 from ChessDebriefer.Logic.demo import calculate_openings_best_worst, calculate_openings_best_worst_simplified
 from ChessDebriefer.Logic.endgames import calculate_endgame_percentages, calculate_endgame_material_percentages, \
-    calculate_endgame_tablebase_percentages
+    calculate_endgame_tablebase_percentages, calculate_compare_endgame_tablebase, calculate_compare_endgame_percentages, \
+    calculate_compare_endgame_material
 from ChessDebriefer.Logic.openings import calculate_eco_stats
 from ChessDebriefer.Logic.uploads import handle_pgn_uploads, handle_pgn_openings_upload
 from ChessDebriefer.Logic.percentages import calculate_percentages_database, \
@@ -126,6 +127,27 @@ def endgame_percentages_material(request, name):
 def endgame_percentages_tablebase(request, name):
     if request.method == 'GET':
         return JsonResponse(calculate_endgame_tablebase_percentages(name, request.GET))
+    else:
+        return HttpResponse(status=405)
+
+
+def endgame_percentages_compare(request, name):
+    if request.method == 'GET':
+        return JsonResponse(calculate_compare_endgame_percentages(name, request.GET))
+    else:
+        return HttpResponse(status=405)
+
+
+def endgame_percentages_material_compare(request, name):
+    if request.method == 'GET':
+        return JsonResponse(calculate_compare_endgame_material(name, request.GET))
+    else:
+        return HttpResponse(status=405)
+
+
+def endgame_percentages_tablebase_compare(request, name):
+    if request.method == 'GET':
+        return JsonResponse(calculate_compare_endgame_tablebase(name, request.GET))
     else:
         return HttpResponse(status=405)
 
