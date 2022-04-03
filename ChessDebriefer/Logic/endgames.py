@@ -1,6 +1,7 @@
 import io
 import chess.pgn
 import chess.syzygy
+from chess import Board
 from mongoengine import Q
 from ChessDebriefer.Logic.percentages import check_params, calculate_wdl_percentages
 from ChessDebriefer.models import Games
@@ -174,20 +175,27 @@ def find_endgame_matches(n, games):
     h = 0
     pieces = "rnbqkp"
     result = []
-    for game in games:
-        i = 0
-        pgn = io.StringIO(game.moves)
-        parsed_game = chess.pgn.read_game(pgn)
-        fen = parsed_game.end().board().board_fen().lower()
-        for char in fen:
-            if char in pieces:
-                i += 1
-            if i > n:
-                break
-        if i <= n:
-            j += 1
-            result.append((game, parsed_game))
-        h += 1
+    if n == 5:
+        for game in games:
+            if game.five_piece_endgame_fen != "":
+                result.append((game, game.five_piece_endgame_fen))
+                j += 1
+            h += 1
+    else:
+        for game in games:
+            i = 0
+            pgn = io.StringIO(game.moves)
+            parsed_game = chess.pgn.read_game(pgn)
+            fen = parsed_game.end().board().board_fen().lower()
+            for char in fen:
+                if char in pieces:
+                    i += 1
+                if i > n:
+                    break
+            if i <= n:
+                j += 1
+                result.append((game, parsed_game))
+            h += 1
     return j, h, result
 
 
@@ -196,7 +204,10 @@ def material_advantage(n, parsed_game, side):
     white = 0
     black = 0
     pieces = "rnbqkp"
-    board = endgame_start_board(n, parsed_game.end())
+    if n == 5:
+        board = Board(parsed_game)
+    else:
+        board = endgame_start_board(n, parsed_game.end())
     for char in board.board_fen():
         if char in pieces:
             black += 1
@@ -210,7 +221,10 @@ def material_advantage(n, parsed_game, side):
 
 # returns 1 if you should win, -1 if you should lose and 0 if you should draw
 def tablebase_evaluation(tb, parsed_game, n, side):
-    board = endgame_start_board(n, parsed_game.end())
+    if n == 5:
+        board = Board(parsed_game)
+    else:
+        board = endgame_start_board(n, parsed_game.end())
     res = tb.probe_wdl(board)
     if res > 0:
         if board.turn == side:

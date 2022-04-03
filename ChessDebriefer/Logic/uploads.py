@@ -102,7 +102,7 @@ def endgame_start_fen(parsed_game):
             end_game_start = parsed_game.variations[0]
             break
         parsed_game = parsed_game.parent
-    return end_game_start.board().board_fen()
+    return end_game_start.board().fen()
 
 
 '''DEPRECATED
