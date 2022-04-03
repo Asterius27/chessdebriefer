@@ -7,7 +7,7 @@ from ChessDebriefer.Logic.compare import check_params_comparisons
 from ChessDebriefer.Logic.percentages import check_params, calculate_wdl_percentages
 from ChessDebriefer.models import Games
 
-# TODO code cleanup
+# TODO code cleanup, check correctness of compare functions
 
 
 def calculate_endgame_percentages(name, params):
@@ -251,6 +251,7 @@ def calculate_compare_endgame_material(name, params):
     return response
 
 
+# TODO slow (about 10 seconds for 4000 games)
 def calculate_compare_endgame_tablebase(name, params):
     wins = 0
     losses = 0
@@ -317,9 +318,10 @@ def database_query(name, params):
 def compare_database_query(name, params):
     min_elo = int(params["minelo"])
     max_elo = int(params["maxelo"])
-    return Games.objects.filter((Q(white__ne=name) & Q(white_elo__gte=min_elo) & Q(white_elo__lte=max_elo)) |
-                                (Q(black__ne=name) & Q(black_elo__gte=min_elo) & Q(black_elo__lte=max_elo)) &
-                                Q(five_piece_endgame_fen__ne=""))
+    games = Games.objects.filter(((Q(white__ne=name) & Q(white_elo__gte=min_elo) & Q(white_elo__lte=max_elo)) |
+                                 (Q(black__ne=name) & Q(black_elo__gte=min_elo) & Q(black_elo__lte=max_elo))) &
+                                 Q(five_piece_endgame_fen__ne=""))
+    return games
 
 
 def check_endgame_params(params):

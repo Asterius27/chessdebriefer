@@ -75,7 +75,6 @@ def parse_pgn(file_name):
                     # update_player_cache(saved_game.white, saved_game.white_elo, saved_game)
                     # update_player_cache(saved_game.black, saved_game.black_elo, saved_game)
     os.remove(file_name)
-    print("Done!")
 
 
 def reaches_five_piece_endgame(parsed_game):
