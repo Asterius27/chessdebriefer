@@ -1,7 +1,7 @@
 import 'chart.js/auto'
 import { Doughnut } from "react-chartjs-2";
 
-export const DoughnutChart = ({ chartData }) => {
+export const DoughnutChart = ({ chartData, text }) => {
     return (
         <div>
             <Doughnut
@@ -10,7 +10,10 @@ export const DoughnutChart = ({ chartData }) => {
                     plugins: {
                         title: {
                             display: true,
-                            text: "Your wdl stats"
+                            font: {
+                                size: 28
+                            },
+                            text: text
                         },
                         legend: {
                             display: true,
