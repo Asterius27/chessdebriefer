@@ -61,7 +61,7 @@ function Percentages() {
 
     const doughnutStyle = {
       margin: "auto",
-      'padding-bottom': "7%",
+      paddingBottom: "7%",
       width: "40%",
       height: "40%"
     }
