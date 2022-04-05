@@ -25,7 +25,7 @@ function Upload() {
         e.preventDefault()
     }
 
-    return(
+    return (
         <div>
             <form onSubmit={submitForm}>
                 <label>

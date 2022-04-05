@@ -22,13 +22,13 @@ const Navbar = () => {
     <div style={navbarStyle}>
         <ul style={listStyle}>
             <li style={itemStyle}>
-                <Link to="/">Percentages</Link>
+                <Link to="/">Players</Link>
+            </li>
+            <li style={itemStyle}>
+                <Link to="/openings">Openings</Link>
             </li>
             <li style={itemStyle}>
                 <Link to="/upload">Upload PGN</Link>
-            </li>
-            <li style={itemStyle}>
-                <Link to="/players">Players</Link>
             </li>
         </ul>
     </div>

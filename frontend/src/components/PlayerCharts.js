@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { DoughnutChart } from './Chart';
 
-function Percentages() {
+function PlayerCharts() {
 
   useEffect(() => {
     const fetchPercentages = async () => {
@@ -84,4 +84,4 @@ function Percentages() {
     
 }
 
-export default Percentages;
+export default PlayerCharts;
