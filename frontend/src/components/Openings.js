@@ -40,8 +40,8 @@ function Openings() {
                 <div>
                     <OpeningsChart eco={eco} url={url} />
                 </div>
-                <div>
-                    <button onClick={(e) => {setUrl(""); setEco(""); e.preventDefault();}}>Back</button>
+                <div style={{paddingBottom: "2%"}}>
+                    <button onClick={(e) => {setUrl(""); setEco(""); setRange(""); setElo(""); setMinElo(""); setTournament(""); e.preventDefault();}}>Back</button>
                 </div>
             </div>
         )

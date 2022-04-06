@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { DoughnutChart } from './Chart';
 
-function PlayerCharts() {
+function PlayersGeneralCharts({ name, url }) {
 
   useEffect(() => {
     const fetchPercentages = async () => {
-      const name = "mamalak"
-      const res = await fetch("http://localhost:8000/" + name + "/percentages")
+      const res = await fetch(url)
       const data = await res.json()
       setData({ data: data })
     }
@@ -68,15 +67,21 @@ function PlayerCharts() {
 
     return (
       <div>
-        <div style={doughnutStyle}>
-          <DoughnutChart chartData={generalChartData} text={"Your general wdl stats"} />
-        </div>
-        <div style={doughnutStyle}>
-          <DoughnutChart chartData={whiteChartData} text={"Your white wdl stats"} />
-        </div>
-        <div style={doughnutStyle}>
-          <DoughnutChart chartData={blackChartData} text={"Your black wdl stats"} />
-        </div>
+        {data["data"]["general percentages"]["your wins"] + data["data"]["general percentages"]["your losses"] + data["data"]["general percentages"]["your draws"] !== 0 ? 
+          <div style={doughnutStyle}>
+            <DoughnutChart chartData={generalChartData} text={name + " general wdl stats"} />
+          </div> : <div></div>
+        }
+        {data["data"]["side percentages"]["white"]["your wins"] + data["data"]["side percentages"]["white"]["your losses"] + data["data"]["side percentages"]["white"]["your draws"] !== 0 ? 
+          <div style={doughnutStyle}>
+            <DoughnutChart chartData={whiteChartData} text={name + " white wdl stats"} />
+          </div> : <div></div>
+        }
+        {data["data"]["side percentages"]["black"]["your wins"] + data["data"]["side percentages"]["black"]["your losses"] + data["data"]["side percentages"]["black"]["your draws"] !== 0 ? 
+          <div style={doughnutStyle}>
+            <DoughnutChart chartData={blackChartData} text={name + " black wdl stats"} />
+          </div> : <div></div>
+        }
       </div>
     )
 
@@ -84,4 +89,4 @@ function PlayerCharts() {
     
 }
 
-export default PlayerCharts;
+export default PlayersGeneralCharts;

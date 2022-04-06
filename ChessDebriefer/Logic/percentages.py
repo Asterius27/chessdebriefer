@@ -9,6 +9,12 @@ def calculate_percentages_database(name, params):
     response = {}
     white = create_side_percentages_dictionary(name, params, True, '', '')
     black = create_side_percentages_dictionary(name, params, False, '', '')
+    if not white:
+        white = {'white': {"your wins": 0, "your losses": 0, "your draws": 0, "your win percentage": 0.,
+                           "your loss percentage": 0., "your draw percentage": 0.}}
+    if not black:
+        black = {'black': {"your wins": 0, "your losses": 0, "your draws": 0, "your win percentage": 0.,
+                           "your loss percentage": 0., "your draw percentage": 0.}}
     side_percentages = {'white': white['white'], 'black': black['black']}
     response['general percentages'] = {'your wins': side_percentages['white']['your wins'] +
                                                     side_percentages['black']['your wins'],

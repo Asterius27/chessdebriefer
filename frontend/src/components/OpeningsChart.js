@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { DoughnutChart } from "./Chart";
 
+// TODO add loading screen
 function OpeningsChart({ eco, url }) {
 
     useEffect(() => {
