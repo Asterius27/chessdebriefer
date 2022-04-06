@@ -11,7 +11,7 @@ function Openings() {
     const [url, setUrl] = useState("")
     
     const submitForm = (e) => {
-        let tQuery, meQuery, eQuery, rQuery = ""
+        let tQuery = "", meQuery = "", eQuery = "", rQuery = ""
         if (eco) {
             let url = "http://localhost:8000/" + eco + "/stats"
             if (tournament) {

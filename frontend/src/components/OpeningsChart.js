@@ -18,7 +18,7 @@ function OpeningsChart({ eco, url }) {
     if (Object.keys(data).length !== 0) {
 
         let generalChartData = {
-            labels: ['White Wins', 'BLack Wins', 'Draws'],
+            labels: ['White Wins', 'Black Wins', 'Draws'],
             datasets: [{
                 label: 'wdl',
                 data: [data["data"][eco]["white_wins"], data["data"][eco]["black_wins"], data["data"][eco]["draws"]],
@@ -39,7 +39,7 @@ function OpeningsChart({ eco, url }) {
                 variationEngineEvals.push(data["data"]["variations"][variation]["engine_evaluation"])
                 variationNames.push(variation)
                 variationsChartsData.push({
-                    labels: ['White Wins', 'BLack Wins', 'Draws'],
+                    labels: ['White Wins', 'Black Wins', 'Draws'],
                     datasets: [{
                         label: 'wdl',
                         data: [data["data"]["variations"][variation]["white_wins"], data["data"]["variations"][variation]["black_wins"], data["data"]["variations"][variation]["draws"]],

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PlayersGeneralCharts from "./PlayersGeneralCharts";
 import PlayersCharts from "./PlayersCharts";
+import PlayersOpeningCharts from "./PlayersOpeningCharts";
 
 // TODO check date format
 function Players() {
@@ -10,12 +11,13 @@ function Players() {
     const [to, setTo] = useState("")
     const [minElo, setMinElo] = useState("")
     const [maxElo, setMaxElo] = useState("")
+    const [eco, setEco] = useState("")
     const [name, setName] = useState("")
     const [section, setSection] = useState("")
     const [url, setUrl] = useState("")
     
     const submitForm = (e) => {
-        let oQuery, fQuery, tQuery, minQuery, maxQuery = ""
+        let oQuery = "", fQuery = "", tQuery = "", minQuery = "", maxQuery = "", eQuery = ""
         if (name) {
             let url = "http://localhost:8000/" + name + "/percentages"
             if (section) {
@@ -36,8 +38,11 @@ function Players() {
             if (maxElo) {
                 maxQuery = "maxelo=" + maxElo + "&"
             }
-            if (oQuery || fQuery || tQuery || minQuery || maxQuery ) {
-                url = url + "?" + oQuery + fQuery + tQuery + minQuery + maxQuery
+            if (eco) {
+                eQuery = "eco=" + eco + "&"
+            }
+            if (oQuery || fQuery || tQuery || minQuery || maxQuery || eQuery ) {
+                url = url + "?" + oQuery + fQuery + tQuery + minQuery + maxQuery + eQuery
             }
             setUrl(url)
         }
@@ -47,16 +52,22 @@ function Players() {
     if (url) {
         return (
             <div>
-                {section ? 
-                <div>
-                    <PlayersCharts name={name} url={url} />
-                </div> : 
+                {section ? <>
+                    {section === "openings" && eco ? 
+                    <div>
+                        <PlayersOpeningCharts name={name} url={url} />
+                    </div> :
+                    <div>
+                        <PlayersCharts name={name} url={url} />
+                    </div>
+                    }
+                </> :
                 <div>
                     <PlayersGeneralCharts name={name} url={url} />
                 </div>
                 }
                 <div style={{paddingBottom: "2%"}}>
-                    <button onClick={(e) => {setUrl(""); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); setSection(""); e.preventDefault();}}>Back</button>
+                    <button onClick={(e) => {setUrl(""); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); setSection(""); setEco(""); e.preventDefault();}}>Back</button>
                 </div>
             </div>
         )
@@ -136,6 +147,18 @@ function Players() {
                     </label>
                     <br/>
                     <br/>
+                    {section === "openings" ? 
+                    <label>
+                        Eco(s):
+                        <input 
+                            style={{marginLeft: "7px"}}
+                            type="text"
+                            onChange={(e) => setEco(e.target.value)}
+                        />
+                        <br/>
+                        <br/>
+                    </label> : <div></div>
+                    }
                     <input type="submit" value="Submit" />
                 </form>
             </div>
