@@ -272,7 +272,7 @@ def find_players(name, elo, r):
 
 def check_params_comparisons(name, params):
     if "elo" in params.keys():
-        elo = params["elo"]
+        elo = int(params["elo"])
     else:
         player = Games.objects.filter(Q(white=name) | Q(black=name)).order_by('-date').first()
         if player:
@@ -283,7 +283,7 @@ def check_params_comparisons(name, params):
         else:
             elo = 0
     if "range" in params.keys():
-        r = params["range"]
+        r = int(params["range"])
     else:
         r = 100
     return elo, r

@@ -28,6 +28,9 @@ const Navbar = () => {
                 <Link to="/compare">Compare</Link>
             </li>
             <li style={itemStyle}>
+                <Link to="/demo">Demo</Link>
+            </li>
+            <li style={itemStyle}>
                 <Link to="/openings">Openings</Link>
             </li>
             <li style={itemStyle}>

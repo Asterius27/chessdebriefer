@@ -127,11 +127,11 @@ def general_query(params, order, group, match, project):
     dollar_group = '$' + group
     dictionary = {}
     if "min_played" in params.keys():
-        min_played = params["min_played"]
+        min_played = int(params["min_played"])
     else:
         min_played = 10
     if "limit" in params.keys():
-        limit = params["limit"]
+        limit = int(params["limit"])
     else:
         limit = 3
     group_query = {
