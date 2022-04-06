@@ -79,6 +79,9 @@ function GenerateCharts({ data, eco, name }) {
 
     return (
         <div key={eco}>
+            <div>
+                <h1 style={{fontSize: "700%"}}>{eco}</h1>
+            </div>
             <div style={doughnutStyle}>
                 <DoughnutChart chartData={generalChartData} text={name + "'s " + eco + " wdl"} />
             </div>
@@ -93,7 +96,7 @@ function GenerateCharts({ data, eco, name }) {
                 </div> : <div></div>
             }
             <div>
-                <h1 style={{fontSize: "700%"}}>Variations</h1>
+                <h1 style={{fontSize: "400%"}}>Variations</h1>
             </div>
             {variationsChartsData.map(function(variationsChartData, i){
                 return (
