@@ -6,6 +6,7 @@ import Upload from "./components/Upload";
 import Openings from "./components/Openings";
 import Compares from "./components/Compares";
 import Demo from "./components/Demo";
+import Endgames from "./components/Endgames";
 
 function App() {
   return (
@@ -15,8 +16,9 @@ function App() {
         <Route exact path="/" element={<Players />} />
         <Route exact path="/compare" element={<Compares />} />
         <Route exact path="/demo" element={<Demo />} />
-        <Route exact path="/upload" element={<Upload />} />
+        <Route exact path="/endgames" element={<Endgames />} />
         <Route exact path="/openings" element={<Openings />} />
+        <Route exact path="/upload" element={<Upload />} />
       </Routes>
     </div>
   );
