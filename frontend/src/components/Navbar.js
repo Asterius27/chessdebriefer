@@ -34,6 +34,9 @@ const Navbar = () => {
                 <Link to="/endgames">Endgames</Link>
             </li>
             <li style={itemStyle}>
+                <Link to="/endgames/compare">Compare Endgames</Link>
+            </li>
+            <li style={itemStyle}>
                 <Link to="/throws-comebacks">Throws-Comebacks (Slow)</Link>
             </li>
             <li style={itemStyle}>
