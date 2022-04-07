@@ -25,7 +25,7 @@ function EndgamesCharts({ name, url }) {
             predicted_draws = "matches you should have drawn"
         }
 
-        let sectionChartData = {
+        let chartData = {
             labels: ['Wins', 'Losses', 'Draws'],
             datasets: [{
                 label: 'your wdl stat',
@@ -58,7 +58,7 @@ function EndgamesCharts({ name, url }) {
     
         return (
             <div style={barStyle}>
-                <BarChart chartData={sectionChartData} text={name + "'s endgames stats"} />
+                <BarChart chartData={chartData} text={name + "'s endgames stats"} />
                 {url.includes("tablebase") ? 
                 <p>The predicted wdl stat indicates how many of those wins/losses/draws you should have gotten according to the tablebase</p> :
                 <p>The predicted wdl stat indicates how many of those wins/losses/draws you should have gotten based on material advantage (for the wins) or material disadvantage (for the losses). 
