@@ -699,6 +699,81 @@ A backend that parses and analyses pgn files
 
 <details>
   <summary> 
+  <h3> GET /:name/percentages/endgames/compare </h3>
+  
+  </summary>
+  
+  #### URI parameters
+  * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
+  * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"general percentages": {
+			"games": 184,
+			"endgames": 17,
+			"percentage of games that finish in the endgame": 9.24,
+			"wins": 4,
+			"losses": 8,
+			"draws": 5,
+			"win percentage": 23.53,
+			"loss percentage": 47.06,
+			"draw percentage": 29.41,
+			"other players games": 4077,
+			"other players wins": 3083,
+			"other players losses": 3082,
+			"other players draws": 1978,
+			"other players win percentage": 37.86,
+			"other players loss percentage": 37.85,
+			"other players draw percentage": 24.29
+		},
+		"side percentages": {
+			"white": {
+				"wins": 1,
+				"losses": 1,
+				"draws": 2,
+				"win percentage": 25.0,
+				"loss percentage": 25.0,
+				"draw percentage": 50.0,
+				"other players wins": 1532,
+				"other players losses": 1554,
+				"other players draws": 990,
+				"other players win percentage": 37.59,
+				"other players loss percentage": 38.13,
+				"other players draw percentage": 24.29
+			},
+			"black": {
+				"wins": 3,
+				"losses": 7,
+				"draws": 3,
+				"win percentage": 23.08,
+				"loss percentage": 53.85,
+				"draw percentage": 23.08,
+				"other players wins": 1551,
+				"other players losses": 1528,
+				"other players draws": 988,
+				"other players win percentage": 38.14,
+				"other players loss percentage": 37.57,
+				"other players draw percentage": 24.29
+			}
+		}
+	}
+  ```
+</details>
+	
+</details>
+
+<details>
+  <summary> 
   <h3> GET /:name/percentages/endgames/material </h3>
   
   </summary>
@@ -737,6 +812,47 @@ A backend that parses and analyses pgn files
 
 <details>
   <summary> 
+  <h3> GET /:name/percentages/endgames/material/compare </h3>
+  
+  </summary>
+  
+  #### URI parameters
+  * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
+  * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"wins": 4,
+		"matches you should have won (material advantage)": 4,
+		"losses": 8,
+		"matches you should have lost (material disadvantage)": 7,
+		"draws": 5,
+		"draws with material advantage": 3,
+		"draws with material disadvantage": 2,
+		"other players wins": 3083,
+		"matches other players should have won (material advantage)": 2717,
+		"other players losses": 3082,
+		"matches other players should have lost (material disadvantage)": 2717,
+		"other players draws": 1978,
+		"other players draws with material advantage": 989,
+		"other players draws with material disadvantage": 989
+	}
+  ```
+</details>
+	
+</details>
+
+<details>
+  <summary> 
   <h3> GET /:name/percentages/endgames/tablebase </h3>
   
   </summary>
@@ -766,6 +882,45 @@ A backend that parses and analyses pgn files
 		"matches you should have lost": 9,
 		"draws": 5,
 		"matches you should have drawn": 4
+	}
+  ```
+</details>
+	
+</details>
+
+<details>
+  <summary> 
+  <h3> GET /:name/percentages/endgames/tablebase/compare </h3>
+  
+  </summary>
+  
+  #### URI parameters
+  * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
+  * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"wins": 4,
+		"matches you should have won": 4,
+		"losses": 8,
+		"matches you should have lost": 7,
+		"draws": 5,
+		"matches you should have drawn": 4,
+		"other players wins": 3083,
+		"matches other players should have won": 2740,
+		"other players losses": 3082,
+		"matches other players should have lost": 2740,
+		"other players draws": 1978,
+		"matches other players should have drawn": 1125
 	}
   ```
 </details>
