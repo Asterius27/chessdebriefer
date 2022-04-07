@@ -1,7 +1,6 @@
 import { useState } from "react";
-import PlayersGeneralCharts from "./PlayersGeneralCharts";
-import PlayersCharts from "./PlayersCharts";
-import PlayersOpeningCharts from "./PlayersOpeningCharts";
+import EndgamesCharts from "./EndgamesCharts";
+import EndgamesGeneralCharts from "./EndgamesGeneralCharts";
 
 // TODO check date format
 function Endgames() {
@@ -16,11 +15,10 @@ function Endgames() {
     const [section, setSection] = useState("")
     const [url, setUrl] = useState("")
     
-    // TODO
     const submitForm = (e) => {
-        let oQuery = "", fQuery = "", tQuery = "", minQuery = "", maxQuery = "", eQuery = ""
+        let oQuery = "", fQuery = "", tQuery = "", minQuery = "", maxQuery = "", pQuery = ""
         if (name) {
-            let url = "http://localhost:8000/" + name + "/percentages"
+            let url = "http://localhost:8000/" + name + "/percentages/endgames"
             if (section) {
                 url = url + "/" + section
             }
@@ -39,11 +37,11 @@ function Endgames() {
             if (maxElo) {
                 maxQuery = "maxelo=" + maxElo + "&"
             }
-            if (eco) {
-                eQuery = "eco=" + eco + "&"
+            if (pieces) {
+                pQuery = "pieces=" + pieces + "&"
             }
-            if (oQuery || fQuery || tQuery || minQuery || maxQuery || eQuery ) {
-                url = url + "?" + oQuery + fQuery + tQuery + minQuery + maxQuery + eQuery
+            if (oQuery || fQuery || tQuery || minQuery || maxQuery || pQuery ) {
+                url = url + "?" + oQuery + fQuery + tQuery + minQuery + maxQuery + pQuery
             }
             setUrl(url)
         }
@@ -53,22 +51,16 @@ function Endgames() {
     if (url) {
         return (
             <div>
-                {section ? <>
-                    {section === "openings" && eco ? 
-                    <div>
-                        <PlayersOpeningCharts name={name} url={url} />
-                    </div> :
-                    <div>
-                        <PlayersCharts name={name} url={url} />
-                    </div>
-                    }
-                </> :
+                {section ?
                 <div>
-                    <PlayersGeneralCharts name={name} url={url} />
+                    <EndgamesCharts name={name} url={url} />
+                </div> :
+                <div>
+                    <EndgamesGeneralCharts name={name} url={url} />
                 </div>
                 }
                 <div style={{paddingBottom: "2%"}}>
-                    <button onClick={(e) => {setUrl(""); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); setSection(""); setEco(""); e.preventDefault();}}>Back</button>
+                    <button onClick={(e) => {setUrl(""); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); setSection(""); setPieces(""); e.preventDefault();}}>Back</button>
                 </div>
             </div>
         )
@@ -91,9 +83,8 @@ function Endgames() {
                         Choose section:
                         <select style={{marginLeft: "7px"}} value={section} onChange={(e) => setSection(e.target.value)}>
                             <option value="">General</option>
-                            <option value="events">Events</option>
-                            <option value="openings">Openings</option>
-                            <option value="terminations">Terminations</option>
+                            <option value="material">Material</option>
+                            <option value="tablebase">Tablebase</option>
                         </select>
                     </label>
                     <br/>
@@ -148,18 +139,16 @@ function Endgames() {
                     </label>
                     <br/>
                     <br/>
-                    {section === "openings" ? 
                     <label>
-                        Eco(s):
+                        How many pieces must be left on the board to be considered an endgame:
                         <input 
                             style={{marginLeft: "7px"}}
-                            type="text"
-                            onChange={(e) => setEco(e.target.value)}
+                            type="number"
+                            onChange={(e) => setPieces(e.target.value)}
                         />
-                        <br/>
-                        <br/>
-                    </label> : <div></div>
-                    }
+                    </label>
+                    <br/>
+                    <br/>
                     <input type="submit" value="Submit" />
                 </form>
             </div>
