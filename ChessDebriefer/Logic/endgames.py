@@ -57,7 +57,6 @@ def calculate_endgame_percentages(name, params):
     return response
 
 
-# TODO endgames with material advantage/disadvantage (wins, losses, draws with material advantage/disadvantage)
 def calculate_endgame_material_percentages(name, params):
     wins = 0
     losses = 0
@@ -99,6 +98,60 @@ def calculate_endgame_material_percentages(name, params):
             'matches you should have lost (material disadvantage)': losses - loss_material_adv, 'draws': draws,
             'draws with material advantage': draw_material_adv,
             'draws with material disadvantage': draws - draw_material_adv}
+
+
+def calculate_endgame_wdl_material_percentages(name, params):
+    response = {}
+    wins = 0
+    losses = 0
+    draws = 0
+    win_material_adv = 0
+    loss_material_adv = 0
+    draw_material_adv = 0
+    n_endgame_games, n_games, endgame_games, pieces = database_query(name, params)
+    for (game, parsed_game) in endgame_games:
+        if game.white == name:
+            adv = material_advantage(pieces, parsed_game, True)
+            if game.result == "1-0":
+                wins += 1
+                if adv:
+                    win_material_adv += 1
+            if game.result == "0-1":
+                losses += 1
+                if adv:
+                    loss_material_adv += 1
+            if game.result == "1/2-1/2":
+                draws += 1
+                if adv:
+                    draw_material_adv += 1
+        else:
+            adv = material_advantage(pieces, parsed_game, False)
+            if game.result == "1-0":
+                losses += 1
+                if adv:
+                    loss_material_adv += 1
+            if game.result == "0-1":
+                wins += 1
+                if adv:
+                    win_material_adv += 1
+            if game.result == "1/2-1/2":
+                draws += 1
+                if adv:
+                    draw_material_adv += 1
+    response["material advantage"] = {'wins': win_material_adv, 'losses': loss_material_adv, 'draws': draw_material_adv}
+    response["material disadvantage"] = {'wins': wins - win_material_adv, 'losses': losses - loss_material_adv,
+                                         'draws': draws - draw_material_adv}
+    percentage_won_a, percentage_lost_a, percentage_drawn_a = calculate_wdl_percentages(win_material_adv,
+                                                                                        loss_material_adv,
+                                                                                        draw_material_adv)
+    percentage_won_d, percentage_lost_d, percentage_drawn_d = calculate_wdl_percentages(wins - win_material_adv,
+                                                                                        losses - loss_material_adv,
+                                                                                        draws - draw_material_adv)
+    response["material advantage"].update({'percentage won': percentage_won_a, 'percentage lost': percentage_lost_a,
+                                           'percentage drawn': percentage_drawn_a})
+    response["material disadvantage"].update({'percentage won': percentage_won_d, 'percentage lost': percentage_lost_d,
+                                              'percentage drawn': percentage_drawn_d})
+    return response
 
 
 def calculate_endgame_tablebase_percentages(name, params):
@@ -248,6 +301,67 @@ def calculate_compare_endgame_material(name, params):
                      'matches other players should have lost (material disadvantage)': losses - loss_material_adv,
                      'other players draws': draws, 'other players draws with material advantage': draw_material_adv,
                      'other players draws with material disadvantage': draws - draw_material_adv})
+    return response
+
+
+def calculate_compare_endgame_wdl_material(name, params):
+    response = {}
+    wins = 0
+    losses = 0
+    draws = 0
+    win_material_adv = 0
+    loss_material_adv = 0
+    draw_material_adv = 0
+    elo, r = check_params_comparisons(name, params)
+    temp = {'minelo': str(elo - r), 'maxelo': str(elo + r), 'pieces': '5'}
+    response["your stats"] = calculate_endgame_wdl_material_percentages(name, temp)
+    games = compare_database_query(name, temp)
+    for game in games:
+        if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
+            adv = material_advantage(5, game.five_piece_endgame_fen, True)
+            if game.result == "1-0":
+                wins += 1
+                if adv:
+                    win_material_adv += 1
+            if game.result == "0-1":
+                losses += 1
+                if adv:
+                    loss_material_adv += 1
+            if game.result == "1/2-1/2":
+                draws += 1
+                if adv:
+                    draw_material_adv += 1
+        if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
+            adv = material_advantage(5, game.five_piece_endgame_fen, False)
+            if game.result == "1-0":
+                losses += 1
+                if adv:
+                    loss_material_adv += 1
+            if game.result == "0-1":
+                wins += 1
+                if adv:
+                    win_material_adv += 1
+            if game.result == "1/2-1/2":
+                draws += 1
+                if adv:
+                    draw_material_adv += 1
+    dictionary = {}
+    dictionary["material advantage"] = {'wins': win_material_adv, 'losses': loss_material_adv,
+                                        'draws': draw_material_adv}
+    dictionary["material disadvantage"] = {'wins': wins - win_material_adv, 'losses': losses - loss_material_adv,
+                                           'draws': draws - draw_material_adv}
+    percentage_won_a, percentage_lost_a, percentage_drawn_a = calculate_wdl_percentages(win_material_adv,
+                                                                                        loss_material_adv,
+                                                                                        draw_material_adv)
+    percentage_won_d, percentage_lost_d, percentage_drawn_d = calculate_wdl_percentages(wins - win_material_adv,
+                                                                                        losses - loss_material_adv,
+                                                                                        draws - draw_material_adv)
+    dictionary["material advantage"].update({'percentage won': percentage_won_a, 'percentage lost': percentage_lost_a,
+                                             'percentage drawn': percentage_drawn_a})
+    dictionary["material disadvantage"].update({'percentage won': percentage_won_d,
+                                                'percentage lost': percentage_lost_d,
+                                                'percentage drawn': percentage_drawn_d})
+    response["other players stats"] = dictionary
     return response
 
 

@@ -8,7 +8,7 @@ from ChessDebriefer.Logic.games import find_opening
 from ChessDebriefer.models import Games, Openings
 
 
-# TODO add headers check
+# TODO add headers check (?)
 # it takes a lot of time to parse everything
 def handle_pgn_uploads(f):
     i = 0

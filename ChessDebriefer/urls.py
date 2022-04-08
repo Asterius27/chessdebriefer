@@ -34,6 +34,8 @@ urlpatterns = [
     path('<slug:name>/percentages/endgames/compare', views.endgame_percentages_compare),
     path('<slug:name>/percentages/endgames/material', views.endgame_percentages_material),
     path('<slug:name>/percentages/endgames/material/compare', views.endgame_percentages_material_compare),
+    path('<slug:name>/percentages/endgames/material/wdl', views.endgame_percentages_material_wdl),
+    path('<slug:name>/percentages/endgames/material/wdl/compare', views.endgame_percentages_material_wdl_compare),
     path('<slug:name>/percentages/endgames/tablebase', views.endgame_percentages_tablebase),
     path('<slug:name>/percentages/endgames/tablebase/compare', views.endgame_percentages_tablebase_compare),
     path('<slug:name>/accuracy', views.accuracy),

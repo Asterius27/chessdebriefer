@@ -853,6 +853,116 @@ A backend that parses and analyses pgn files
 
 <details>
   <summary> 
+  <h3> GET /:name/percentages/endgames/material/wdl </h3>
+  
+  </summary>
+  
+  #### URI parameters
+  * **pieces** : (optional) how many pieces must be left on the board (at least) to be considered an endgame
+  * **opponent** : (optional) find only the matches played against this opponent
+  * **from** : (optional) find only the matches played after this date
+  * **to** : (optional) find only the matches played before this date
+  * **minelo** : (optional) find only the matches played where your elo was greater than this
+  * **maxelo** : (optional) find only the matches played where your elo was lower than this
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"material advantage": {
+			"wins": 16,
+			"losses": 1,
+			"draws": 2,
+			"percentage won": 84.21,
+			"percentage lost": 5.26,
+			"percentage drawn": 10.53
+		},
+		"material disadvantage": {
+			"wins": 7,
+			"losses": 24,
+			"draws": 4,
+			"percentage won": 20.0,
+			"percentage lost": 68.57,
+			"percentage drawn": 11.43
+		}
+	}
+  ```
+</details>
+	
+</details>
+
+<details>
+  <summary> 
+  <h3> GET /:name/percentages/endgames/material/wdl/compare </h3>
+  
+  </summary>
+  
+  #### URI parameters
+  * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
+  * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"your stats": {
+			"material advantage": {
+				"wins": 4,
+				"losses": 1,
+				"draws": 3,
+				"percentage won": 50.0,
+				"percentage lost": 12.5,
+				"percentage drawn": 37.5
+			},
+			"material disadvantage": {
+				"wins": 0,
+				"losses": 7,
+				"draws": 2,
+				"percentage won": 0.0,
+				"percentage lost": 77.78,
+				"percentage drawn": 22.22
+			}
+		},
+		"other players stats": {
+			"material advantage": {
+				"wins": 1664,
+				"losses": 262,
+				"draws": 653,
+				"percentage won": 64.52,
+				"percentage lost": 10.16,
+				"percentage drawn": 25.32
+			},
+			"material disadvantage": {
+				"wins": 241,
+				"losses": 1943,
+				"draws": 671,
+				"percentage won": 8.44,
+				"percentage lost": 68.06,
+				"percentage drawn": 23.5
+			}
+		}
+	}
+  ```
+</details>
+	
+</details>
+
+<details>
+  <summary> 
   <h3> GET /:name/percentages/endgames/tablebase </h3>
   
   </summary>
