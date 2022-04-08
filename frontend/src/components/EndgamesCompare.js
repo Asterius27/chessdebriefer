@@ -1,6 +1,7 @@
 import { useState } from "react";
 import EndgamesCompareGeneralCharts from "./EndgamesCompareGeneralCharts";
 import EndgamesCompareCharts from "./EndgamesCompareCharts";
+import EndgamesCompareWDLCharts from "./EndgamesCompareWDLCharts";
 
 // TODO check date format
 function EndgamesCompare() {
@@ -38,10 +39,16 @@ function EndgamesCompare() {
     if (url) {
         return (
             <div>
-                {section ? 
-                <div>
-                    <EndgamesCompareCharts name={name} url={url} />
-                </div> :
+                {section ? <>
+                    {section === "material/wdl" ? 
+                    <div>
+                        <EndgamesCompareWDLCharts name={name} url={url} />
+                    </div> : 
+                    <div>
+                        <EndgamesCompareCharts name={name} url={url} />
+                    </div>
+                    }
+                </> :
                 <div>
                     <EndgamesCompareGeneralCharts name={name} url={url} />
                 </div>
@@ -71,6 +78,7 @@ function EndgamesCompare() {
                         <select style={{marginLeft: "7px"}} value={section} onChange={(e) => setSection(e.target.value)}>
                             <option value="">General</option>
                             <option value="material">Material</option>
+                            <option value="material/wdl">Material WDL</option>
                             <option value="tablebase">Tablebase (Slow)</option>
                         </select>
                     </label>
