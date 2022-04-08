@@ -1,7 +1,6 @@
 import { useState } from "react";
 import ThrowsComebacksCharts from "./ThrowsComebacksCharts";
 
-// TODO check date format
 function ThrowsComebacks() {
 
     const [opponent, setOpponent] = useState("")

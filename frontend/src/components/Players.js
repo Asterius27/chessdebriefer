@@ -3,7 +3,6 @@ import PlayersGeneralCharts from "./PlayersGeneralCharts";
 import PlayersCharts from "./PlayersCharts";
 import PlayersOpeningCharts from "./PlayersOpeningCharts";
 
-// TODO check date format
 function Players() {
 
     const [opponent, setOpponent] = useState("")

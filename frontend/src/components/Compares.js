@@ -2,7 +2,6 @@ import { useState } from "react";
 import ComparesCharts from "./ComparesCharts";
 import ComparesGeneralCharts from "./ComparesGeneralCharts";
 
-// TODO check date format
 function Compares() {
 
     const [elo, setElo] = useState("")

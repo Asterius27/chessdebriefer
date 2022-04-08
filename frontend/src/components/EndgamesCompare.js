@@ -3,7 +3,6 @@ import EndgamesCompareGeneralCharts from "./EndgamesCompareGeneralCharts";
 import EndgamesCompareCharts from "./EndgamesCompareCharts";
 import EndgamesCompareWDLCharts from "./EndgamesCompareWDLCharts";
 
-// TODO check date format
 function EndgamesCompare() {
 
     const [elo, setElo] = useState("")

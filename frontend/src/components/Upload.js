@@ -1,7 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
 
-// TODO check file type
 function Upload() {
 
     const [selectedFile, setSelectedFile] = useState("")

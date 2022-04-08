@@ -3,7 +3,6 @@ import EndgamesCharts from "./EndgamesCharts";
 import EndgamesGeneralCharts from "./EndgamesGeneralCharts";
 import EndgamesWDLCharts from "./EndgamesWDLCharts";
 
-// TODO check date format
 function Endgames() {
 
     const [opponent, setOpponent] = useState("")

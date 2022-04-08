@@ -1,7 +1,6 @@
 import { useState } from "react";
 import DemoResponse from "./DemoResponse";
 
-// TODO check date format
 function Demo() {
 
     const [opponent, setOpponent] = useState("")
