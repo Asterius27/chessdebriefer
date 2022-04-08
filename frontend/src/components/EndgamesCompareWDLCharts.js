@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { DoughnutChart } from './ChartDoughnut';
+import LoadingSpinner from './LoadingSpinner';
 
 function EndgamesCompareWDLCharts({ name, url }) {
 
@@ -109,6 +110,10 @@ function EndgamesCompareWDLCharts({ name, url }) {
             </div>
         )
     
+    } else {
+        return (
+            <LoadingSpinner />
+        )
     }
 
 }

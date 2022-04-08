@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { DoughnutChart } from './ChartDoughnut';
+import LoadingSpinner from './LoadingSpinner';
 
 function ComparesGeneralCharts({ name, url }) {
 
@@ -149,6 +150,10 @@ function ComparesGeneralCharts({ name, url }) {
         </div>
     )
 
+  } else {
+    return (
+      <LoadingSpinner />
+    )
   }
     
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { DoughnutChart } from './ChartDoughnut';
+import LoadingSpinner from './LoadingSpinner';
 
 function PlayersCharts({ name, url }) {
 
@@ -56,6 +57,10 @@ function PlayersCharts({ name, url }) {
       </div>
     )
 
+  } else {
+    return (
+      <LoadingSpinner />
+    )
   }
     
 }

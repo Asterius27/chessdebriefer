@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BarChart } from './ChartBar';
+import LoadingSpinner from './LoadingSpinner';
 
 function EndgamesCharts({ name, url }) {
 
@@ -66,6 +67,10 @@ function EndgamesCharts({ name, url }) {
             </div>
         )
     
+    } else {
+        return (
+            <LoadingSpinner />
+        )
     }
 }
 

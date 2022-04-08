@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { DoughnutChart } from "./ChartDoughnut";
+import LoadingSpinner from "./LoadingSpinner";
 
-// TODO add loading screen
 function OpeningsChart({ eco, url }) {
 
     useEffect(() => {
@@ -78,6 +78,10 @@ function OpeningsChart({ eco, url }) {
                     )
                 })}
             </div>
+        )
+    } else {
+        return (
+            <LoadingSpinner />
         )
     }
 }

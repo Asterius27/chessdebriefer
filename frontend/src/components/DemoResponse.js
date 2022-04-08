@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import LoadingSpinner from "./LoadingSpinner";
 
 function DemoResponse({ name, url }) {
 
@@ -61,6 +62,10 @@ function DemoResponse({ name, url }) {
                     </div>
                 </div>
             </div>
+        )
+    }  else {
+        return (
+            <LoadingSpinner />
         )
     }
 }

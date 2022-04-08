@@ -19,7 +19,7 @@ function Upload() {
                         alert(res.status)
                     }
                 })
-                .catch((err) => alert("Error"))
+                .catch((err) => alert("File upload failed"))
         }
         e.preventDefault()
     }

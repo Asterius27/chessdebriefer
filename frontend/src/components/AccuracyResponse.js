@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import LoadingSpinner from "./LoadingSpinner";
 
 function AccuracyResponse({ name, url }) {
 
@@ -22,6 +23,10 @@ function AccuracyResponse({ name, url }) {
         </div>
     )
 
+  } else {
+    return (
+      <LoadingSpinner />
+    )
   }
     
 }

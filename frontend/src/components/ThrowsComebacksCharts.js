@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BarChart } from './ChartBar';
+import LoadingSpinner from './LoadingSpinner';
 
 function ThrowsComebacksCharts({ name, url }) {
 
@@ -52,6 +53,10 @@ function ThrowsComebacksCharts({ name, url }) {
             </div>
         )
     
+    } else {
+        return (
+            <LoadingSpinner />
+        )
     }
 }
 

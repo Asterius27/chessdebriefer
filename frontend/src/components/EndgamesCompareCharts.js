@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BarChart } from './ChartBar';
+import LoadingSpinner from './LoadingSpinner';
 
 function EndgamesCompareCharts({ name, url }) {
 
@@ -111,6 +112,10 @@ function EndgamesCompareCharts({ name, url }) {
             </div>
         )
     
+    } else {
+        return (
+            <LoadingSpinner />
+        )
     }
 }
 
