@@ -7,7 +7,7 @@ from ChessDebriefer.Logic.compare import check_params_comparisons
 from ChessDebriefer.Logic.percentages import check_params, calculate_wdl_percentages
 from ChessDebriefer.models import Games
 
-# TODO code cleanup, check correctness of compare functions
+# TODO code cleanup
 
 
 def calculate_endgame_percentages(name, params):
@@ -160,19 +160,19 @@ def calculate_compare_endgame_percentages(name, params):
     for game in games:
         i += 1
         if game.result == '1-0':
-            if game.white != name:
+            if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
                 white_wins += 1
-            if game.black != name:
+            if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
                 black_losses += 1
         if game.result == '0-1':
-            if game.white != name:
+            if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
                 white_losses += 1
-            if game.black != name:
+            if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
                 black_wins += 1
         if game.result == '1/2-1/2':
-            if game.white != name:
+            if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
                 white_draws += 1
-            if game.black != name:
+            if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
                 black_draws += 1
     percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(white_wins + black_wins,
                                                                                   white_losses + black_losses,
@@ -214,7 +214,7 @@ def calculate_compare_endgame_material(name, params):
     response = calculate_endgame_material_percentages(name, temp)
     games = compare_database_query(name, temp)
     for game in games:
-        if game.white != name:
+        if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
             adv = material_advantage(5, game.five_piece_endgame_fen, True)
             if game.result == "1-0":
                 wins += 1
@@ -228,7 +228,7 @@ def calculate_compare_endgame_material(name, params):
                 draws += 1
                 if adv:
                     draw_material_adv += 1
-        if game.black != name:
+        if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
             adv = material_advantage(5, game.five_piece_endgame_fen, False)
             if game.result == "1-0":
                 losses += 1
@@ -251,7 +251,7 @@ def calculate_compare_endgame_material(name, params):
     return response
 
 
-# TODO slow (about 10 seconds for 4000 games)
+# TODO slow (about 10 seconds for 4000 games) (only first time?)
 def calculate_compare_endgame_tablebase(name, params):
     wins = 0
     losses = 0
@@ -265,7 +265,7 @@ def calculate_compare_endgame_tablebase(name, params):
     games = compare_database_query(name, temp)
     with chess.syzygy.open_tablebase("syzygy345pieces") as tb:
         for game in games:
-            if game.white != name:
+            if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
                 adv = tablebase_evaluation(tb, game.five_piece_endgame_fen, 5, True)
                 if game.result == "1-0":
                     wins += 1
@@ -279,7 +279,7 @@ def calculate_compare_endgame_tablebase(name, params):
                     draws += 1
                     if adv == 0:
                         draw_predict += 1
-            if game.black != name:
+            if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
                 adv = tablebase_evaluation(tb, game.five_piece_endgame_fen, 5, False)
                 if game.result == "1-0":
                     losses += 1
