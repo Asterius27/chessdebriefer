@@ -7,7 +7,7 @@ from ChessDebriefer.Logic.compare import check_params_comparisons
 from ChessDebriefer.Logic.percentages import check_params, calculate_wdl_percentages
 from ChessDebriefer.models import Games
 
-# TODO code cleanup
+# TODO remove duplicate code (?)
 
 
 def calculate_endgame_percentages(name, params):
