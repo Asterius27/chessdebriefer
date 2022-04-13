@@ -7,35 +7,15 @@ from ChessDebriefer.Logic.compare import check_params_comparisons
 from ChessDebriefer.Logic.percentages import check_params, calculate_wdl_percentages
 from ChessDebriefer.models import Games
 
-# TODO remove duplicate code (?)
+# TODO remove duplicate code
 
 
 def calculate_endgame_percentages(name, params):
     response = {}
-    white_wins = 0
-    white_losses = 0
-    black_wins = 0
-    black_losses = 0
-    white_draws = 0
-    black_draws = 0
     n_endgame_games, n_games, endgame_games, pieces = database_query(name, params)
     percentage_endgames = round((n_endgame_games / (n_games * 1.)) * 100, 2)
-    for (game, parsed_game) in endgame_games:
-        if game.result == '1-0':
-            if game.white == name:
-                white_wins += 1
-            if game.black == name:
-                black_losses += 1
-        if game.result == '0-1':
-            if game.white == name:
-                white_losses += 1
-            if game.black == name:
-                black_wins += 1
-        if game.result == '1/2-1/2':
-            if game.white == name:
-                white_draws += 1
-            if game.black == name:
-                black_draws += 1
+    white_wins, white_losses, white_draws, black_wins, black_losses, black_draws = calculate_general_wdl(name,
+                                                                                                         endgame_games)
     percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(white_wins + black_wins,
                                                         white_losses + black_losses, white_draws + black_draws)
     percentage_won_w, percentage_lost_w, percentage_drawn_w = calculate_wdl_percentages(white_wins, white_losses,
@@ -58,42 +38,9 @@ def calculate_endgame_percentages(name, params):
 
 
 def calculate_endgame_material_percentages(name, params):
-    wins = 0
-    losses = 0
-    draws = 0
-    win_material_adv = 0
-    loss_material_adv = 0
-    draw_material_adv = 0
     n_endgame_games, n_games, endgame_games, pieces = database_query(name, params)
-    for (game, parsed_game) in endgame_games:
-        if game.white == name:
-            adv = material_advantage(pieces, parsed_game, True)
-            if game.result == "1-0":
-                wins += 1
-                if adv:
-                    win_material_adv += 1
-            if game.result == "0-1":
-                losses += 1
-                if adv:
-                    loss_material_adv += 1
-            if game.result == "1/2-1/2":
-                draws += 1
-                if adv:
-                    draw_material_adv += 1
-        else:
-            adv = material_advantage(pieces, parsed_game, False)
-            if game.result == "1-0":
-                losses += 1
-                if adv:
-                    loss_material_adv += 1
-            if game.result == "0-1":
-                wins += 1
-                if adv:
-                    win_material_adv += 1
-            if game.result == "1/2-1/2":
-                draws += 1
-                if adv:
-                    draw_material_adv += 1
+    wins, losses, draws, win_material_adv, loss_material_adv, draw_material_adv = calculate_wdl_material(
+        name, endgame_games, pieces)
     return {'wins': wins, 'matches you should have won (material advantage)': win_material_adv, 'losses': losses,
             'matches you should have lost (material disadvantage)': losses - loss_material_adv, 'draws': draws,
             'draws with material advantage': draw_material_adv,
@@ -101,134 +48,28 @@ def calculate_endgame_material_percentages(name, params):
 
 
 def calculate_endgame_wdl_material_percentages(name, params):
-    response = {}
-    wins = 0
-    losses = 0
-    draws = 0
-    win_material_adv = 0
-    loss_material_adv = 0
-    draw_material_adv = 0
     n_endgame_games, n_games, endgame_games, pieces = database_query(name, params)
-    for (game, parsed_game) in endgame_games:
-        if game.white == name:
-            adv = material_advantage(pieces, parsed_game, True)
-            if game.result == "1-0":
-                wins += 1
-                if adv:
-                    win_material_adv += 1
-            if game.result == "0-1":
-                losses += 1
-                if adv:
-                    loss_material_adv += 1
-            if game.result == "1/2-1/2":
-                draws += 1
-                if adv:
-                    draw_material_adv += 1
-        else:
-            adv = material_advantage(pieces, parsed_game, False)
-            if game.result == "1-0":
-                losses += 1
-                if adv:
-                    loss_material_adv += 1
-            if game.result == "0-1":
-                wins += 1
-                if adv:
-                    win_material_adv += 1
-            if game.result == "1/2-1/2":
-                draws += 1
-                if adv:
-                    draw_material_adv += 1
-    response["material advantage"] = {'wins': win_material_adv, 'losses': loss_material_adv, 'draws': draw_material_adv}
-    response["material disadvantage"] = {'wins': wins - win_material_adv, 'losses': losses - loss_material_adv,
-                                         'draws': draws - draw_material_adv}
-    percentage_won_a, percentage_lost_a, percentage_drawn_a = calculate_wdl_percentages(win_material_adv,
-                                                                                        loss_material_adv,
-                                                                                        draw_material_adv)
-    percentage_won_d, percentage_lost_d, percentage_drawn_d = calculate_wdl_percentages(wins - win_material_adv,
-                                                                                        losses - loss_material_adv,
-                                                                                        draws - draw_material_adv)
-    response["material advantage"].update({'percentage won': percentage_won_a, 'percentage lost': percentage_lost_a,
-                                           'percentage drawn': percentage_drawn_a})
-    response["material disadvantage"].update({'percentage won': percentage_won_d, 'percentage lost': percentage_lost_d,
-                                              'percentage drawn': percentage_drawn_d})
-    return response
+    wins, losses, draws, win_material_adv, loss_material_adv, draw_material_adv = calculate_wdl_material(
+        name, endgame_games, pieces)
+    return create_material_dictionary(wins, losses, draws, win_material_adv, loss_material_adv, draw_material_adv)
 
 
 def calculate_endgame_tablebase_percentages(name, params):
-    wins = 0
-    losses = 0
-    draws = 0
-    win_predict = 0
-    loss_predict = 0
-    draw_predict = 0
     params_copy = params.copy()
     params_copy["pieces"] = "5"
     n_endgame_games, n_games, endgame_games, pieces = database_query(name, params_copy)
-    with chess.syzygy.open_tablebase("syzygy345pieces") as tb:
-        for (game, parsed_game) in endgame_games:
-            if game.white == name:
-                adv = tablebase_evaluation(tb, parsed_game, pieces, True)
-                if adv != 2:
-                    if game.result == "1-0":
-                        wins += 1
-                        if adv == 1:
-                            win_predict += 1
-                    if game.result == "0-1":
-                        losses += 1
-                        if adv == -1:
-                            loss_predict += 1
-                    if game.result == "1/2-1/2":
-                        draws += 1
-                        if adv == 0:
-                            draw_predict += 1
-            else:
-                adv = tablebase_evaluation(tb, parsed_game, pieces, False)
-                if adv != 2:
-                    if game.result == "1-0":
-                        losses += 1
-                        if adv == -1:
-                            loss_predict += 1
-                    if game.result == "0-1":
-                        wins += 1
-                        if adv == 1:
-                            win_predict += 1
-                    if game.result == "1/2-1/2":
-                        draws += 1
-                        if adv == 0:
-                            draw_predict += 1
+    wins, losses, draws, win_predict, loss_predict, draw_predict = calculate_wdl_tablebase(name, endgame_games, pieces)
     return {'wins': wins, 'matches you should have won': win_predict, 'losses': losses,
             'matches you should have lost': loss_predict, 'draws': draws, 'matches you should have drawn': draw_predict}
 
 
 def calculate_compare_endgame_percentages(name, params):
-    i = 0
-    white_wins = 0
-    white_losses = 0
-    black_wins = 0
-    black_losses = 0
-    white_draws = 0
-    black_draws = 0
     elo, r = check_params_comparisons(name, params)
     temp = {'minelo': str(elo - r), 'maxelo': str(elo + r), 'pieces': '5'}
     response = calculate_endgame_percentages(name, temp)
     games = compare_database_query(name, temp)
-    for game in games:
-        i += 1
-        if game.result == '1-0':
-            if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
-                white_wins += 1
-            if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
-                black_losses += 1
-        if game.result == '0-1':
-            if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
-                white_losses += 1
-            if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
-                black_wins += 1
-        if game.result == '1/2-1/2':
-            if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
-                white_draws += 1
-            if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
-                black_draws += 1
+    i, white_wins, white_losses, white_draws, black_wins, black_losses, black_draws = calculate_general_wdl_compare(
+        name, games, elo, r)
     percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(white_wins + black_wins,
                                                                                   white_losses + black_losses,
                                                                                   white_draws + black_draws)
@@ -258,45 +99,12 @@ def calculate_compare_endgame_percentages(name, params):
 
 
 def calculate_compare_endgame_material(name, params):
-    wins = 0
-    losses = 0
-    draws = 0
-    win_material_adv = 0
-    loss_material_adv = 0
-    draw_material_adv = 0
     elo, r = check_params_comparisons(name, params)
     temp = {'minelo': str(elo - r), 'maxelo': str(elo + r), 'pieces': '5'}
     response = calculate_endgame_material_percentages(name, temp)
     games = compare_database_query(name, temp)
-    for game in games:
-        if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
-            adv = material_advantage(5, game.five_piece_endgame_fen, True)
-            if game.result == "1-0":
-                wins += 1
-                if adv:
-                    win_material_adv += 1
-            if game.result == "0-1":
-                losses += 1
-                if adv:
-                    loss_material_adv += 1
-            if game.result == "1/2-1/2":
-                draws += 1
-                if adv:
-                    draw_material_adv += 1
-        if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
-            adv = material_advantage(5, game.five_piece_endgame_fen, False)
-            if game.result == "1-0":
-                losses += 1
-                if adv:
-                    loss_material_adv += 1
-            if game.result == "0-1":
-                wins += 1
-                if adv:
-                    win_material_adv += 1
-            if game.result == "1/2-1/2":
-                draws += 1
-                if adv:
-                    draw_material_adv += 1
+    wins, losses, draws, win_material_adv, loss_material_adv, draw_material_adv = calculate_wdl_material_compare(
+        name, games, 5, elo, r)
     response.update({'other players wins': wins,
                      'matches other players should have won (material advantage)': win_material_adv,
                      'other players losses': losses,
@@ -308,61 +116,13 @@ def calculate_compare_endgame_material(name, params):
 
 def calculate_compare_endgame_wdl_material(name, params):
     response = {}
-    wins = 0
-    losses = 0
-    draws = 0
-    win_material_adv = 0
-    loss_material_adv = 0
-    draw_material_adv = 0
     elo, r = check_params_comparisons(name, params)
     temp = {'minelo': str(elo - r), 'maxelo': str(elo + r), 'pieces': '5'}
     response["your stats"] = calculate_endgame_wdl_material_percentages(name, temp)
     games = compare_database_query(name, temp)
-    for game in games:
-        if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
-            adv = material_advantage(5, game.five_piece_endgame_fen, True)
-            if game.result == "1-0":
-                wins += 1
-                if adv:
-                    win_material_adv += 1
-            if game.result == "0-1":
-                losses += 1
-                if adv:
-                    loss_material_adv += 1
-            if game.result == "1/2-1/2":
-                draws += 1
-                if adv:
-                    draw_material_adv += 1
-        if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
-            adv = material_advantage(5, game.five_piece_endgame_fen, False)
-            if game.result == "1-0":
-                losses += 1
-                if adv:
-                    loss_material_adv += 1
-            if game.result == "0-1":
-                wins += 1
-                if adv:
-                    win_material_adv += 1
-            if game.result == "1/2-1/2":
-                draws += 1
-                if adv:
-                    draw_material_adv += 1
-    dictionary = {}
-    dictionary["material advantage"] = {'wins': win_material_adv, 'losses': loss_material_adv,
-                                        'draws': draw_material_adv}
-    dictionary["material disadvantage"] = {'wins': wins - win_material_adv, 'losses': losses - loss_material_adv,
-                                           'draws': draws - draw_material_adv}
-    percentage_won_a, percentage_lost_a, percentage_drawn_a = calculate_wdl_percentages(win_material_adv,
-                                                                                        loss_material_adv,
-                                                                                        draw_material_adv)
-    percentage_won_d, percentage_lost_d, percentage_drawn_d = calculate_wdl_percentages(wins - win_material_adv,
-                                                                                        losses - loss_material_adv,
-                                                                                        draws - draw_material_adv)
-    dictionary["material advantage"].update({'percentage won': percentage_won_a, 'percentage lost': percentage_lost_a,
-                                             'percentage drawn': percentage_drawn_a})
-    dictionary["material disadvantage"].update({'percentage won': percentage_won_d,
-                                                'percentage lost': percentage_lost_d,
-                                                'percentage drawn': percentage_drawn_d})
+    wins, losses, draws, win_material_adv, loss_material_adv, draw_material_adv = calculate_wdl_material_compare(
+        name, games, 5, elo, r)
+    dictionary = create_material_dictionary(wins, losses, draws, win_material_adv, loss_material_adv, draw_material_adv)
     response["other players stats"] = dictionary
     return response
 
@@ -371,48 +131,12 @@ def calculate_compare_endgame_wdl_material(name, params):
 #  (seems to happen only on first invocation for each player after pc restart)
 #  struct class uses a cache that's why probably
 def calculate_compare_endgame_tablebase(name, params):
-    wins = 0
-    losses = 0
-    draws = 0
-    win_predict = 0
-    loss_predict = 0
-    draw_predict = 0
     elo, r = check_params_comparisons(name, params)
     temp = {'minelo': str(elo - r), 'maxelo': str(elo + r)}
     response = calculate_endgame_tablebase_percentages(name, temp)
     games = compare_database_query(name, temp)
-    with chess.syzygy.open_tablebase("syzygy345pieces") as tb:
-        for game in games:
-            if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
-                adv = tablebase_evaluation(tb, game.five_piece_endgame_fen, 5, True)
-                if adv != 2:
-                    if game.result == "1-0":
-                        wins += 1
-                        if adv == 1:
-                            win_predict += 1
-                    if game.result == "0-1":
-                        losses += 1
-                        if adv == -1:
-                            loss_predict += 1
-                    if game.result == "1/2-1/2":
-                        draws += 1
-                        if adv == 0:
-                            draw_predict += 1
-            if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
-                adv = tablebase_evaluation(tb, game.five_piece_endgame_fen, 5, False)
-                if adv != 2:
-                    if game.result == "1-0":
-                        losses += 1
-                        if adv == -1:
-                            loss_predict += 1
-                    if game.result == "0-1":
-                        wins += 1
-                        if adv == 1:
-                            win_predict += 1
-                    if game.result == "1/2-1/2":
-                        draws += 1
-                        if adv == 0:
-                            draw_predict += 1
+    wins, losses, draws, win_predict, loss_predict, draw_predict = calculate_wdl_tablebase_compare(
+        name, games, 5, elo, r)
     response.update({'other players wins': wins, 'matches other players should have won': win_predict,
                      'other players losses': losses, 'matches other players should have lost': loss_predict,
                      'other players draws': draws, 'matches other players should have drawn': draw_predict})
@@ -451,6 +175,240 @@ def check_endgame_params(params):
         pieces = 10
     from_date, to_date, min_elo, max_elo, opponent = check_params(params)
     return pieces, from_date, to_date, min_elo, max_elo, opponent
+
+
+def calculate_general_wdl(name, endgame_games):
+    white_wins = 0
+    white_losses = 0
+    black_wins = 0
+    black_losses = 0
+    white_draws = 0
+    black_draws = 0
+    for (game, parsed_game) in endgame_games:
+        if game.result == '1-0':
+            if game.white == name:
+                white_wins += 1
+            if game.black == name:
+                black_losses += 1
+        if game.result == '0-1':
+            if game.white == name:
+                white_losses += 1
+            if game.black == name:
+                black_wins += 1
+        if game.result == '1/2-1/2':
+            if game.white == name:
+                white_draws += 1
+            if game.black == name:
+                black_draws += 1
+    return white_wins, white_losses, white_draws, black_wins, black_losses, black_draws
+
+
+def calculate_wdl_material(name, endgame_games, pieces):
+    wins = 0
+    losses = 0
+    draws = 0
+    win_material_adv = 0
+    loss_material_adv = 0
+    draw_material_adv = 0
+    for (game, parsed_game) in endgame_games:
+        if game.white == name:
+            adv = material_advantage(pieces, parsed_game, True)
+            if game.result == "1-0":
+                wins += 1
+                if adv:
+                    win_material_adv += 1
+            if game.result == "0-1":
+                losses += 1
+                if adv:
+                    loss_material_adv += 1
+            if game.result == "1/2-1/2":
+                draws += 1
+                if adv:
+                    draw_material_adv += 1
+        else:
+            adv = material_advantage(pieces, parsed_game, False)
+            if game.result == "1-0":
+                losses += 1
+                if adv:
+                    loss_material_adv += 1
+            if game.result == "0-1":
+                wins += 1
+                if adv:
+                    win_material_adv += 1
+            if game.result == "1/2-1/2":
+                draws += 1
+                if adv:
+                    draw_material_adv += 1
+    return wins, losses, draws, win_material_adv, loss_material_adv, draw_material_adv
+
+
+def calculate_wdl_tablebase(name, endgame_games, pieces):
+    wins = 0
+    losses = 0
+    draws = 0
+    win_predict = 0
+    loss_predict = 0
+    draw_predict = 0
+    with chess.syzygy.open_tablebase("syzygy345pieces") as tb:
+        for (game, parsed_game) in endgame_games:
+            if game.white == name:
+                adv = tablebase_evaluation(tb, parsed_game, pieces, True)
+                if adv != 2:
+                    if game.result == "1-0":
+                        wins += 1
+                        if adv == 1:
+                            win_predict += 1
+                    if game.result == "0-1":
+                        losses += 1
+                        if adv == -1:
+                            loss_predict += 1
+                    if game.result == "1/2-1/2":
+                        draws += 1
+                        if adv == 0:
+                            draw_predict += 1
+            else:
+                adv = tablebase_evaluation(tb, parsed_game, pieces, False)
+                if adv != 2:
+                    if game.result == "1-0":
+                        losses += 1
+                        if adv == -1:
+                            loss_predict += 1
+                    if game.result == "0-1":
+                        wins += 1
+                        if adv == 1:
+                            win_predict += 1
+                    if game.result == "1/2-1/2":
+                        draws += 1
+                        if adv == 0:
+                            draw_predict += 1
+    return wins, losses, draws, win_predict, loss_predict, draw_predict
+
+
+def calculate_general_wdl_compare(name, games, elo, r):
+    i = 0
+    white_wins = 0
+    white_losses = 0
+    black_wins = 0
+    black_losses = 0
+    white_draws = 0
+    black_draws = 0
+    for game in games:
+        i += 1
+        if game.result == '1-0':
+            if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
+                white_wins += 1
+            if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
+                black_losses += 1
+        if game.result == '0-1':
+            if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
+                white_losses += 1
+            if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
+                black_wins += 1
+        if game.result == '1/2-1/2':
+            if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
+                white_draws += 1
+            if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
+                black_draws += 1
+    return i, white_wins, white_losses, white_draws, black_wins, black_losses, black_draws
+
+
+def calculate_wdl_material_compare(name, games, pieces, elo, r):
+    wins = 0
+    losses = 0
+    draws = 0
+    win_material_adv = 0
+    loss_material_adv = 0
+    draw_material_adv = 0
+    for game in games:
+        if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
+            adv = material_advantage(pieces, game.five_piece_endgame_fen, True)
+            if game.result == "1-0":
+                wins += 1
+                if adv:
+                    win_material_adv += 1
+            if game.result == "0-1":
+                losses += 1
+                if adv:
+                    loss_material_adv += 1
+            if game.result == "1/2-1/2":
+                draws += 1
+                if adv:
+                    draw_material_adv += 1
+        if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
+            adv = material_advantage(pieces, game.five_piece_endgame_fen, False)
+            if game.result == "1-0":
+                losses += 1
+                if adv:
+                    loss_material_adv += 1
+            if game.result == "0-1":
+                wins += 1
+                if adv:
+                    win_material_adv += 1
+            if game.result == "1/2-1/2":
+                draws += 1
+                if adv:
+                    draw_material_adv += 1
+    return wins, losses, draws, win_material_adv, loss_material_adv, draw_material_adv
+
+
+def calculate_wdl_tablebase_compare(name, games, pieces, elo, r):
+    wins = 0
+    losses = 0
+    draws = 0
+    win_predict = 0
+    loss_predict = 0
+    draw_predict = 0
+    with chess.syzygy.open_tablebase("syzygy345pieces") as tb:
+        for game in games:
+            if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
+                adv = tablebase_evaluation(tb, game.five_piece_endgame_fen, pieces, True)
+                if adv != 2:
+                    if game.result == "1-0":
+                        wins += 1
+                        if adv == 1:
+                            win_predict += 1
+                    if game.result == "0-1":
+                        losses += 1
+                        if adv == -1:
+                            loss_predict += 1
+                    if game.result == "1/2-1/2":
+                        draws += 1
+                        if adv == 0:
+                            draw_predict += 1
+            if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
+                adv = tablebase_evaluation(tb, game.five_piece_endgame_fen, pieces, False)
+                if adv != 2:
+                    if game.result == "1-0":
+                        losses += 1
+                        if adv == -1:
+                            loss_predict += 1
+                    if game.result == "0-1":
+                        wins += 1
+                        if adv == 1:
+                            win_predict += 1
+                    if game.result == "1/2-1/2":
+                        draws += 1
+                        if adv == 0:
+                            draw_predict += 1
+    return wins, losses, draws, win_predict, loss_predict, draw_predict
+
+
+def create_material_dictionary(wins, losses, draws, win_material_adv, loss_material_adv, draw_material_adv):
+    response = {}
+    response["material advantage"] = {'wins': win_material_adv, 'losses': loss_material_adv, 'draws': draw_material_adv}
+    response["material disadvantage"] = {'wins': wins - win_material_adv, 'losses': losses - loss_material_adv,
+                                         'draws': draws - draw_material_adv}
+    percentage_won_a, percentage_lost_a, percentage_drawn_a = calculate_wdl_percentages(win_material_adv,
+                                                                                        loss_material_adv,
+                                                                                        draw_material_adv)
+    percentage_won_d, percentage_lost_d, percentage_drawn_d = calculate_wdl_percentages(wins - win_material_adv,
+                                                                                        losses - loss_material_adv,
+                                                                                        draws - draw_material_adv)
+    response["material advantage"].update({'percentage won': percentage_won_a, 'percentage lost': percentage_lost_a,
+                                           'percentage drawn': percentage_drawn_a})
+    response["material disadvantage"].update({'percentage won': percentage_won_d, 'percentage lost': percentage_lost_d,
+                                              'percentage drawn': percentage_drawn_d})
+    return response
 
 
 # only 6.6% of matches would end in the endgame (7983 out of 121114) (5 pieces or fewer)

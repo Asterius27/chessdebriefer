@@ -8,7 +8,7 @@ from ChessDebriefer.Logic.games import find_opening
 from ChessDebriefer.models import Games, Openings
 
 
-# TODO add headers check (?), parallelize more for better performance (thread pool, 1 thread - 1 game) (?)
+# TODO add headers check (?), parallelize more for better performance (thread pool, 1 thread - 1 game)
 # it takes a lot of time to parse everything
 def handle_pgn_uploads(f):
     i = 0
@@ -104,6 +104,34 @@ def endgame_start_fen(parsed_game):
     return end_game_start.board().fen()
 
 
+def handle_pgn_openings_upload(f):
+    # cached_fields = FieldsCache.objects.first()
+    # fields = ["opening_id", "eco"]
+    # if not cached_fields:
+    #    cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
+    with open('openings.pgn', 'wb+') as temp:
+        for chunk in f.chunks():
+            temp.write(chunk)
+    Openings.drop_collection()
+    thr = threading.Thread(target=parse_pgn_opening)
+    thr.start()
+    # for field in fields:
+    #    setattr(cached_fields, field, [])
+    # cached_fields.save()
+
+
+def parse_pgn_opening():
+    with open('openings.pgn') as pgn:
+        while True:
+            opening = chess.pgn.read_game(pgn)
+            if opening is None:
+                break
+            Openings(eco=opening.headers["Site"], white_opening=opening.headers["White"],
+                     black_opening=opening.headers["Black"], moves=str(opening.mainline_moves()),
+                     engine_evaluation="").save()
+    os.remove("openings.pgn")
+
+
 '''DEPRECATED
 def update_cache(game, fields, cached_fields):
     for field in fields:
@@ -191,31 +219,3 @@ def update_player_cache(name, elo, game):
         setattr(player, "elo_date", game.date)
     player.save()
 '''
-
-
-def handle_pgn_openings_upload(f):
-    # cached_fields = FieldsCache.objects.first()
-    # fields = ["opening_id", "eco"]
-    # if not cached_fields:
-    #    cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
-    with open('openings.pgn', 'wb+') as temp:
-        for chunk in f.chunks():
-            temp.write(chunk)
-    Openings.drop_collection()
-    thr = threading.Thread(target=parse_pgn_opening)
-    thr.start()
-    # for field in fields:
-    #    setattr(cached_fields, field, [])
-    # cached_fields.save()
-
-
-def parse_pgn_opening():
-    with open('openings.pgn') as pgn:
-        while True:
-            opening = chess.pgn.read_game(pgn)
-            if opening is None:
-                break
-            Openings(eco=opening.headers["Site"], white_opening=opening.headers["White"],
-                     black_opening=opening.headers["Black"], moves=str(opening.mainline_moves()),
-                     engine_evaluation="").save()
-    os.remove("openings.pgn")
