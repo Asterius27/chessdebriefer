@@ -54,11 +54,27 @@ def calculate_endgame_wdl_material_percentages(name, params):
 
 
 def calculate_endgame_predicted_wdl_material_percentages(name, params):
+    response = {}
     n_endgame_games, n_games, endgame_games, pieces = database_query(name, params)
-    wins, losses, draws = calculate_predicted_wdl_material(name, endgame_games, pieces)
-    percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(wins, losses, draws)
-    return {'predicted wins': wins, 'predicted losses': losses, 'predicted draws': draws,
-            'percentage won': percentage_won, 'percentage lost': percentage_lost, 'percentage drawn': percentage_drawn}
+    white_wins, white_losses, white_draws, black_wins, black_losses, black_draws = calculate_predicted_wdl_material(
+        name, endgame_games, pieces)
+    percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(
+        white_wins + black_wins, white_losses + black_losses, white_draws + black_draws)
+    percentage_won_w, percentage_lost_w, percentage_drawn_w = calculate_wdl_percentages(white_wins, white_losses,
+                                                                                        white_draws)
+    percentage_won_b, percentage_lost_b, percentage_drawn_b = calculate_wdl_percentages(black_wins, black_losses,
+                                                                                        black_draws)
+    response['general percentages'] = {'wins': white_wins + black_wins, 'losses': white_losses + black_losses,
+                                       'draws': white_draws + black_draws, 'win percentage': percentage_won,
+                                       'loss percentage': percentage_lost, 'draw percentage': percentage_drawn}
+    response['side percentages'] = {}
+    response['side percentages']['white'] = {'wins': white_wins, 'losses': white_losses, 'draws': white_draws,
+                                             'win percentage': percentage_won_w, 'loss percentage': percentage_lost_w,
+                                             'draw percentage': percentage_drawn_w}
+    response['side percentages']['black'] = {'wins': black_wins, 'losses': black_losses, 'draws': black_draws,
+                                             'win percentage': percentage_won_b, 'loss percentage': percentage_lost_b,
+                                             'draw percentage': percentage_drawn_b}
+    return response
 
 
 def calculate_endgame_tablebase_percentages(name, params):
@@ -71,13 +87,29 @@ def calculate_endgame_tablebase_percentages(name, params):
 
 
 def calculate_endgame_predicted_wdl_tablebase_percentages(name, params):
+    response = {}
     params_copy = params.copy()
     params_copy["pieces"] = "5"
     n_endgame_games, n_games, endgame_games, pieces = database_query(name, params_copy)
-    wins, losses, draws = calculate_predicted_wdl_tablebase(name, endgame_games, pieces)
-    percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(wins, losses, draws)
-    return {'predicted wins': wins, 'predicted losses': losses, 'predicted draws': draws,
-            'percentage won': percentage_won, 'percentage lost': percentage_lost, 'percentage drawn': percentage_drawn}
+    white_wins, white_losses, white_draws, black_wins, black_losses, black_draws = calculate_predicted_wdl_tablebase(
+        name, endgame_games, pieces)
+    percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(
+        white_wins + black_wins, white_losses + black_losses, white_draws + black_draws)
+    percentage_won_w, percentage_lost_w, percentage_drawn_w = calculate_wdl_percentages(white_wins, white_losses,
+                                                                                        white_draws)
+    percentage_won_b, percentage_lost_b, percentage_drawn_b = calculate_wdl_percentages(black_wins, black_losses,
+                                                                                        black_draws)
+    response['general percentages'] = {'wins': white_wins + black_wins, 'losses': white_losses + black_losses,
+                                       'draws': white_draws + black_draws, 'win percentage': percentage_won,
+                                       'loss percentage': percentage_lost, 'draw percentage': percentage_drawn}
+    response['side percentages'] = {}
+    response['side percentages']['white'] = {'wins': white_wins, 'losses': white_losses, 'draws': white_draws,
+                                             'win percentage': percentage_won_w, 'loss percentage': percentage_lost_w,
+                                             'draw percentage': percentage_drawn_w}
+    response['side percentages']['black'] = {'wins': black_wins, 'losses': black_losses, 'draws': black_draws,
+                                             'win percentage': percentage_won_b, 'loss percentage': percentage_lost_b,
+                                             'draw percentage': percentage_drawn_b}
+    return response
 
 
 def database_query(name, params):
@@ -132,27 +164,30 @@ def calculate_general_wdl(name, endgame_games):
 
 
 def calculate_predicted_wdl_material(name, endgame_games, pieces):
-    wins = 0
-    losses = 0
-    draws = 0
+    white_wins = 0
+    white_losses = 0
+    white_draws = 0
+    black_wins = 0
+    black_losses = 0
+    black_draws = 0
     for (game, parsed_game) in endgame_games:
         if game.white == name:
             adv = material_advantage(pieces, parsed_game, True)
             if adv == 1:
-                wins += 1
+                white_wins += 1
             elif adv == -1:
-                losses += 1
+                white_losses += 1
             elif adv == 0:
-                draws += 1
+                white_draws += 1
         if game.black == name:
             adv = material_advantage(pieces, parsed_game, False)
             if adv == 1:
-                wins += 1
+                black_wins += 1
             elif adv == -1:
-                losses += 1
+                black_losses += 1
             elif adv == 0:
-                draws += 1
-    return wins, losses, draws
+                black_draws += 1
+    return white_wins, white_losses, white_draws, black_wins, black_losses, black_draws
 
 
 def calculate_wdl_material(name, endgame_games, pieces):
@@ -195,28 +230,31 @@ def calculate_wdl_material(name, endgame_games, pieces):
 
 
 def calculate_predicted_wdl_tablebase(name, endgame_games, pieces):
-    wins = 0
-    losses = 0
-    draws = 0
+    white_wins = 0
+    white_losses = 0
+    white_draws = 0
+    black_wins = 0
+    black_losses = 0
+    black_draws = 0
     with chess.syzygy.open_tablebase("syzygy345pieces") as tb:
         for (game, parsed_game) in endgame_games:
             if game.white == name:
                 adv = tablebase_evaluation(tb, parsed_game, pieces, True)
                 if adv == 1:
-                    wins += 1
+                    white_wins += 1
                 elif adv == -1:
-                    losses += 1
+                    white_losses += 1
                 elif adv == 0:
-                    draws += 1
+                    white_draws += 1
             if game.black == name:
                 adv = tablebase_evaluation(tb, parsed_game, pieces, False)
                 if adv == 1:
-                    wins += 1
+                    black_wins += 1
                 elif adv == -1:
-                    losses += 1
+                    black_losses += 1
                 elif adv == 0:
-                    draws += 1
-    return wins, losses, draws
+                    black_draws += 1
+    return white_wins, white_losses, white_draws, black_wins, black_losses, black_draws
 
 
 def calculate_wdl_tablebase(name, endgame_games, pieces):

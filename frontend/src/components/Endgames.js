@@ -2,6 +2,7 @@ import { useState } from "react";
 import EndgamesCharts from "./EndgamesCharts";
 import EndgamesGeneralCharts from "./EndgamesGeneralCharts";
 import EndgamesWDLCharts from "./EndgamesWDLCharts";
+import EndgamesPredictedWDLCharts from "./EndgamesPredictedWDLCharts";
 
 function Endgames() {
 
@@ -14,11 +15,13 @@ function Endgames() {
     const [name, setName] = useState("")
     const [section, setSection] = useState("")
     const [url, setUrl] = useState("")
+    const [url2, setUrl2] = useState("")
     
     const submitForm = (e) => {
         let oQuery = "", fQuery = "", tQuery = "", minQuery = "", maxQuery = "", pQuery = ""
         if (name) {
             let url = "http://localhost:8000/" + name + "/percentages/endgames"
+            let url2 = "http://localhost:8000/" + name + "/percentages/endgames"
             if (section) {
                 url = url + "/" + section
             }
@@ -40,8 +43,15 @@ function Endgames() {
             if (pieces) {
                 pQuery = "pieces=" + pieces + "&"
             }
+            if (section === "tablebase/predicted") {
+                pQuery = "pieces=5&"
+            }
             if (oQuery || fQuery || tQuery || minQuery || maxQuery || pQuery ) {
                 url = url + "?" + oQuery + fQuery + tQuery + minQuery + maxQuery + pQuery
+                url2 = url2 + "?" + oQuery + fQuery + tQuery + minQuery + maxQuery + pQuery
+            }
+            if (section === "material/predicted" || section === "tablebase/predicted") {
+                setUrl2(url2)
             }
             setUrl(url)
         }
@@ -55,10 +65,16 @@ function Endgames() {
                     {section === "material/wdl" ? 
                     <div>
                         <EndgamesWDLCharts name={name} url={url} />
-                    </div> : 
-                    <div>
-                        <EndgamesCharts name={name} url={url} />
-                    </div>
+                    </div> : <> 
+                        {section === "material/predicted" || section === "tablebase/predicted" ? 
+                        <div>
+                            <EndgamesPredictedWDLCharts name={name} url={url} generalUrl={url2} />
+                        </div> :
+                        <div>
+                            <EndgamesCharts name={name} url={url} />
+                        </div>
+                        }
+                    </>
                     }
                 </> :
                 <div>
@@ -91,7 +107,9 @@ function Endgames() {
                             <option value="">General</option>
                             <option value="material">Material</option>
                             <option value="material/wdl">Material WDL</option>
+                            <option value="material/predicted">Material Predicted WDL</option>
                             <option value="tablebase">Tablebase</option>
+                            <option value="tablebase/predicted">Tablebase Predicted WDL</option>
                         </select>
                     </label>
                     <br/>
