@@ -1,60 +1,42 @@
 from mongoengine import Q
-from ChessDebriefer.Logic.percentages import create_side_percentages_dictionary, create_percentages_dictionary, \
-    calculate_wdl_percentages
+from ChessDebriefer.Logic.percentages import create_percentages_dictionary, calculate_wdl_percentages, \
+    calculate_percentages_database
 from ChessDebriefer.models import Games
 
 
 def calculate_percentages_comparisons(name, params):
-    response = {}
     elo, r = check_params_comparisons(name, params)
     temp = {'minelo': str(elo - r), 'maxelo': str(elo + r)}
-    white_percentages = create_side_percentages_dictionary(name, temp, True, '', '')
-    black_percentages = create_side_percentages_dictionary(name, temp, False, '', '')
-    side_percentages = {'white': white_percentages['white'], 'black': black_percentages['black']}
+    response = calculate_percentages_database(name, temp)
     # names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
     other_players_white_percentages = create_other_players_side_percentages_dictionary(name, elo, r, True)
     other_players_black_percentages = create_other_players_side_percentages_dictionary(name, elo, r, False)
-    side_percentages['white'].update(other_players_white_percentages['white'])
-    side_percentages['black'].update(other_players_black_percentages['black'])
-    response['general percentages'] = {'your wins': side_percentages['white']['your wins'] +
-                                                    side_percentages['black']['your wins'],
-                                       'your losses': side_percentages['white']['your losses'] +
-                                                      side_percentages['black']['your losses'],
-                                       'your draws': side_percentages['white']['your draws'] +
-                                                     side_percentages['black']['your draws'],
-                                       'your win percentage': 0., 'your loss percentage': 0.,
-                                       'your draw percentage': 0.,
-                                       'other players wins': side_percentages['white']['other players wins'] +
-                                                             side_percentages['black']['other players wins'],
-                                       'other players losses': side_percentages['white']['other players losses'] +
-                                                               side_percentages['black']['other players losses'],
-                                       'other players draws': side_percentages['white']['other players draws'] +
-                                                              side_percentages['black']['other players draws'],
-                                       'other players win percentage': 0., 'other players loss percentage': 0.,
-                                       'other players draw percentage': 0.}
-    response['general percentages']['your win percentage'] = round((response['general percentages']['your wins'] /
-        (response['general percentages']['your wins'] + response['general percentages']['your losses'] +
-         response['general percentages']['your draws'])) * 100, 2)
-    response['general percentages']['your loss percentage'] = round((response['general percentages']['your losses'] /
-        (response['general percentages']['your wins'] + response['general percentages']['your losses'] +
-         response['general percentages']['your draws'])) * 100, 2)
-    response['general percentages']['your draw percentage'] = round((response['general percentages']['your draws'] /
-        (response['general percentages']['your wins'] + response['general percentages']['your losses'] +
-         response['general percentages']['your draws'])) * 100, 2)
-    response['general percentages']['other players win percentage'] = round(
-        (response['general percentages']['other players wins'] / (response['general percentages']['other players wins']
-         + response['general percentages']['other players losses'] +
-         response['general percentages']['other players draws'])) * 100, 2)
-    response['general percentages']['other players loss percentage'] = round(
-        (response['general percentages']['other players losses'] /
-         (response['general percentages']['other players wins'] +
-          response['general percentages']['other players losses'] +
-          response['general percentages']['other players draws'])) * 100, 2)
-    response['general percentages']['other players draw percentage'] = round(
-        (response['general percentages']['other players draws'] / (response['general percentages']['other players wins']
-         + response['general percentages']['other players losses'] +
-         response['general percentages']['other players draws'])) * 100, 2)
-    response['side percentages'] = {'white': side_percentages['white'], 'black': side_percentages['black']}
+    if not other_players_white_percentages:
+        other_players_white_percentages = {'white': {"other players wins": 0, "other players losses": 0,
+                                                     "other players draws": 0, "other players win percentage": 0.,
+                                                     "other players loss percentage": 0.,
+                                                     "other players draw percentage": 0.}}
+    if not other_players_black_percentages:
+        other_players_black_percentages = {'black': {"other players wins": 0, "other players losses": 0,
+                                                     "other players draws": 0, "other players win percentage": 0.,
+                                                     "other players loss percentage": 0.,
+                                                     "other players draw percentage": 0.}}
+    response['side percentages']['white'].update(other_players_white_percentages['white'])
+    response['side percentages']['black'].update(other_players_black_percentages['black'])
+    response['general percentages'].update({
+        'other players wins': other_players_white_percentages['white']['other players wins'] +
+                              other_players_black_percentages['black']['other players wins'],
+        'other players losses': other_players_white_percentages['white']['other players losses'] +
+                                other_players_black_percentages['black']['other players losses'],
+        'other players draws': other_players_white_percentages['white']['other players draws'] +
+                               other_players_black_percentages['black']['other players draws'],
+        'other players win percentage': 0., 'other players loss percentage': 0., 'other players draw percentage': 0.})
+    percentage_won_o, percentage_lost_o, percentage_drawn_o = calculate_wdl_percentages(
+        response['general percentages']['other players wins'], response['general percentages']['other players losses'],
+        response['general percentages']['other players draws'])
+    response['general percentages']['other players win percentage'] = percentage_won_o
+    response['general percentages']['other players loss percentage'] = percentage_lost_o
+    response['general percentages']['other players draw percentage'] = percentage_drawn_o
     return response
 
 
@@ -209,6 +191,25 @@ def create_other_players_percentages_dictionary(name, elo, r, group, specific):
     return dictionary
 
 
+def check_params_comparisons(name, params):
+    if "elo" in params.keys():
+        elo = int(params["elo"])
+    else:
+        player = Games.objects.filter(Q(white=name) | Q(black=name)).order_by('-date').first()
+        if player:
+            if player.white == name:
+                elo = player.white_elo
+            else:
+                elo = player.black_elo
+        else:
+            elo = 0
+    if "range" in params.keys():
+        r = int(params["range"])
+    else:
+        r = 100
+    return elo, r
+
+
 '''DEPRECATED: too slow (20 seconds more or less)
 def find_players(name, elo, r):
     players = Games.objects.aggregate([
@@ -268,22 +269,3 @@ def find_players(name, elo, r):
         names = player['names']
     return names
 '''
-
-
-def check_params_comparisons(name, params):
-    if "elo" in params.keys():
-        elo = int(params["elo"])
-    else:
-        player = Games.objects.filter(Q(white=name) | Q(black=name)).order_by('-date').first()
-        if player:
-            if player.white == name:
-                elo = player.white_elo
-            else:
-                elo = player.black_elo
-        else:
-            elo = 0
-    if "range" in params.keys():
-        r = int(params["range"])
-    else:
-        r = 100
-    return elo, r

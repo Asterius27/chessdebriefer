@@ -22,20 +22,12 @@ def calculate_percentages_database(name, params):
                                                       side_percentages['black']['your losses'],
                                        'your draws': side_percentages['white']['your draws'] +
                                                      side_percentages['black']['your draws']}
-    response['general percentages']['your win percentage'] = \
-        round((response['general percentages']['your wins'] / (response['general percentages']['your wins'] +
-                                                               response['general percentages']['your losses'] +
-                                                               response['general percentages']['your draws'])) * 100, 2)
-    response['general percentages']['your loss percentage'] = \
-        round((response['general percentages']['your losses'] / (response['general percentages']['your wins'] +
-                                                                 response['general percentages']['your losses'] +
-                                                                 response['general percentages']['your draws'])) * 100,
-              2)
-    response['general percentages']['your draw percentage'] = \
-        round((response['general percentages']['your draws'] / (response['general percentages']['your wins'] +
-                                                                response['general percentages']['your losses'] +
-                                                                response['general percentages']['your draws'])) * 100,
-              2)
+    percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(
+        response['general percentages']['your wins'], response['general percentages']['your losses'],
+        response['general percentages']['your draws'])
+    response['general percentages']['your win percentage'] = percentage_won
+    response['general percentages']['your loss percentage'] = percentage_lost
+    response['general percentages']['your draw percentage'] = percentage_drawn
     response['side percentages'] = side_percentages
     return response
 

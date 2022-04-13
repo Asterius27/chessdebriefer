@@ -17,6 +17,7 @@ from ChessDebriefer.Logic.percentages import calculate_percentages_database, \
 
 # TODO remove
 def debug(request):
+    # cProfile.runctx('calculate_compare_endgame_tablebase("mamalak", {})', globals(), locals())
     return HttpResponse(status=200)
 
 

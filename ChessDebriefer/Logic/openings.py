@@ -1,6 +1,7 @@
 import re
 from mongoengine import Q
 from ChessDebriefer.Logic.games import evaluate_opening_engine
+from ChessDebriefer.Logic.percentages import calculate_wdl_percentages
 from ChessDebriefer.models import Openings, Games
 
 
@@ -38,9 +39,6 @@ def calculate_eco_stats(eco, params):
     eco_white_wins = 0
     eco_black_wins = 0
     eco_draws = 0
-    percentage_eco_white_wins = 0.
-    percentage_eco_black_wins = 0.
-    percentage_eco_draws = 0.
     i = 0
     for opening in openings:
         if opening.black_opening != "?":
@@ -58,10 +56,8 @@ def calculate_eco_stats(eco, params):
         eco_white_wins = eco_white_wins + dictionary["white_wins"]
         eco_black_wins = eco_black_wins + dictionary["black_wins"]
         eco_draws = eco_draws + dictionary["draws"]
-    if eco_white_wins + eco_black_wins + eco_draws != 0:
-        percentage_eco_white_wins = round((eco_white_wins / (eco_white_wins + eco_black_wins + eco_draws)) * 100, 2)
-        percentage_eco_black_wins = round((eco_black_wins / (eco_white_wins + eco_black_wins + eco_draws)) * 100, 2)
-        percentage_eco_draws = round((eco_draws / (eco_white_wins + eco_black_wins + eco_draws)) * 100, 2)
+    percentage_eco_white_wins, percentage_eco_black_wins, percentage_eco_draws = calculate_wdl_percentages(
+        eco_white_wins, eco_black_wins, eco_draws)
     response[eco] = {"white_wins": eco_white_wins, "black_wins": eco_black_wins, "draws": eco_draws,
                      "percentage_white_wins": percentage_eco_white_wins,
                      "percentage_black_wins": percentage_eco_black_wins, "percentage_draws_wins": percentage_eco_draws}

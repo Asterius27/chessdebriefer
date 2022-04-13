@@ -168,32 +168,34 @@ def calculate_endgame_tablebase_percentages(name, params):
         for (game, parsed_game) in endgame_games:
             if game.white == name:
                 adv = tablebase_evaluation(tb, parsed_game, pieces, True)
-                if game.result == "1-0":
-                    wins += 1
-                    if adv == 1:
-                        win_predict += 1
-                if game.result == "0-1":
-                    losses += 1
-                    if adv == -1:
-                        loss_predict += 1
-                if game.result == "1/2-1/2":
-                    draws += 1
-                    if adv == 0:
-                        draw_predict += 1
+                if adv != 2:
+                    if game.result == "1-0":
+                        wins += 1
+                        if adv == 1:
+                            win_predict += 1
+                    if game.result == "0-1":
+                        losses += 1
+                        if adv == -1:
+                            loss_predict += 1
+                    if game.result == "1/2-1/2":
+                        draws += 1
+                        if adv == 0:
+                            draw_predict += 1
             else:
                 adv = tablebase_evaluation(tb, parsed_game, pieces, False)
-                if game.result == "1-0":
-                    losses += 1
-                    if adv == -1:
-                        loss_predict += 1
-                if game.result == "0-1":
-                    wins += 1
-                    if adv == 1:
-                        win_predict += 1
-                if game.result == "1/2-1/2":
-                    draws += 1
-                    if adv == 0:
-                        draw_predict += 1
+                if adv != 2:
+                    if game.result == "1-0":
+                        losses += 1
+                        if adv == -1:
+                            loss_predict += 1
+                    if game.result == "0-1":
+                        wins += 1
+                        if adv == 1:
+                            win_predict += 1
+                    if game.result == "1/2-1/2":
+                        draws += 1
+                        if adv == 0:
+                            draw_predict += 1
     return {'wins': wins, 'matches you should have won': win_predict, 'losses': losses,
             'matches you should have lost': loss_predict, 'draws': draws, 'matches you should have drawn': draw_predict}
 
@@ -365,7 +367,9 @@ def calculate_compare_endgame_wdl_material(name, params):
     return response
 
 
-# TODO slow (about 10 seconds for 4000 games) (only first time?)
+# TODO slow only first time? problem is method struct.unpack_from but it's hard to replicate
+#  (seems to happen only on first invocation for each player after pc restart)
+#  struct class uses a cache that's why probably
 def calculate_compare_endgame_tablebase(name, params):
     wins = 0
     losses = 0
@@ -381,32 +385,34 @@ def calculate_compare_endgame_tablebase(name, params):
         for game in games:
             if game.white != name and (elo - r) <= game.white_elo <= (elo + r):
                 adv = tablebase_evaluation(tb, game.five_piece_endgame_fen, 5, True)
-                if game.result == "1-0":
-                    wins += 1
-                    if adv == 1:
-                        win_predict += 1
-                if game.result == "0-1":
-                    losses += 1
-                    if adv == -1:
-                        loss_predict += 1
-                if game.result == "1/2-1/2":
-                    draws += 1
-                    if adv == 0:
-                        draw_predict += 1
+                if adv != 2:
+                    if game.result == "1-0":
+                        wins += 1
+                        if adv == 1:
+                            win_predict += 1
+                    if game.result == "0-1":
+                        losses += 1
+                        if adv == -1:
+                            loss_predict += 1
+                    if game.result == "1/2-1/2":
+                        draws += 1
+                        if adv == 0:
+                            draw_predict += 1
             if game.black != name and (elo - r) <= game.black_elo <= (elo + r):
                 adv = tablebase_evaluation(tb, game.five_piece_endgame_fen, 5, False)
-                if game.result == "1-0":
-                    losses += 1
-                    if adv == -1:
-                        loss_predict += 1
-                if game.result == "0-1":
-                    wins += 1
-                    if adv == 1:
-                        win_predict += 1
-                if game.result == "1/2-1/2":
-                    draws += 1
-                    if adv == 0:
-                        draw_predict += 1
+                if adv != 2:
+                    if game.result == "1-0":
+                        losses += 1
+                        if adv == -1:
+                            loss_predict += 1
+                    if game.result == "0-1":
+                        wins += 1
+                        if adv == 1:
+                            win_predict += 1
+                    if game.result == "1/2-1/2":
+                        draws += 1
+                        if adv == 0:
+                            draw_predict += 1
     response.update({'other players wins': wins, 'matches other players should have won': win_predict,
                      'other players losses': losses, 'matches other players should have lost': loss_predict,
                      'other players draws': draws, 'matches other players should have drawn': draw_predict})
@@ -505,19 +511,22 @@ def tablebase_evaluation(tb, parsed_game, n, side):
         board = Board(parsed_game)
     else:
         board = endgame_start_board(n, parsed_game.end())
-    res = tb.probe_wdl(board)
-    if res > 0:
-        if board.turn == side:
-            return 1
-        else:
-            return -1
-    if res < 0:
-        if board.turn == side:
-            return -1
-        else:
-            return 1
-    if res == 0:
-        return 0
+    if not board.castling_rights:
+        res = tb.probe_wdl(board)
+        if res > 0:
+            if board.turn == side:
+                return 1
+            else:
+                return -1
+        if res < 0:
+            if board.turn == side:
+                return -1
+            else:
+                return 1
+        if res == 0:
+            return 0
+    else:
+        return 2
 
 
 def endgame_start_board(n, parsed_game):
