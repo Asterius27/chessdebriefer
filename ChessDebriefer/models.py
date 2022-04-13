@@ -24,6 +24,14 @@ class Games(Document):
     five_piece_endgame_fen = StringField()
 
 
+class Openings(Document):
+    eco = StringField()
+    white_opening = StringField()
+    black_opening = StringField()
+    moves = StringField()
+    engine_evaluation = StringField()
+
+
 '''DEPRECATED
 # document used as cache
 class FieldsCache(Document):
@@ -46,11 +54,3 @@ class Players(Document):
     events = DictField()
     percentages = DictField()
 '''
-
-
-class Openings(Document):
-    eco = StringField()
-    white_opening = StringField()
-    black_opening = StringField()
-    moves = StringField()
-    engine_evaluation = StringField()

@@ -3,12 +3,13 @@ from django.views.decorators.csrf import csrf_exempt
 from ChessDebriefer.Logic.accuracy import calculate_accuracy
 from ChessDebriefer.Logic.compare import calculate_opening_comparisons, calculate_percentages_comparisons, \
     calculate_event_comparisons, calculate_termination_comparisons
-from ChessDebriefer.Logic.demo import calculate_openings_best_worst, calculate_openings_best_worst_simplified
+from ChessDebriefer.Logic.demo import calculate_openings_best_worst_simplified
 from ChessDebriefer.Logic.endgames import calculate_endgame_percentages, calculate_endgame_material_percentages, \
-    calculate_endgame_tablebase_percentages, calculate_compare_endgame_tablebase, calculate_compare_endgame_percentages, \
-    calculate_compare_endgame_material, calculate_endgame_wdl_material_percentages, \
-    calculate_compare_endgame_wdl_material, calculate_endgame_predicted_wdl_material_percentages, \
-    calculate_endgame_predicted_wdl_tablebase_percentages, calculate_compare_endgame_predicted_wdl_material, \
+    calculate_endgame_tablebase_percentages, calculate_endgame_wdl_material_percentages, \
+    calculate_endgame_predicted_wdl_material_percentages, calculate_endgame_predicted_wdl_tablebase_percentages
+from ChessDebriefer.Logic.endgames_compare import calculate_compare_endgame_percentages, \
+    calculate_compare_endgame_material, calculate_compare_endgame_wdl_material, \
+    calculate_compare_endgame_predicted_wdl_material, calculate_compare_endgame_tablebase, \
     calculate_compare_endgame_predicted_wdl_tablebase
 from ChessDebriefer.Logic.openings import calculate_eco_stats
 from ChessDebriefer.Logic.uploads import handle_pgn_uploads, handle_pgn_openings_upload
