@@ -1,56 +1,28 @@
 import { Link } from "react-router-dom";
+import { Navbar, Container, Nav } from "react-bootstrap";
 
-const Navbar = () => {
-    const navbarStyle = {
-        width: "100%",
-        display: "inline-block",
-        margin: "auto"
-    }
-
-    const listStyle = {
-        listStyle: "none",
-        display: "inline-block",
-    }
-
-    const itemStyle = {
-        display: "inline-block",
-        marginLeft: "10px",
-        marginRight: "10px"
-    }
-
+const MyNavbar = () => {
     return (
-    <div style={navbarStyle}>
-        <ul style={listStyle}>
-            <li style={itemStyle}>
-                <Link to="/">Players</Link>
-            </li>
-            <li style={itemStyle}>
-                <Link to="/compare">Compare</Link>
-            </li>
-            <li style={itemStyle}>
-                <Link to="/demo">Demo</Link>
-            </li>
-            <li style={itemStyle}>
-                <Link to="/endgames">Endgames</Link>
-            </li>
-            <li style={itemStyle}>
-                <Link to="/endgames/compare">Compare Endgames</Link>
-            </li>
-            <li style={itemStyle}>
-                <Link to="/throws-comebacks">Throws-Comebacks (Slow)</Link>
-            </li>
-            <li style={itemStyle}>
-                <Link to="/accuracy">Accuracy (Slow)</Link>
-            </li>
-            <li style={itemStyle}>
-                <Link to="/openings">Openings</Link>
-            </li>
-            <li style={itemStyle}>
-                <Link to="/upload">Upload PGN</Link>
-            </li>
-        </ul>
-    </div>
+
+        <Navbar bg="primary" variant="dark" expand="lg" sticky="top">
+            <Container>
+                <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                <Navbar.Collapse id="basic-navbar-nav">
+                <Nav className="m-auto">
+                    <Nav.Link as={Link} to="/">Players</Nav.Link>
+                    <Nav.Link as={Link} to="/compare">Compare</Nav.Link>
+                    <Nav.Link as={Link} to="/demo">Demo</Nav.Link>
+                    <Nav.Link as={Link} to="/endgames">Endgames</Nav.Link>
+                    <Nav.Link as={Link} to="/endgames/compare">Compare Endgames</Nav.Link>
+                    <Nav.Link as={Link} to="/throws-comebacks">Throws-Comebacks (Slow)</Nav.Link>
+                    <Nav.Link as={Link} to="/accuracy">Accuracy (Slow)</Nav.Link>
+                    <Nav.Link as={Link} to="/openings">Openings</Nav.Link>
+                    <Nav.Link as={Link} to="/upload">Upload PGN</Nav.Link>
+                </Nav>
+                </Navbar.Collapse>
+            </Container>
+        </Navbar>
     );
 }
 
-export default Navbar;
+export default MyNavbar;

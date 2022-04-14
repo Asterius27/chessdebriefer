@@ -68,109 +68,60 @@ function Demo() {
     }
     else {
         return (
-            <div>
-                <form onSubmit={submitForm}>
-                    <label>
-                        Player Name:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="text"
-                            onChange={(e) => setName(e.target.value)}
-                        />
-                    </label>
+            <div className="bg-light">
+                <form onSubmit={submitForm} style={{width: "80%", height: "80%", margin: "auto"}}>
+                <br/>
+                    <div className="form-group">
+                        <label htmlFor="playername" style={{float: "left"}}>Player Name:</label>
+                        <input className="form-control" id="playername" placeholder="Enter player name" type="text" onChange={(e) => setName(e.target.value)} />
+                    </div>
                     <br/>
+                    <div className="form-group">
+                        <label htmlFor="opponent" style={{float: "left"}}>Only use matches against this opponent:</label>
+                        <input id="opponent" className="form-control" placeholder="Enter opponent name" type="text" onChange={(e) => setOpponent(e.target.value)} />
+                    </div>
                     <br/>
-                    <label>
-                        Only use matches against this opponent:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="text"
-                            onChange={(e) => setOpponent(e.target.value)}
-                        />
-                    </label>
+                    <div className="form-group">
+                        <label htmlFor="minelo" style={{float: "left"}}>Min Elo:</label>
+                        <input id="minelo" className="form-control" placeholder="Enter minimum elo" type="number" onChange={(e) => setMinElo(e.target.value)} />
+                    </div>
                     <br/>
+                    <div className="form-group">
+                        <label htmlFor="maxelo" style={{float: "left"}}>Max Elo:</label>
+                        <input id="maxelo" className="form-control" placeholder="Enter maximum elo" type="number" onChange={(e) => setMaxElo(e.target.value)} />
+                    </div>
                     <br/>
-                    <label>
-                        Min Elo:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="number"
-                            onChange={(e) => setMinElo(e.target.value)}
-                        />
-                    </label>
+                    <div className="form-group">
+                        <label htmlFor="datefrom" style={{float: "left"}}>Only use matches played after this date:</label>
+                        <input id="datefrom" className="form-control" placeholder="Enter from date" type="date" onChange={(e) => setFrom(e.target.value)} />
+                    </div>
                     <br/>
+                    <div className="form-group">
+                        <label htmlFor="dateto" style={{float: "left"}}>Only use matches played before this date:</label>
+                        <input id="dateto" className="form-control" placeholder="Enter to date" type="date" onChange={(e) => setTo(e.target.value)} />
+                    </div>
                     <br/>
-                    <label>
-                        Max Elo:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="number"
-                            onChange={(e) => setMaxElo(e.target.value)}
-                        />
-                    </label>
+                    <div className="form-group">
+                        <label htmlFor="elo" style={{float: "left"}}>Elo to compare to:</label>
+                        <input id="elo" className="form-control" placeholder="Enter elo" type="number" onChange={(e) => setElo(e.target.value)} />
+                    </div>
                     <br/>
+                    <div className="form-group">
+                        <label htmlFor="range" style={{float: "left"}}>Range:</label>
+                        <input id="range" className="form-control" placeholder="Enter range" type="number" onChange={(e) => setRange(e.target.value)} />
+                    </div>
                     <br/>
-                    <label>
-                        Only use matches played after this date:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="date"
-                            onChange={(e) => setFrom(e.target.value)}
-                        />
-                    </label>
+                    <div className="form-group">
+                        <label htmlFor="limit" style={{float: "left"}}>Limit response list to:</label>
+                        <input id="limit" className="form-control" placeholder="Enter limit" type="number" onChange={(e) => setLimit(e.target.value)} />
+                    </div>
                     <br/>
+                    <div className="form-group">
+                        <label htmlFor="minplayed" style={{float: "left"}}>Only consider openings that have at least this many matches played:</label>
+                        <input id="minplayed" className="form-control" placeholder="Enter minimum played" type="number" onChange={(e) => setMinPlayed(e.target.value)} />
+                    </div>
                     <br/>
-                    <label>
-                        Only use matches played before this date:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="date"
-                            onChange={(e) => setTo(e.target.value)}
-                        />
-                    </label>
-                    <br/>
-                    <br/>
-                    <label>
-                        Compare to players with this elo:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="number"
-                            onChange={(e) => setElo(e.target.value)}
-                        />
-                    </label>
-                    <br/>
-                    <br/>
-                    <label>
-                        Range:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="number"
-                            onChange={(e) => setRange(e.target.value)}
-                        />
-                    </label>
-                    <br/>
-                    <br/>
-                    <label>
-                        Limit response list to:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="number"
-                            onChange={(e) => setLimit(e.target.value)}
-                        />
-                    </label>
-                    <br/>
-                    <br/>
-                    <label>
-                        Only consider openings that have at least this many matches played:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="number"
-                            onChange={(e) => setMinPlayed(e.target.value)}
-                        />
-                    </label>
-                    <br/>
-                    <br/>
-                    <input type="submit" value="Submit" />
+                    <input type="submit" value="Submit" className="btn btn-primary" />
                 </form>
             </div>
         )

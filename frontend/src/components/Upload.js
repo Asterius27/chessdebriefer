@@ -25,24 +25,23 @@ function Upload() {
     }
 
     return (
-        <div>
-            <form onSubmit={submitForm}>
-                <label>
-                    Choose upload type:
-                    <select style={{marginLeft: "7px"}} value={url} onChange={(e) => setUrl(e.target.value)}>
+        <div className="bg-light">
+            <form onSubmit={submitForm} style={{width: "80%", height: "80%", margin: "auto"}}>
+                <br/>
+                <div className="form-group">
+                    <label htmlFor="choosesection" style={{float: "left"}}>Choose upload type:</label>
+                    <select id="choosesection" className="form-select" value={url} onChange={(e) => setUrl(e.target.value)}>
                         <option value="http://localhost:8000/upload">Games</option>
                         <option value="http://localhost:8000/upload/openings">Openings</option>
                     </select>
-                </label>
+                </div>
                 <br/>
+                <div className="form-group">
+                    <label htmlFor="pgn" style={{float: "left"}}>Select PGN file to upload:</label>
+                    <input type="file" className="form-control-file" id="pgn" onChange={(e) => setSelectedFile(e.target.files[0])} />
+                </div>
                 <br/>
-                <input 
-                    type="file"
-                    onChange={(e) => setSelectedFile(e.target.files[0])}
-                />
-                <br/>
-                <br/>
-                <input type="submit" value="Submit" />
+                <input type="submit" value="Submit" className="btn btn-primary" />
             </form>
         </div>
     )

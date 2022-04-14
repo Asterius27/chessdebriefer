@@ -48,66 +48,40 @@ function Openings() {
     }
     else {
         return (
-            <div>
-                <form onSubmit={submitForm}>
-                    <label>
-                        Eco(s):
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="text"
-                            onChange={(e) => setEco(e.target.value)}
-                        />
-                    </label>
+            <div className="bg-light">
+                <form onSubmit={submitForm} style={{width: "80%", height: "80%", margin: "auto"}}>
                     <br/>
+                    <div className="form-group">
+                        <label htmlFor="ecos" style={{float: "left"}}>Eco(s):</label>
+                        <input id="ecos" className="form-control" placeholder="Enter eco(s)" type="text" onChange={(e) => setEco(e.target.value)}/>
+                    </div>
                     <br/>
-                    <label>
-                        Only use tournament matches:
-                        <div style={{marginLeft: "7px"}}>
-                            <label>
-                                <input type="radio" value="Yes" checked={tournament === "Yes"} onChange={(e) => setTournament(e.target.value)}/>
-                                Yes
-                            </label>
-                        </div>
-                        <div style={{marginLeft: "7px"}}>
-                            <label>
-                                <input type="radio" value="" checked={tournament === ""} onChange={(e) => setTournament(e.target.value)}/>
-                                No
-                            </label>
-                        </div>
-                    </label>
+                    <legend style={{textAlign: "left", fontSize: "16px"}}>Only use tournament matches:</legend>
+                    <div className="form-check">
+                        <input className="form-check-input" id="radioyes" type="radio" value="Yes" checked={tournament === "Yes"} onChange={(e) => setTournament(e.target.value)}/>
+                        <label className="form-check-label" style={{float: "left"}} htmlFor="radioyes">Yes</label>
+                    </div>
+                    <div className="form-check">
+                        <input className="form-check-input" id="radiono" type="radio" value="" checked={tournament === ""} onChange={(e) => setTournament(e.target.value)}/>
+                        <label className="form-check-label" style={{float: "left"}} htmlFor="radiono">No</label>
+                    </div>
                     <br/>
+                    <div className="form-group">
+                        <label htmlFor="minelo" style={{float: "left"}}>Min Elo:</label>
+                        <input id="minelo" className="form-control" placeholder="Enter minimum elo" type="number" onChange={(e) => setMinElo(e.target.value)} />
+                    </div>
                     <br/>
-                    <label>
-                        Min Elo:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="number"
-                            onChange={(e) => setMinElo(e.target.value)}
-                        />
-                    </label>
+                    <div className="form-group">
+                        <label htmlFor="elo" style={{float: "left"}}>Elo to compare to:</label>
+                        <input id="elo" className="form-control" placeholder="Enter elo" type="number" onChange={(e) => setElo(e.target.value)} />
+                    </div>
                     <br/>
+                    <div className="form-group">
+                        <label htmlFor="range" style={{float: "left"}}>Range:</label>
+                        <input id="range" className="form-control" placeholder="Enter range" type="number" onChange={(e) => setRange(e.target.value)} />
+                    </div>
                     <br/>
-                    <label>
-                        Elo:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="number"
-                            onChange={(e) => setElo(e.target.value)}
-                        />
-                    </label>
-                    <br/>
-                    <br/>
-                    <label>
-                        Range:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="number"
-                            onChange={(e) => setRange(e.target.value)}
-                        />
-                    </label>
-                    <br/>
-                    <br/>
-                    <input type="submit" value="Submit" />
+                    <input type="submit" value="Submit" className="btn btn-primary" />
                 </form>
             </div>
         )

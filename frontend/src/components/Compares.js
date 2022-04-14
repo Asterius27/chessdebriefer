@@ -65,86 +65,56 @@ function Compares() {
     }
     else {
         return (
-            <div>
-                <form onSubmit={submitForm}>
-                    <label>
-                        Player Name:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="text"
-                            onChange={(e) => setName(e.target.value)}
-                        />
-                    </label>
+            <div className="bg-light">
+                <form onSubmit={submitForm} style={{width: "80%", height: "80%", margin: "auto"}}>
                     <br/>
+                    <div className="form-group">
+                        <label htmlFor="playername" style={{float: "left"}}>Player Name:</label>
+                        <input className="form-control" id="playername" placeholder="Enter player name" type="text" onChange={(e) => setName(e.target.value)} />
+                    </div>
                     <br/>
-                    <label>
-                        Choose section:
-                        <select style={{marginLeft: "7px"}} value={section} onChange={(e) => setSection(e.target.value)}>
+                    <div className="form-group">
+                        <label htmlFor="choosesection" style={{float: "left"}}>Choose section:</label>
+                        <select id="choosesection" className="form-select" value={section} onChange={(e) => setSection(e.target.value)}>
                             <option value="">General</option>
                             <option value="events">Events</option>
                             <option value="openings">Openings</option>
                             <option value="terminations">Terminations</option>
                         </select>
-                    </label>
+                    </div>
                     <br/>
+                    <div className="form-group">
+                        <label htmlFor="elo" style={{float: "left"}}>Elo to compare to:</label>
+                        <input id="elo" className="form-control" placeholder="Enter elo" type="number" onChange={(e) => setElo(e.target.value)} />
+                    </div>
                     <br/>
-                    <label>
-                        Elo to compare to:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="number"
-                            onChange={(e) => setElo(e.target.value)}
-                        />
-                    </label>
-                    <br/>
-                    <br/>
-                    <label>
-                        Range:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="number"
-                            onChange={(e) => setRange(e.target.value)}
-                        />
-                    </label>
-                    <br/>
+                    <div className="form-group">
+                        <label htmlFor="range" style={{float: "left"}}>Range:</label>
+                        <input id="range" className="form-control" placeholder="Enter range" type="number" onChange={(e) => setRange(e.target.value)} />
+                    </div>
                     <br/>
                     {section === "openings" ? 
-                    <label>
-                        Eco(s):
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="text"
-                            onChange={(e) => setEco(e.target.value)}
-                        />
+                    <div className="form-group">
+                        <label htmlFor="ecos" style={{float: "left"}}>Eco(s):</label>
+                        <input id="ecos" className="form-control" placeholder="Enter eco(s)" type="text" onChange={(e) => setEco(e.target.value)}/>
                         <br/>
-                        <br/>
-                    </label> : <div></div>
+                    </div> : <div></div>
                     }
                     {section === "events" ? 
-                    <label>
-                        Event(s):
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="text"
-                            onChange={(e) => setEvent(e.target.value)}
-                        />
+                    <div className="form-group">
+                        <label htmlFor="events" style={{float: "left"}}>Event(s):</label>
+                        <input id="events" className="form-control" placeholder="Enter event(s)" type="text" onChange={(e) => setEvent(e.target.value)}/>
                         <br/>
-                        <br/>
-                    </label> : <div></div>
+                    </div> : <div></div>
                     }
                     {section === "terminations" ? 
-                    <label>
-                        Termination(s):
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="text"
-                            onChange={(e) => setTermination(e.target.value)}
-                        />
+                    <div className="form-group">
+                        <label htmlFor="terminations" style={{float: "left"}}>Termination(s):</label>
+                        <input id="terminations" className="form-control" placeholder="Enter termination(s)" type="text" onChange={(e) => setTermination(e.target.value)}/>
                         <br/>
-                        <br/>
-                    </label> : <div></div>
+                    </div> : <div></div>
                     }
-                    <input type="submit" value="Submit" />
+                    <input type="submit" value="Submit" className="btn btn-primary" />
                 </form>
             </div>
         )

@@ -89,21 +89,17 @@ function Endgames() {
     }
     else {
         return (
-            <div>
-                <form onSubmit={submitForm}>
-                    <label>
-                        Player Name:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="text"
-                            onChange={(e) => setName(e.target.value)}
-                        />
-                    </label>
+            <div className="bg-light">
+                <form onSubmit={submitForm} style={{width: "80%", height: "80%", margin: "auto"}}>
                     <br/>
+                    <div className="form-group">
+                        <label htmlFor="playername" style={{float: "left"}}>Player Name:</label>
+                        <input className="form-control" id="playername" placeholder="Enter player name" type="text" onChange={(e) => setName(e.target.value)} />
+                    </div>
                     <br/>
-                    <label>
-                        Choose section:
-                        <select style={{marginLeft: "7px"}} value={section} onChange={(e) => setSection(e.target.value)}>
+                    <div className="form-group">
+                        <label htmlFor="choosesection" style={{float: "left"}}>Choose section:</label>
+                        <select id="choosesection" className="form-select" value={section} onChange={(e) => setSection(e.target.value)}>
                             <option value="">General</option>
                             <option value="material">Material</option>
                             <option value="material/wdl">Material WDL</option>
@@ -111,70 +107,39 @@ function Endgames() {
                             <option value="tablebase">Tablebase</option>
                             <option value="tablebase/predicted">Tablebase Predicted WDL</option>
                         </select>
-                    </label>
+                    </div>
                     <br/>
+                    <div className="form-group">
+                        <label htmlFor="opponent" style={{float: "left"}}>Only use matches against this opponent:</label>
+                        <input id="opponent" className="form-control" placeholder="Enter opponent name" type="text" onChange={(e) => setOpponent(e.target.value)} />
+                    </div>
                     <br/>
-                    <label>
-                        Only use matches against this opponent:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="text"
-                            onChange={(e) => setOpponent(e.target.value)}
-                        />
-                    </label>
+                    <div className="form-group">
+                        <label htmlFor="minelo" style={{float: "left"}}>Min Elo:</label>
+                        <input id="minelo" className="form-control" placeholder="Enter minimum elo" type="number" onChange={(e) => setMinElo(e.target.value)} />
+                    </div>
                     <br/>
+                    <div className="form-group">
+                        <label htmlFor="maxelo" style={{float: "left"}}>Max Elo:</label>
+                        <input id="maxelo" className="form-control" placeholder="Enter maximum elo" type="number" onChange={(e) => setMaxElo(e.target.value)} />
+                    </div>
                     <br/>
-                    <label>
-                        Min Elo:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="number"
-                            onChange={(e) => setMinElo(e.target.value)}
-                        />
-                    </label>
+                    <div className="form-group">
+                        <label htmlFor="datefrom" style={{float: "left"}}>Only use matches played after this date:</label>
+                        <input id="datefrom" className="form-control" placeholder="Enter from date" type="date" onChange={(e) => setFrom(e.target.value)} />
+                    </div>
                     <br/>
+                    <div className="form-group">
+                        <label htmlFor="dateto" style={{float: "left"}}>Only use matches played before this date:</label>
+                        <input id="dateto" className="form-control" placeholder="Enter to date" type="date" onChange={(e) => setTo(e.target.value)} />
+                    </div>
                     <br/>
-                    <label>
-                        Max Elo:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="number"
-                            onChange={(e) => setMaxElo(e.target.value)}
-                        />
-                    </label>
+                    <div className="form-group">
+                        <label htmlFor="pieces" style={{float: "left"}}>How many pieces must be left on the board to be considered an endgame:</label>
+                        <input id="pieces" className="form-control" placeholder="Enter number of pieces" type="number" onChange={(e) => setPieces(e.target.value)} />
+                    </div>
                     <br/>
-                    <br/>
-                    <label>
-                        Only use matches played after this date:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="date"
-                            onChange={(e) => setFrom(e.target.value)}
-                        />
-                    </label>
-                    <br/>
-                    <br/>
-                    <label>
-                        Only use matches played before this date:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="date"
-                            onChange={(e) => setTo(e.target.value)}
-                        />
-                    </label>
-                    <br/>
-                    <br/>
-                    <label>
-                        How many pieces must be left on the board to be considered an endgame:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="number"
-                            onChange={(e) => setPieces(e.target.value)}
-                        />
-                    </label>
-                    <br/>
-                    <br/>
-                    <input type="submit" value="Submit" />
+                    <input type="submit" value="Submit" className="btn btn-primary" />
                 </form>
             </div>
         )

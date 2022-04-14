@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import './App.css';
-import Navbar from "./components/Navbar";
+import MyNavbar from "./components/Navbar";
 import Players from "./components/Players";
 import Upload from "./components/Upload";
 import Openings from "./components/Openings";
@@ -15,7 +15,7 @@ import EndgamesCompare from "./components/EndgamesCompare";
 function App() {
   return (
     <div className="App">
-      <Navbar />
+      <MyNavbar />
       <Routes>
         <Route exact path="/" element={<Players />} />
         <Route exact path="/compare" element={<Compares />} />

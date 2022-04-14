@@ -68,21 +68,17 @@ function EndgamesCompare() {
     }
     else {
         return (
-            <div>
-                <form onSubmit={submitForm}>
-                    <label>
-                        Player Name:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="text"
-                            onChange={(e) => setName(e.target.value)}
-                        />
-                    </label>
+            <div className="bg-light">
+                <form onSubmit={submitForm} style={{width: "80%", height: "80%", margin: "auto"}}>
                     <br/>
+                    <div className="form-group">
+                        <label htmlFor="playername" style={{float: "left"}}>Player Name:</label>
+                        <input className="form-control" id="playername" placeholder="Enter player name" type="text" onChange={(e) => setName(e.target.value)} />
+                    </div>
                     <br/>
-                    <label>
-                        Choose section:
-                        <select style={{marginLeft: "7px"}} value={section} onChange={(e) => setSection(e.target.value)}>
+                    <div className="form-group">
+                        <label htmlFor="choosesection" style={{float: "left"}}>Choose section:</label>
+                        <select id="choosesection" className="form-select" value={section} onChange={(e) => setSection(e.target.value)}>
                             <option value="">General</option>
                             <option value="material">Material</option>
                             <option value="material/wdl">Material WDL</option>
@@ -90,30 +86,19 @@ function EndgamesCompare() {
                             <option value="tablebase">Tablebase (Slow)</option>
                             <option value="tablebase/predicted">Tablebase Predicted WDL</option>
                         </select>
-                    </label>
+                    </div>
                     <br/>
+                    <div className="form-group">
+                        <label htmlFor="elo" style={{float: "left"}}>Elo to compare to:</label>
+                        <input id="elo" className="form-control" placeholder="Enter elo" type="number" onChange={(e) => setElo(e.target.value)} />
+                    </div>
                     <br/>
-                    <label>
-                        Elo to compare to:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="number"
-                            onChange={(e) => setElo(e.target.value)}
-                        />
-                    </label>
+                    <div className="form-group">
+                        <label htmlFor="range" style={{float: "left"}}>Range:</label>
+                        <input id="range" className="form-control" placeholder="Enter range" type="number" onChange={(e) => setRange(e.target.value)} />
+                    </div>
                     <br/>
-                    <br/>
-                    <label>
-                        Range:
-                        <input 
-                            style={{marginLeft: "7px"}}
-                            type="number"
-                            onChange={(e) => setRange(e.target.value)}
-                        />
-                    </label>
-                    <br/>
-                    <br/>
-                    <input type="submit" value="Submit" />
+                    <input type="submit" value="Submit" className="btn btn-primary" />
                 </form>
             </div>
         )
