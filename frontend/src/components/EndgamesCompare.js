@@ -2,6 +2,7 @@ import { useState } from "react";
 import EndgamesCompareGeneralCharts from "./EndgamesCompareGeneralCharts";
 import EndgamesCompareCharts from "./EndgamesCompareCharts";
 import EndgamesCompareWDLCharts from "./EndgamesCompareWDLCharts";
+import EndgamesComparePredictedWDLCharts from "./EndgamesComparePredictedWDLChart";
 
 function EndgamesCompare() {
 
@@ -43,9 +44,16 @@ function EndgamesCompare() {
                     <div>
                         <EndgamesCompareWDLCharts name={name} url={url} />
                     </div> : 
-                    <div>
-                        <EndgamesCompareCharts name={name} url={url} />
-                    </div>
+                    <>
+                        {section === "material/predicted" || section === "tablebase/predicted" ? 
+                        <div>
+                            <EndgamesComparePredictedWDLCharts name={name} url={url} />
+                        </div> : 
+                        <div>
+                            <EndgamesCompareCharts name={name} url={url} />
+                        </div>
+                        } 
+                    </>
                     }
                 </> :
                 <div>
@@ -78,7 +86,9 @@ function EndgamesCompare() {
                             <option value="">General</option>
                             <option value="material">Material</option>
                             <option value="material/wdl">Material WDL</option>
+                            <option value="material/predicted">Material Predicted WDL</option>
                             <option value="tablebase">Tablebase (Slow)</option>
+                            <option value="tablebase/predicted">Tablebase Predicted WDL</option>
                         </select>
                     </label>
                     <br/>

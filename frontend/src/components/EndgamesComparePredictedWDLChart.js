@@ -2,26 +2,22 @@ import { useEffect, useState } from 'react';
 import { DoughnutChart } from './ChartDoughnut';
 import LoadingSpinner from './LoadingSpinner';
 
-function EndgamesPredictedWDLCharts({ name, url, generalUrl }) {
+function EndgamesComparePredictedWDLCharts({ name, url }) {
 
     useEffect(() => {
         const fetchPercentages = async () => {
             const res = await fetch(url)
             const data = await res.json()
             setData({ data: data })
-            const res2 = await fetch(generalUrl)
-            const data2 = await res2.json()
-            setGeneralData({ data: data2 })
         }
         fetchPercentages()
     }, []);
     
     const [data, setData] = useState({})
-    const [generalData, setGeneralData] = useState({})
     
-    if (Object.keys(data).length !== 0 && Object.keys(generalData).length !== 0) {
+    if (Object.keys(data).length !== 0) {
     
-        let predictedGeneralChartData = {
+        let generalChartData = {
             labels: ['Wins', 'Losses', 'Draws'],
             datasets: [{
                 label: 'wdl',
@@ -35,7 +31,7 @@ function EndgamesPredictedWDLCharts({ name, url, generalUrl }) {
             }]
         }
     
-        let predictedWhiteChartData = {
+        let whiteChartData = {
             labels: ['Wins', 'Losses', 'Draws'],
             datasets: [{
                 label: 'wdl',
@@ -49,7 +45,7 @@ function EndgamesPredictedWDLCharts({ name, url, generalUrl }) {
             }]
         }
     
-        let predictedBlackChartData = {
+        let blackChartData = {
             labels: ['Wins', 'Losses', 'Draws'],
             datasets: [{
                 label: 'wdl',
@@ -63,11 +59,11 @@ function EndgamesPredictedWDLCharts({ name, url, generalUrl }) {
             }]
         }
 
-        let generalChartData = {
+        let compareGeneralChartData = {
             labels: ['Wins', 'Losses', 'Draws'],
             datasets: [{
                 label: 'wdl',
-                data: [generalData["data"]["general percentages"]["wins"], generalData["data"]["general percentages"]["losses"], generalData["data"]["general percentages"]["draws"]],
+                data: [data["data"]["general percentages"]["other players wins"], data["data"]["general percentages"]["other players losses"], data["data"]["general percentages"]["other players draws"]],
                 backgroundColor: [
                 'rgb(255, 99, 132)',
                 'rgb(54, 162, 235)',
@@ -77,11 +73,11 @@ function EndgamesPredictedWDLCharts({ name, url, generalUrl }) {
             }]
         }
     
-        let whiteChartData = {
+        let compareWhiteChartData = {
             labels: ['Wins', 'Losses', 'Draws'],
             datasets: [{
                 label: 'wdl',
-                data: [generalData["data"]["side percentages"]["white"]["wins"], generalData["data"]["side percentages"]["white"]["losses"], generalData["data"]["side percentages"]["white"]["draws"]],
+                data: [data["data"]["side percentages"]["white"]["other players wins"], data["data"]["side percentages"]["white"]["other players losses"], data["data"]["side percentages"]["white"]["other players draws"]],
                 backgroundColor: [
                 'rgb(255, 99, 132)',
                 'rgb(54, 162, 235)',
@@ -91,11 +87,11 @@ function EndgamesPredictedWDLCharts({ name, url, generalUrl }) {
             }]
         }
     
-        let blackChartData = {
+        let compareBlackChartData = {
             labels: ['Wins', 'Losses', 'Draws'],
             datasets: [{
                 label: 'wdl',
-                data: [generalData["data"]["side percentages"]["black"]["wins"], generalData["data"]["side percentages"]["black"]["losses"], generalData["data"]["side percentages"]["black"]["draws"]],
+                data: [data["data"]["side percentages"]["black"]["other players wins"], data["data"]["side percentages"]["black"]["other players losses"], data["data"]["side percentages"]["black"]["other players draws"]],
                 backgroundColor: [
                 'rgb(255, 99, 132)',
                 'rgb(54, 162, 235)',
@@ -118,44 +114,43 @@ function EndgamesPredictedWDLCharts({ name, url, generalUrl }) {
             <div>
                 <div style={{margin: "auto", width: "80%", display: "table"}}>
                     <div style={{display: "table-row"}}>
-                        {generalData["data"]["general percentages"]["wins"] + generalData["data"]["general percentages"]["losses"] + generalData["data"]["general percentages"]["draws"] !== 0 ? 
-                        <div style={doughnutStyle}>
-                            <DoughnutChart chartData={generalChartData} text={name + " general wdl endgame stats"} />
-                        </div> : <div></div>
-                        }
                         {data["data"]["general percentages"]["wins"] + data["data"]["general percentages"]["losses"] + data["data"]["general percentages"]["draws"] !== 0 ? 
                         <div style={doughnutStyle}>
-                            <DoughnutChart chartData={predictedGeneralChartData} text={"Predicted general wdl endgame stats"} />
+                            <DoughnutChart chartData={generalChartData} text={name + " predicted wdl endgame stats"} />
+                        </div> : <div></div>
+                        }
+                        {data["data"]["general percentages"]["other players wins"] + data["data"]["general percentages"]["other players losses"] + data["data"]["general percentages"]["other players draws"] !== 0 ? 
+                        <div style={doughnutStyle}>
+                            <DoughnutChart chartData={compareGeneralChartData} text={"Other players predicted wdl endgame stats"} />
                         </div> : <div></div>
                         }
                     </div>
                     <div style={{display: "table-row"}}>
-                        {generalData["data"]["side percentages"]["white"]["wins"] + generalData["data"]["side percentages"]["white"]["losses"] + generalData["data"]["side percentages"]["white"]["draws"] !== 0 ? 
-                        <div style={doughnutStyle}>
-                            <DoughnutChart chartData={whiteChartData} text={name + " white wdl endgame stats"} />
-                        </div> : <div></div>
-                        }
                         {data["data"]["side percentages"]["white"]["wins"] + data["data"]["side percentages"]["white"]["losses"] + data["data"]["side percentages"]["white"]["draws"] !== 0 ? 
                         <div style={doughnutStyle}>
-                            <DoughnutChart chartData={predictedWhiteChartData} text={"Predicted white wdl endgame stats"} />
+                            <DoughnutChart chartData={whiteChartData} text={name + " white predicted wdl endgame stats"} />
+                        </div> : <div></div>
+                        }
+                        {data["data"]["side percentages"]["white"]["other players wins"] + data["data"]["side percentages"]["white"]["other players losses"] + data["data"]["side percentages"]["white"]["other players draws"] !== 0 ? 
+                        <div style={doughnutStyle}>
+                            <DoughnutChart chartData={compareWhiteChartData} text={"Other player's white predicted wdl endgame stats"} />
                         </div> : <div></div>
                         }
                     </div>
                     <div style={{display: "table-row"}}>
-                        {generalData["data"]["side percentages"]["black"]["wins"] + generalData["data"]["side percentages"]["black"]["losses"] + generalData["data"]["side percentages"]["black"]["draws"] !== 0 ? 
-                        <div style={doughnutStyle}>
-                            <DoughnutChart chartData={blackChartData} text={name + " black wdl endgame stats"} />
-                        </div> : <div></div>
-                        }
                         {data["data"]["side percentages"]["black"]["wins"] + data["data"]["side percentages"]["black"]["losses"] + data["data"]["side percentages"]["black"]["draws"] !== 0 ? 
                         <div style={doughnutStyle}>
-                            <DoughnutChart chartData={predictedBlackChartData} text={"Predicted black wdl endgame stats"} />
+                            <DoughnutChart chartData={blackChartData} text={name + " black predicted wdl endgame stats"} />
+                        </div> : <div></div>
+                        }
+                        {data["data"]["side percentages"]["black"]["other players wins"] + data["data"]["side percentages"]["black"]["other players losses"] + data["data"]["side percentages"]["black"]["other players draws"] !== 0 ? 
+                        <div style={doughnutStyle}>
+                            <DoughnutChart chartData={compareBlackChartData} text={"Other player's black predicted wdl endgame stats"} />
                         </div> : <div></div>
                         }
                     </div>
                 </div>
             </div>
-
         )
     
     } else {
@@ -166,4 +161,4 @@ function EndgamesPredictedWDLCharts({ name, url, generalUrl }) {
 
 }
 
-export default EndgamesPredictedWDLCharts;
+export default EndgamesComparePredictedWDLCharts;
