@@ -108,9 +108,9 @@ def calculate_compare_endgame_predicted_wdl_material(name, params):
     return response
 
 
-# TODO slow only first time? problem is method struct.unpack_from but it's hard to replicate
-#  (seems to happen only on first invocation for each player after pc restart)
-#  struct class uses a cache that's why probably
+# TODO slow only first time? problem is method struct.unpack_from that is used by the python chess library. It's slow
+#  but it uses a cache so only first time (for each player) is slow. Cache is reset after pc restart, how big is it?
+#  Is it possible to fill it completely? What happens performance-wise when it is filled?
 def calculate_compare_endgame_tablebase(name, params):
     elo, r = check_params_comparisons(name, params)
     temp = {'minelo': str(elo - r), 'maxelo': str(elo + r)}
