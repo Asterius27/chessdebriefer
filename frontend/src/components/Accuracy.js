@@ -15,12 +15,12 @@ function Accuracy() {
 
     if (url) {
         return (
-            <div>
+            <div className="bg-light">
                 <div>
                     <AccuracyResponse name={name} url={url} />
                 </div>
                 <div style={{paddingBottom: "2%"}}>
-                    <button onClick={(e) => {setUrl(""); setName(""); e.preventDefault();}}>Back</button>
+                    <button className="btn btn-primary" onClick={(e) => {setUrl(""); setName(""); e.preventDefault();}}>Back</button>
                 </div>
             </div>
         )

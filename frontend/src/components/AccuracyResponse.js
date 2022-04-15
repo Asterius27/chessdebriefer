@@ -17,7 +17,7 @@ function AccuracyResponse({ name, url }) {
   if (Object.keys(data).length !== 0) {
 
     return (
-        <div>
+        <div style={{width: "80%", margin: "auto"}}>
             <p>General accuracy: {data["data"]["general accuracy"]}</p>
             <p>Accuracy after the opening: {data["data"]["accuracy after opening"]}</p>
         </div>

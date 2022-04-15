@@ -70,17 +70,17 @@ function PlayersGeneralCharts({ name, url }) {
       <div>
         {data["data"]["general percentages"]["your wins"] + data["data"]["general percentages"]["your losses"] + data["data"]["general percentages"]["your draws"] !== 0 ? 
           <div style={doughnutStyle}>
-            <DoughnutChart chartData={generalChartData} text={name + " general wdl stats"} />
+            <DoughnutChart chartData={generalChartData} text={name + "'s general wdl stats"} />
           </div> : <div></div>
         }
         {data["data"]["side percentages"]["white"]["your wins"] + data["data"]["side percentages"]["white"]["your losses"] + data["data"]["side percentages"]["white"]["your draws"] !== 0 ? 
           <div style={doughnutStyle}>
-            <DoughnutChart chartData={whiteChartData} text={name + " white wdl stats"} />
+            <DoughnutChart chartData={whiteChartData} text={name + "'s white wdl stats"} />
           </div> : <div></div>
         }
         {data["data"]["side percentages"]["black"]["your wins"] + data["data"]["side percentages"]["black"]["your losses"] + data["data"]["side percentages"]["black"]["your draws"] !== 0 ? 
           <div style={doughnutStyle}>
-            <DoughnutChart chartData={blackChartData} text={name + " black wdl stats"} />
+            <DoughnutChart chartData={blackChartData} text={name + "'s black wdl stats"} />
           </div> : <div></div>
         }
       </div>

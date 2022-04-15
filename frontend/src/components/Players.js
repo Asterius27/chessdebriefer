@@ -50,7 +50,7 @@ function Players() {
 
     if (url) {
         return (
-            <div>
+            <div className="bg-light">
                 {section ? <>
                     {section === "openings" && eco ? 
                     <div>
@@ -66,7 +66,7 @@ function Players() {
                 </div>
                 }
                 <div style={{paddingBottom: "2%"}}>
-                    <button onClick={(e) => {setUrl(""); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); setSection(""); setEco(""); e.preventDefault();}}>Back</button>
+                    <button className="btn btn-primary" onClick={(e) => {setUrl(""); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); setSection(""); setEco(""); e.preventDefault();}}>Back</button>
                 </div>
             </div>
         )

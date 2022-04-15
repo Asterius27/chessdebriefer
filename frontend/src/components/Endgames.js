@@ -60,7 +60,7 @@ function Endgames() {
 
     if (url) {
         return (
-            <div>
+            <div className="bg-light">
                 {section ? <>
                     {section === "material/wdl" ? 
                     <div>
@@ -82,7 +82,7 @@ function Endgames() {
                 </div>
                 }
                 <div style={{paddingBottom: "2%"}}>
-                    <button onClick={(e) => {setUrl(""); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); setSection(""); setPieces(""); setUrl2(""); e.preventDefault();}}>Back</button>
+                    <button className="btn btn-primary" onClick={(e) => {setUrl(""); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); setSection(""); setPieces(""); setUrl2(""); e.preventDefault();}}>Back</button>
                 </div>
             </div>
         )

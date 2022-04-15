@@ -40,12 +40,12 @@ function ThrowsComebacks() {
 
     if (url) {
         return (
-            <div>
+            <div className="bg-light">
                 <div>
                     <ThrowsComebacksCharts name={name} url={url} />
                 </div>
                 <div style={{paddingBottom: "2%"}}>
-                    <button onClick={(e) => {setUrl(""); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); e.preventDefault();}}>Back</button>
+                    <button className="btn btn-primary" onClick={(e) => {setUrl(""); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); e.preventDefault();}}>Back</button>
                 </div>
             </div>
         )

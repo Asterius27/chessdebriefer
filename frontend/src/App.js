@@ -11,7 +11,7 @@ import Accuracy from "./components/Accuracy";
 import ThrowsComebacks from "./components/ThrowsComebacks";
 import EndgamesCompare from "./components/EndgamesCompare";
 
-// TODO make it nicer with bootstrap, remove duplicate code
+// TODO make it nicer with bootstrap, remove duplicate code, add error handling
 function App() {
   return (
     <div className="App">

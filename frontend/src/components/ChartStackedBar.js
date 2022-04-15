@@ -11,7 +11,7 @@ export const StackedBarChart = ({ chartData, text }) => {
                         title: {
                             display: true,
                             font: {
-                                size: 28
+                                size: "30%"
                             },
                             text: text
                         },

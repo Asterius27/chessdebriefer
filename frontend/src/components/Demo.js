@@ -56,12 +56,12 @@ function Demo() {
 
     if (url) {
         return (
-            <div>
+            <div className="bg-light">
                 <div>
                     <DemoResponse name={name} url={url} />
                 </div>
                 <div style={{paddingBottom: "2%"}}>
-                    <button onClick={(e) => {setUrl(""); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); setElo(""); setRange(""); setLimit(""); setMinPlayed(""); e.preventDefault();}}>Back</button>
+                    <button className="btn btn-primary" onClick={(e) => {setUrl(""); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); setElo(""); setRange(""); setLimit(""); setMinPlayed(""); e.preventDefault();}}>Back</button>
                 </div>
             </div>
         )

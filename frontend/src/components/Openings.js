@@ -36,12 +36,12 @@ function Openings() {
 
     if (url) {
         return (
-            <div>
+            <div className="bg-light">
                 <div>
                     <OpeningsChart eco={eco} url={url} />
                 </div>
                 <div style={{paddingBottom: "2%"}}>
-                    <button onClick={(e) => {setUrl(""); setEco(""); setRange(""); setElo(""); setMinElo(""); setTournament(""); e.preventDefault();}}>Back</button>
+                    <button className="btn btn-primary" onClick={(e) => {setUrl(""); setEco(""); setRange(""); setElo(""); setMinElo(""); setTournament(""); e.preventDefault();}}>Back</button>
                 </div>
             </div>
         )

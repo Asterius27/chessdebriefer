@@ -48,7 +48,7 @@ function Compares() {
 
     if (url) {
         return (
-            <div>
+            <div className="bg-light">
                 {section ? 
                 <div>
                     <ComparesCharts name={name} url={url} />
@@ -58,7 +58,7 @@ function Compares() {
                 </div>
                 }
                 <div style={{paddingBottom: "2%"}}>
-                    <button onClick={(e) => {setUrl(""); setName(""); setElo(""); setRange(""); setEvent(""); setTermination(""); setSection(""); setEco(""); e.preventDefault();}}>Back</button>
+                    <button className="btn btn-primary" onClick={(e) => {setUrl(""); setName(""); setElo(""); setRange(""); setEvent(""); setTermination(""); setSection(""); setEco(""); e.preventDefault();}}>Back</button>
                 </div>
             </div>
         )

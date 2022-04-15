@@ -11,13 +11,18 @@ export const DoughnutChart = ({ chartData, text }) => {
                         title: {
                             display: true,
                             font: {
-                                size: 28
+                                size: "30%"
                             },
                             text: text
                         },
                         legend: {
                             display: true,
-                            position: "bottom"
+                            position: "bottom",
+                            labels: {
+                                font: {
+                                    size: "15%"
+                                }
+                            }
                         },
                         tooltip: {
                             callbacks: {

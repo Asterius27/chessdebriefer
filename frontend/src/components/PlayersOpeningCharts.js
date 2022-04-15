@@ -81,7 +81,7 @@ function GenerateCharts({ data, eco, name }) {
     return (
         <div key={eco}>
             <div>
-                <h1 style={{fontSize: "700%"}}>{eco}</h1>
+                <h1 style={{fontSize: "600%"}}>{eco}</h1>
             </div>
             <div style={doughnutStyle}>
                 <DoughnutChart chartData={generalChartData} text={name + "'s " + eco + " wdl"} />
