@@ -28,8 +28,7 @@ def debug(request):
 @csrf_exempt
 def upload(request):
     if request.method == 'POST':
-        if request.FILES['file'].content_type == "application/x-chess-pgn" \
-                and str(request.FILES['file']).endswith('.pgn'):
+        if str(request.FILES['file']).endswith('.pgn'):  # request.FILES['file'].content_type == "application/x-chess-pgn"
             handle_pgn_uploads(request.FILES['file'])
             return HttpResponse("Success! Your file was uploaded and is now being parsed. Please note that it may take "
                                 "several hours for the process to complete")
@@ -42,8 +41,7 @@ def upload(request):
 @csrf_exempt
 def upload_openings(request):
     if request.method == 'POST':
-        if request.FILES['file'].content_type == "application/x-chess-pgn" \
-                and str(request.FILES['file']).endswith('.pgn'):
+        if str(request.FILES['file']).endswith('.pgn'):  # request.FILES['file'].content_type == "application/x-chess-pgn"
             handle_pgn_openings_upload(request.FILES['file'])
             return HttpResponse("Success! Your file was uploaded and is now being parsed. Please note that it may take "
                                 "several hours for the process to complete")

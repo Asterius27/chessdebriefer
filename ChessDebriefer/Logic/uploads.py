@@ -1,3 +1,4 @@
+import concurrent.futures
 import datetime
 import os
 import threading
@@ -8,7 +9,7 @@ from ChessDebriefer.Logic.games import find_opening
 from ChessDebriefer.models import Games, Openings
 
 
-# TODO add headers check (?), parallelize more for better performance (thread pool, 1 thread - 1 game)
+# TODO add headers check (?), parallelize more for better performance
 # it takes a lot of time to parse everything
 def handle_pgn_uploads(f):
     i = 0
@@ -22,59 +23,75 @@ def handle_pgn_uploads(f):
     thr.start()
 
 
+# n = 10 -> 34 min per 121114 partite
+# n = 1 -> 1 ora e 49 min per 121114 partite
 def parse_pgn(file_name):
     # cached_fields = FieldsCache.objects.first()
     # fields = ["event", "termination"]
     # if not cached_fields:
     #    cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
     with open(file_name) as pgn:
-        while True:
-            game = chess.pgn.read_game(pgn)
-            if game is None:
-                break
-            if game.headers["Black"] != "?" and game.headers["White"] != "?" and game.headers["UTCDate"] != "?" and \
-                    game.headers["UTCTime"] != "?":
-                arr_date = game.headers["UTCDate"].split(".")
-                arr_time = game.headers["UTCTime"].split(":")
-                date = datetime.datetime(int(arr_date[0]), int(arr_date[1]), int(arr_date[2]), int(arr_time[0]),
-                                         int(arr_time[1]), int(arr_time[2]))
-                if "https" in game.headers["Event"]:
-                    temp = game.headers["Event"].split(" ")
-                    tournament_site = temp[-1]
-                    del temp[-1]
-                    event = ' '.join(temp)
-                else:
-                    tournament_site = ""
-                    event = game.headers["Event"]
-                fen = ""
-                if reaches_five_piece_endgame(game):
-                    fen = endgame_start_fen(game.end())
-                exist = Games.objects.filter(Q(event=event) & Q(tournament_site=tournament_site) &
-                                             Q(site=game.headers["Site"]) & Q(white=game.headers["White"]) &
-                                             Q(black=game.headers["Black"]) & Q(result=game.headers["Result"]) &
-                                             Q(date=date) & Q(white_elo=game.headers["WhiteElo"]) &
-                                             Q(black_elo=game.headers["BlackElo"]) &
-                                             Q(white_rating_diff=game.headers["WhiteRatingDiff"]) &
-                                             Q(black_rating_diff=game.headers["BlackRatingDiff"]) &
-                                             Q(time_control=game.headers["TimeControl"]) &
-                                             Q(termination=game.headers["Termination"]) &
-                                             Q(moves=str(game.mainline_moves())) &
-                                             Q(five_piece_endgame_fen=fen)).first()
-                if not exist:
-                    saved_game = Games(event=event, tournament_site=tournament_site, site=game.headers["Site"],
-                                       white=game.headers["White"], black=game.headers["Black"],
-                                       result=game.headers["Result"], date=date, white_elo=game.headers["WhiteElo"],
-                                       black_elo=game.headers["BlackElo"],
-                                       white_rating_diff=game.headers["WhiteRatingDiff"],
-                                       black_rating_diff=game.headers["BlackRatingDiff"], eco="",
-                                       opening_id="000000000000000000000000", time_control=game.headers["TimeControl"],
-                                       termination=game.headers["Termination"], moves=str(game.mainline_moves()),
-                                       best_moves=[], moves_evaluation=[], five_piece_endgame_fen=fen).save()
-                    find_opening(saved_game)
-                    # update_cache(saved_game, fields, cached_fields)
-                    # update_player_cache(saved_game.white, saved_game.white_elo, saved_game)
-                    # update_player_cache(saved_game.black, saved_game.black_elo, saved_game)
+        n = 10
+        lock = threading.Lock()
+        futures = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=n) as executor:
+            print(datetime.datetime.now())
+            for x in range(n):
+                future = executor.submit(run, pgn, lock)
+                futures.append(future)
+            concurrent.futures.wait(futures)
+    print(datetime.datetime.now())
     os.remove(file_name)
+
+
+def run(pgn, lock):
+    while True:
+        with lock:
+            game = chess.pgn.read_game(pgn)
+        if game is None:
+            break
+        if game.headers["Black"] != "?" and game.headers["White"] != "?" and game.headers["UTCDate"] != "?" and \
+                game.headers["UTCTime"] != "?":
+            arr_date = game.headers["UTCDate"].split(".")
+            arr_time = game.headers["UTCTime"].split(":")
+            date = datetime.datetime(int(arr_date[0]), int(arr_date[1]), int(arr_date[2]), int(arr_time[0]),
+                                     int(arr_time[1]), int(arr_time[2]))
+            if "https" in game.headers["Event"]:
+                temp = game.headers["Event"].split(" ")
+                tournament_site = temp[-1]
+                del temp[-1]
+                event = ' '.join(temp)
+            else:
+                tournament_site = ""
+                event = game.headers["Event"]
+            fen = ""
+            if reaches_five_piece_endgame(game):
+                fen = endgame_start_fen(game.end())
+            exist = Games.objects.filter(Q(event=event) & Q(tournament_site=tournament_site) &
+                                         Q(site=game.headers["Site"]) & Q(white=game.headers["White"]) &
+                                         Q(black=game.headers["Black"]) & Q(result=game.headers["Result"]) &
+                                         Q(date=date) & Q(white_elo=game.headers["WhiteElo"]) &
+                                         Q(black_elo=game.headers["BlackElo"]) &
+                                         Q(white_rating_diff=game.headers["WhiteRatingDiff"]) &
+                                         Q(black_rating_diff=game.headers["BlackRatingDiff"]) &
+                                         Q(time_control=game.headers["TimeControl"]) &
+                                         Q(termination=game.headers["Termination"]) &
+                                         Q(moves=str(game.mainline_moves())) &
+                                         Q(five_piece_endgame_fen=fen)).first()
+            if not exist:
+                saved_game = Games(event=event, tournament_site=tournament_site, site=game.headers["Site"],
+                                   white=game.headers["White"], black=game.headers["Black"],
+                                   result=game.headers["Result"], date=date, white_elo=game.headers["WhiteElo"],
+                                   black_elo=game.headers["BlackElo"],
+                                   white_rating_diff=game.headers["WhiteRatingDiff"],
+                                   black_rating_diff=game.headers["BlackRatingDiff"], eco="",
+                                   opening_id="000000000000000000000000", time_control=game.headers["TimeControl"],
+                                   termination=game.headers["Termination"], moves=str(game.mainline_moves()),
+                                   best_moves=[], moves_evaluation=[], five_piece_endgame_fen=fen).save()
+                find_opening(saved_game)
+                # update_cache(saved_game, fields, cached_fields)
+                # update_player_cache(saved_game.white, saved_game.white_elo, saved_game)
+                # update_player_cache(saved_game.black, saved_game.black_elo, saved_game)
 
 
 def reaches_five_piece_endgame(parsed_game):
