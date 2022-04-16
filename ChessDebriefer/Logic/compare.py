@@ -4,6 +4,7 @@ from ChessDebriefer.Logic.percentages import create_percentages_dictionary, calc
 from ChessDebriefer.models import Games
 
 
+# TODO divide elo in two: elo used for player query and elo used for compare query
 def calculate_percentages_comparisons(name, params):
     elo, r = check_params_comparisons(name, params)
     temp = {'minelo': str(elo - r), 'maxelo': str(elo + r)}

@@ -72,7 +72,7 @@ function Openings() {
                     </div>
                     <br/>
                     <div className="form-group">
-                        <label htmlFor="elo" style={{float: "left"}}>Elo to compare to:</label>
+                        <label htmlFor="elo" style={{float: "left"}}>Elo:</label>
                         <input id="elo" className="form-control" placeholder="Enter elo" type="number" onChange={(e) => setElo(e.target.value)} />
                     </div>
                     <br/>

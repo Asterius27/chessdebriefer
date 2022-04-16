@@ -12,15 +12,16 @@ from ChessDebriefer.models import Games, Openings
 # TODO add headers check (?), parallelize more for better performance
 # it takes a lot of time to parse everything
 def handle_pgn_uploads(f):
-    i = 0
-    while exists('temp' + str(i) + '.pgn'):
-        i += 1
-    file_name = 'temp' + str(i) + '.pgn'
-    with open(file_name, 'wb+') as temp:
-        for chunk in f.chunks():
-            temp.write(chunk)
-    thr = threading.Thread(target=parse_pgn, args=(file_name,))
-    thr.start()
+    if Openings.objects.first() is not None:
+        i = 0
+        while exists('temp' + str(i) + '.pgn'):
+            i += 1
+        file_name = 'temp' + str(i) + '.pgn'
+        with open(file_name, 'wb+') as temp:
+            for chunk in f.chunks():
+                temp.write(chunk)
+        thr = threading.Thread(target=parse_pgn, args=(file_name,))
+        thr.start()
 
 
 # n = 10 -> 34 min per 121114 partite
@@ -130,6 +131,7 @@ def handle_pgn_openings_upload(f):
         for chunk in f.chunks():
             temp.write(chunk)
     Openings.drop_collection()
+    Games.drop_collection()
     thr = threading.Thread(target=parse_pgn_opening)
     thr.start()
     # for field in fields:

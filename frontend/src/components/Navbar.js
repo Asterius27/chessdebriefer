@@ -9,7 +9,7 @@ const MyNavbar = () => {
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="m-auto">
-                    <Nav.Link as={Link} to="/">Players</Nav.Link>
+                    <Nav.Link as={Link} to="/player">Players</Nav.Link>
                     <Nav.Link as={Link} to="/compare">Compare</Nav.Link>
                     <Nav.Link as={Link} to="/demo">Demo</Nav.Link>
                     <Nav.Link as={Link} to="/endgames">Endgames</Nav.Link>

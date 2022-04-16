@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import './App.css';
 import MyNavbar from "./components/Navbar";
 import Players from "./components/Players";
@@ -17,7 +17,8 @@ function App() {
     <div className="App">
       <MyNavbar />
       <Routes>
-        <Route exact path="/" element={<Players />} />
+        <Route exact path="/" element={<Navigate to="/player" replace />}></Route>
+        <Route exact path="/player" element={<Players />} />
         <Route exact path="/compare" element={<Compares />} />
         <Route exact path="/demo" element={<Demo />} />
         <Route exact path="/endgames" element={<Endgames />} />
