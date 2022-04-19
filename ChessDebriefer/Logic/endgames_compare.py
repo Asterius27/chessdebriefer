@@ -5,14 +5,16 @@ from ChessDebriefer.Logic.endgames import calculate_endgame_percentages, calcula
     calculate_endgame_wdl_material_percentages, create_material_dictionary, \
     calculate_endgame_predicted_wdl_material_percentages, calculate_endgame_tablebase_percentages, \
     calculate_endgame_predicted_wdl_tablebase_percentages, material_advantage, tablebase_evaluation
-from ChessDebriefer.Logic.percentages import calculate_wdl_percentages
+from ChessDebriefer.Logic.percentages import calculate_wdl_percentages, check_params
 from ChessDebriefer.models import Games
 
 
 def calculate_compare_endgame_percentages(name, params):
+    from_date, to_date, min_elo, max_elo, opponent = check_params(params)
     elo, r = check_params_comparisons(name, params)
     temp = {'minelo': str(elo - r), 'maxelo': str(elo + r), 'pieces': '5'}
-    response = calculate_endgame_percentages(name, temp)
+    temp_p = {'minelo': str(min_elo), 'maxelo': str(max_elo), 'pieces': '5'}
+    response = calculate_endgame_percentages(name, temp_p)
     games = compare_database_query(name, temp)
     i, white_wins, white_losses, white_draws, black_wins, black_losses, black_draws = calculate_general_wdl_compare(
         name, games, elo, r)
@@ -45,9 +47,11 @@ def calculate_compare_endgame_percentages(name, params):
 
 
 def calculate_compare_endgame_material(name, params):
+    from_date, to_date, min_elo, max_elo, opponent = check_params(params)
     elo, r = check_params_comparisons(name, params)
     temp = {'minelo': str(elo - r), 'maxelo': str(elo + r), 'pieces': '5'}
-    response = calculate_endgame_material_percentages(name, temp)
+    temp_p = {'minelo': str(min_elo), 'maxelo': str(max_elo), 'pieces': '5'}
+    response = calculate_endgame_material_percentages(name, temp_p)
     games = compare_database_query(name, temp)
     wins, losses, draws, win_material_adv, loss_material_adv, draw_material_adv = calculate_wdl_material_compare(
         name, games, 5, elo, r)
@@ -62,9 +66,11 @@ def calculate_compare_endgame_material(name, params):
 
 def calculate_compare_endgame_wdl_material(name, params):
     response = {}
+    from_date, to_date, min_elo, max_elo, opponent = check_params(params)
     elo, r = check_params_comparisons(name, params)
     temp = {'minelo': str(elo - r), 'maxelo': str(elo + r), 'pieces': '5'}
-    response["your stats"] = calculate_endgame_wdl_material_percentages(name, temp)
+    temp_p = {'minelo': str(min_elo), 'maxelo': str(max_elo), 'pieces': '5'}
+    response["your stats"] = calculate_endgame_wdl_material_percentages(name, temp_p)
     games = compare_database_query(name, temp)
     wins, losses, draws, win_material_adv, loss_material_adv, draw_material_adv = calculate_wdl_material_compare(
         name, games, 5, elo, r)
@@ -74,9 +80,11 @@ def calculate_compare_endgame_wdl_material(name, params):
 
 
 def calculate_compare_endgame_predicted_wdl_material(name, params):
+    from_date, to_date, min_elo, max_elo, opponent = check_params(params)
     elo, r = check_params_comparisons(name, params)
     temp = {'minelo': str(elo - r), 'maxelo': str(elo + r), 'pieces': '5'}
-    response = calculate_endgame_predicted_wdl_material_percentages(name, temp)
+    temp_p = {'minelo': str(min_elo), 'maxelo': str(max_elo), 'pieces': '5'}
+    response = calculate_endgame_predicted_wdl_material_percentages(name, temp_p)
     games = compare_database_query(name, temp)
     white_wins, white_losses, white_draws, black_wins, black_losses, black_draws = \
         calculate_predicted_wdl_material_compare(name, games, 5, elo, r)
@@ -112,9 +120,11 @@ def calculate_compare_endgame_predicted_wdl_material(name, params):
 #  but it uses a cache so only first time (for each player) is slow. Cache is reset after pc restart, how big is it?
 #  Is it possible to fill it completely? What happens performance-wise when it is filled?
 def calculate_compare_endgame_tablebase(name, params):
+    from_date, to_date, min_elo, max_elo, opponent = check_params(params)
     elo, r = check_params_comparisons(name, params)
     temp = {'minelo': str(elo - r), 'maxelo': str(elo + r)}
-    response = calculate_endgame_tablebase_percentages(name, temp)
+    temp_p = {'minelo': str(min_elo), 'maxelo': str(max_elo), 'pieces': '5'}
+    response = calculate_endgame_tablebase_percentages(name, temp_p)
     games = compare_database_query(name, temp)
     wins, losses, draws, win_predict, loss_predict, draw_predict = calculate_wdl_tablebase_compare(
         name, games, 5, elo, r)
@@ -125,9 +135,11 @@ def calculate_compare_endgame_tablebase(name, params):
 
 
 def calculate_compare_endgame_predicted_wdl_tablebase(name, params):
+    from_date, to_date, min_elo, max_elo, opponent = check_params(params)
     elo, r = check_params_comparisons(name, params)
     temp = {'minelo': str(elo - r), 'maxelo': str(elo + r), 'pieces': '5'}
-    response = calculate_endgame_predicted_wdl_tablebase_percentages(name, temp)
+    temp_p = {'minelo': str(min_elo), 'maxelo': str(max_elo), 'pieces': '5'}
+    response = calculate_endgame_predicted_wdl_tablebase_percentages(name, temp_p)
     games = compare_database_query(name, temp)
     white_wins, white_losses, white_draws, black_wins, black_losses, black_draws = \
         calculate_predicted_wdl_tablebase_compare(name, games, 5, elo, r)

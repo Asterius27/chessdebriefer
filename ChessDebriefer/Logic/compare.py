@@ -1,13 +1,13 @@
 from mongoengine import Q
 from ChessDebriefer.Logic.percentages import create_percentages_dictionary, calculate_wdl_percentages, \
-    calculate_percentages_database
+    calculate_percentages_database, check_params
 from ChessDebriefer.models import Games
 
 
-# TODO divide elo in two: elo used for player query and elo used for compare query
 def calculate_percentages_comparisons(name, params):
+    from_date, to_date, min_elo, max_elo, opponent = check_params(params)
     elo, r = check_params_comparisons(name, params)
-    temp = {'minelo': str(elo - r), 'maxelo': str(elo + r)}
+    temp = {'minelo': str(min_elo), 'maxelo': str(max_elo)}
     response = calculate_percentages_database(name, temp)
     # names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
     other_players_white_percentages = create_other_players_side_percentages_dictionary(name, elo, r, True)
@@ -43,7 +43,7 @@ def calculate_percentages_comparisons(name, params):
 
 def calculate_event_comparisons(name, params):
     elo, r = check_params_comparisons(name, params)
-    player_event_stats, events = calculate_player_stats(name, elo, r, params, 'event')
+    player_event_stats, events = calculate_player_stats(name, params, 'event')
     # names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
     event_stats = create_other_players_percentages_dictionary(name, elo, r, 'event', events)
     return create_response(player_event_stats, event_stats)
@@ -51,7 +51,7 @@ def calculate_event_comparisons(name, params):
 
 def calculate_termination_comparisons(name, params):
     elo, r = check_params_comparisons(name, params)
-    player_termination_stats, terminations = calculate_player_stats(name, elo, r, params, 'termination')
+    player_termination_stats, terminations = calculate_player_stats(name, params, 'termination')
     # names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
     termination_stats = create_other_players_percentages_dictionary(name, elo, r, 'termination', terminations)
     return create_response(player_termination_stats, termination_stats)
@@ -59,7 +59,7 @@ def calculate_termination_comparisons(name, params):
 
 def calculate_opening_comparisons(name, params):
     elo, r = check_params_comparisons(name, params)
-    player_eco_stats, ecos = calculate_player_stats(name, elo, r, params, 'eco')
+    player_eco_stats, ecos = calculate_player_stats(name, params, 'eco')
     # names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
     eco_stats = create_other_players_percentages_dictionary(name, elo, r, 'eco', ecos)
     return create_response(player_eco_stats, eco_stats)
@@ -79,8 +79,9 @@ def create_response(your_stats, other_players_stats):
     return response
 
 
-def calculate_player_stats(name, elo, r, params, specific):
-    temp = {'minelo': str(elo - r), 'maxelo': str(elo + r)}
+def calculate_player_stats(name, params, specific):
+    from_date, to_date, min_elo, max_elo, opponent = check_params(params)
+    temp = {'minelo': str(min_elo), 'maxelo': str(max_elo)}
     if specific in params.keys():
         specifics = params[specific].split(",")
         player_stats = create_percentages_dictionary(name, temp, specific, specifics)

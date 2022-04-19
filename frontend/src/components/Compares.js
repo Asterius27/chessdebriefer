@@ -4,6 +4,8 @@ import ComparesGeneralCharts from "./ComparesGeneralCharts";
 
 function Compares() {
 
+    const [minElo, setMinElo] = useState("")
+    const [maxElo, setMaxElo] = useState("")
     const [elo, setElo] = useState("")
     const [range, setRange] = useState("")
     const [event, setEvent] = useState("")
@@ -14,7 +16,7 @@ function Compares() {
     const [url, setUrl] = useState("")
     
     const submitForm = (e) => {
-        let eloQuery = "", rQuery = "", eQuery = "", ecoQuery = "", tQuery = ""
+        let eloQuery = "", rQuery = "", eQuery = "", ecoQuery = "", tQuery = "", minQuery = "", maxQuery = ""
         if (name) {
             let url = "http://localhost:8000/" + name + "/percentages"
             if (section) {
@@ -22,6 +24,12 @@ function Compares() {
             }
             else {
                 url = url + "/compare"
+            }
+            if (minElo) {
+                minQuery = "minelo=" + minElo + "&"
+            }
+            if (maxElo) {
+                maxQuery = "maxelo=" + maxElo + "&"
             }
             if (elo) {
                 eloQuery = "elo=" + elo + "&"
@@ -38,8 +46,8 @@ function Compares() {
             if (termination) {
                 tQuery = "termination=" + termination + "&"
             }
-            if (eloQuery || rQuery || eQuery || ecoQuery || tQuery ) {
-                url = url + "?" + eloQuery + rQuery + eQuery + ecoQuery + tQuery
+            if (eloQuery || rQuery || eQuery || ecoQuery || tQuery || maxQuery || minQuery ) {
+                url = url + "?" + minQuery + maxQuery + eloQuery + rQuery + eQuery + ecoQuery + tQuery
             }
             setUrl(url)
         }
@@ -58,7 +66,7 @@ function Compares() {
                 </div>
                 }
                 <div style={{paddingBottom: "2%"}}>
-                    <button className="btn btn-primary" onClick={(e) => {setUrl(""); setName(""); setElo(""); setRange(""); setEvent(""); setTermination(""); setSection(""); setEco(""); e.preventDefault();}}>Back</button>
+                    <button className="btn btn-primary" onClick={(e) => {setUrl(""); setName(""); setElo(""); setRange(""); setEvent(""); setTermination(""); setSection(""); setEco(""); setMaxElo(""); setMinElo(""); e.preventDefault();}}>Back</button>
                 </div>
             </div>
         )
@@ -81,6 +89,16 @@ function Compares() {
                             <option value="openings">Openings</option>
                             <option value="terminations">Terminations</option>
                         </select>
+                    </div>
+                    <br/>
+                    <div className="form-group">
+                        <label htmlFor="minelo" style={{float: "left"}}>Player minimum elo:</label>
+                        <input id="minelo" className="form-control" placeholder="Enter elo" type="number" onChange={(e) => setMinElo(e.target.value)} />
+                    </div>
+                    <br/>
+                    <div className="form-group">
+                        <label htmlFor="maxelo" style={{float: "left"}}>Player maximum elo:</label>
+                        <input id="maxelo" className="form-control" placeholder="Enter elo" type="number" onChange={(e) => setMaxElo(e.target.value)} />
                     </div>
                     <br/>
                     <div className="form-group">

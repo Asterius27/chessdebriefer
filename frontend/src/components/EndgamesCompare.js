@@ -6,6 +6,8 @@ import EndgamesComparePredictedWDLCharts from "./EndgamesComparePredictedWDLChar
 
 function EndgamesCompare() {
 
+    const [minElo, setMinElo] = useState("")
+    const [maxElo, setMaxElo] = useState("")
     const [elo, setElo] = useState("")
     const [range, setRange] = useState("")
     const [section, setSection] = useState("")
@@ -13,7 +15,7 @@ function EndgamesCompare() {
     const [url, setUrl] = useState("")
     
     const submitForm = (e) => {
-        let eloQuery = "", rQuery = ""
+        let eloQuery = "", rQuery = "", minQuery = "", maxQuery = ""
         if (name) {
             let url = "http://localhost:8000/" + name + "/percentages/endgames"
             if (section) {
@@ -22,14 +24,20 @@ function EndgamesCompare() {
             else {
                 url = url + "/compare"
             }
+            if (minElo) {
+                minQuery = "minelo=" + minElo + "&"
+            }
+            if (maxElo) {
+                maxQuery = "maxelo=" + maxElo + "&"
+            }
             if (elo) {
                 eloQuery = "elo=" + elo + "&"
             }
             if (range) {
                 rQuery = "range=" + range + "&"
             }
-            if (eloQuery || rQuery) {
-                url = url + "?" + eloQuery + rQuery
+            if (eloQuery || rQuery || maxQuery || minQuery) {
+                url = url + "?" + minQuery + maxQuery + eloQuery + rQuery
             }
             setUrl(url)
         }
@@ -61,7 +69,7 @@ function EndgamesCompare() {
                 </div>
                 }
                 <div style={{paddingBottom: "2%"}}>
-                    <button className="btn btn-primary" onClick={(e) => {setUrl(""); setName(""); setElo(""); setRange(""); setSection(""); e.preventDefault();}}>Back</button>
+                    <button className="btn btn-primary" onClick={(e) => {setUrl(""); setName(""); setElo(""); setRange(""); setSection(""); setMaxElo(""); setMinElo(""); e.preventDefault();}}>Back</button>
                 </div>
             </div>
         )
@@ -86,6 +94,16 @@ function EndgamesCompare() {
                             <option value="tablebase">Tablebase (Slow)</option>
                             <option value="tablebase/predicted">Tablebase Predicted WDL</option>
                         </select>
+                    </div>
+                    <br/>
+                    <div className="form-group">
+                        <label htmlFor="minelo" style={{float: "left"}}>Player minimum elo:</label>
+                        <input id="minelo" className="form-control" placeholder="Enter elo" type="number" onChange={(e) => setMinElo(e.target.value)} />
+                    </div>
+                    <br/>
+                    <div className="form-group">
+                        <label htmlFor="maxelo" style={{float: "left"}}>Player maximum elo:</label>
+                        <input id="maxelo" className="form-control" placeholder="Enter elo" type="number" onChange={(e) => setMaxElo(e.target.value)} />
                     </div>
                     <br/>
                     <div className="form-group">
