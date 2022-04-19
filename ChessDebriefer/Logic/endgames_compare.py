@@ -118,7 +118,7 @@ def calculate_compare_endgame_predicted_wdl_material(name, params):
 
 # TODO slow only first time? problem is method struct.unpack_from that is used by the python chess library. It's slow
 #  but it uses a cache so only first time (for each player) is slow. Cache is reset after pc restart, how big is it?
-#  Is it possible to fill it completely? What happens performance-wise when it is filled?
+#  Is it possible to fill it completely? What happens performance-wise when it is filled? Not clear
 def calculate_compare_endgame_tablebase(name, params):
     from_date, to_date, min_elo, max_elo, opponent = check_params(params)
     elo, r = check_params_comparisons(name, params)
