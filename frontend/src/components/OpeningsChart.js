@@ -6,7 +6,7 @@ function OpeningsChart({ eco, url }) {
 
     useEffect(() => {
         const fetchPercentages = async () => {
-            const res = await fetch(url)
+            const res = await fetch(url).catch(err => {alert("An error has occured, please go back and try again")})
             const data = await res.json()
             setData({ data: data })
         }

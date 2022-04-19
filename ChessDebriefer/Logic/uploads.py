@@ -4,12 +4,11 @@ import os
 import threading
 from os.path import exists
 import chess.pgn
-from mongoengine import Q
 from ChessDebriefer.Logic.games import find_opening
 from ChessDebriefer.models import Games, Openings
 
 
-# TODO add headers check (?), parallelize more for better performance
+# TODO add headers check (?)
 # it takes a lot of time to parse everything
 def handle_pgn_uploads(f):
     if Openings.objects.first() is not None:
@@ -68,31 +67,23 @@ def run(pgn, lock):
             fen = ""
             if reaches_five_piece_endgame(game):
                 fen = endgame_start_fen(game.end())
-            exist = Games.objects.filter(Q(event=event) & Q(tournament_site=tournament_site) &
-                                         Q(site=game.headers["Site"]) & Q(white=game.headers["White"]) &
-                                         Q(black=game.headers["Black"]) & Q(result=game.headers["Result"]) &
-                                         Q(date=date) & Q(white_elo=game.headers["WhiteElo"]) &
-                                         Q(black_elo=game.headers["BlackElo"]) &
-                                         Q(white_rating_diff=game.headers["WhiteRatingDiff"]) &
-                                         Q(black_rating_diff=game.headers["BlackRatingDiff"]) &
-                                         Q(time_control=game.headers["TimeControl"]) &
-                                         Q(termination=game.headers["Termination"]) &
-                                         Q(moves=str(game.mainline_moves())) &
-                                         Q(five_piece_endgame_fen=fen)).first()
-            if not exist:
-                saved_game = Games(event=event, tournament_site=tournament_site, site=game.headers["Site"],
-                                   white=game.headers["White"], black=game.headers["Black"],
-                                   result=game.headers["Result"], date=date, white_elo=game.headers["WhiteElo"],
-                                   black_elo=game.headers["BlackElo"],
-                                   white_rating_diff=game.headers["WhiteRatingDiff"],
-                                   black_rating_diff=game.headers["BlackRatingDiff"], eco="",
-                                   opening_id="000000000000000000000000", time_control=game.headers["TimeControl"],
-                                   termination=game.headers["Termination"], moves=str(game.mainline_moves()),
-                                   best_moves=[], moves_evaluation=[], five_piece_endgame_fen=fen).save()
+            saved_game = Games(event=event, tournament_site=tournament_site, site=game.headers["Site"],
+                               white=game.headers["White"], black=game.headers["Black"],
+                               result=game.headers["Result"], date=date, white_elo=game.headers["WhiteElo"],
+                               black_elo=game.headers["BlackElo"],
+                               white_rating_diff=game.headers["WhiteRatingDiff"],
+                               black_rating_diff=game.headers["BlackRatingDiff"], eco="",
+                               opening_id="000000000000000000000000", time_control=game.headers["TimeControl"],
+                               termination=game.headers["Termination"], moves=str(game.mainline_moves()),
+                               best_moves=[], moves_evaluation=[], five_piece_endgame_fen=fen)
+            try:
+                saved_game.save()
                 find_opening(saved_game)
-                # update_cache(saved_game, fields, cached_fields)
-                # update_player_cache(saved_game.white, saved_game.white_elo, saved_game)
-                # update_player_cache(saved_game.black, saved_game.black_elo, saved_game)
+            except:
+                print("Game already exists")
+            # update_cache(saved_game, fields, cached_fields)
+            # update_player_cache(saved_game.white, saved_game.white_elo, saved_game)
+            # update_player_cache(saved_game.black, saved_game.black_elo, saved_game)
 
 
 def reaches_five_piece_endgame(parsed_game):
@@ -141,14 +132,26 @@ def handle_pgn_openings_upload(f):
 
 def parse_pgn_opening():
     with open('openings.pgn') as pgn:
-        while True:
-            opening = chess.pgn.read_game(pgn)
-            if opening is None:
-                break
-            Openings(eco=opening.headers["Site"], white_opening=opening.headers["White"],
-                     black_opening=opening.headers["Black"], moves=str(opening.mainline_moves()),
-                     engine_evaluation="").save()
+        n = 10
+        lock = threading.Lock()
+        futures = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=n) as executor:
+            for x in range(n):
+                future = executor.submit(run_openings, pgn, lock)
+                futures.append(future)
+            concurrent.futures.wait(futures)
     os.remove("openings.pgn")
+
+
+def run_openings(pgn, lock):
+    while True:
+        with lock:
+            opening = chess.pgn.read_game(pgn)
+        if opening is None:
+            break
+        Openings(eco=opening.headers["Site"], white_opening=opening.headers["White"],
+                 black_opening=opening.headers["Black"], moves=str(opening.mainline_moves()),
+                 engine_evaluation="").save()
 
 
 '''DEPRECATED

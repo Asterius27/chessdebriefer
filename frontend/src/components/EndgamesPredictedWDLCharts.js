@@ -6,10 +6,10 @@ function EndgamesPredictedWDLCharts({ name, url, generalUrl }) {
 
     useEffect(() => {
         const fetchPercentages = async () => {
-            const res = await fetch(url)
+            const res = await fetch(url).catch(err => {alert("An error has occured, please go back and try again")})
             const data = await res.json()
             setData({ data: data })
-            const res2 = await fetch(generalUrl)
+            const res2 = await fetch(generalUrl).catch(err => {alert("An error has occured, please go back and try again")})
             const data2 = await res2.json()
             setGeneralData({ data: data2 })
         }

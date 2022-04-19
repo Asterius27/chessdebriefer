@@ -1,7 +1,7 @@
 from mongoengine import *
 
 
-# required fields, other constraints?
+# TODO required fields
 class Games(Document):
     event = StringField()
     tournament_site = StringField()
@@ -22,6 +22,14 @@ class Games(Document):
     best_moves = ListField(StringField())
     moves_evaluation = ListField(StringField())
     five_piece_endgame_fen = StringField()
+    meta = {
+        'indexes': [
+            {'fields': ('event', 'tournament_site', 'site', 'white', 'black', 'result', 'date', 'white_elo',
+                        'black_elo', 'white_rating_diff', 'black_rating_diff', 'eco', 'opening_id', 'time_control',
+                        'termination', 'moves', 'five_piece_endgame_fen'),
+             'unique': True}
+        ]
+    }
 
 
 class Openings(Document):

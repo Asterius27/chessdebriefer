@@ -2,7 +2,7 @@ import { useState } from "react";
 import EndgamesCompareGeneralCharts from "./EndgamesCompareGeneralCharts";
 import EndgamesCompareCharts from "./EndgamesCompareCharts";
 import EndgamesCompareWDLCharts from "./EndgamesCompareWDLCharts";
-import EndgamesComparePredictedWDLCharts from "./EndgamesComparePredictedWDLChart";
+import EndgamesComparePredictedWDLCharts from "./EndgamesComparePredictedWDLCharts";
 
 function EndgamesCompare() {
 
