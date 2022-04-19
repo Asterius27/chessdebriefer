@@ -73,7 +73,7 @@ function Players() {
     }
     else {
         return (
-            <div className="bg-light">
+            <div className="bg-light" style={{paddingBottom: "1%"}}>
                 <form onSubmit={submitForm} style={{width: "80%", height: "80%", margin: "auto"}}>
                     <br/>
                     <div className="form-group">
