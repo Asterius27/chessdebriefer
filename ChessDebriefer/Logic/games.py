@@ -177,7 +177,6 @@ def evaluate_opening_database(opening, min_elo, tournament):
     return {"white_wins": white_wins, "black_wins": black_wins, "draws": draws,
             "percentage_white_wins": percentage_white_wins, "percentage_black_wins": percentage_black_wins,
             "percentage_draws_wins": percentage_draws}
-"""
 
 
 # find good book? how to use it to evaluate boards?
@@ -188,3 +187,4 @@ def polyglot(game):
         for entry in reader.find_all(parsed_game.end().board()):
             print(entry.move, entry.weight, entry.learn)
     print("-------------------------------")
+"""

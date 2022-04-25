@@ -10,47 +10,19 @@ from ChessDebriefer.models import Games
 
 
 def calculate_compare_endgame_percentages(name, params):
-    from_date, to_date, min_elo, max_elo, opponent = check_params(params)
-    elo, r = check_params_comparisons(name, params)
-    temp = {'minelo': str(elo - r), 'maxelo': str(elo + r), 'pieces': '5'}
-    temp_p = {'minelo': str(min_elo), 'maxelo': str(max_elo), 'pieces': '5'}
+    temp, temp_p, elo, r = check_endgames_compare_params(name, params)
     response = calculate_endgame_percentages(name, temp_p)
     games = compare_database_query(name, temp)
     i, white_wins, white_losses, white_draws, black_wins, black_losses, black_draws = calculate_general_wdl_compare(
         name, games, elo, r)
-    percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(white_wins + black_wins,
-                                                                                  white_losses + black_losses,
-                                                                                  white_draws + black_draws)
-    percentage_won_w, percentage_lost_w, percentage_drawn_w = calculate_wdl_percentages(white_wins, white_losses,
-                                                                                        white_draws)
-    percentage_won_b, percentage_lost_b, percentage_drawn_b = calculate_wdl_percentages(black_wins, black_losses,
-                                                                                        black_draws)
-    response['general percentages'].update({'other players games': i, 'other players wins': white_wins + black_wins,
-                                            'other players losses': white_losses + black_losses,
-                                            'other players draws': white_draws + black_draws,
-                                            'other players win percentage': percentage_won,
-                                            'other players loss percentage': percentage_lost,
-                                            'other players draw percentage': percentage_drawn})
-    response['side percentages']['white'].update({'other players wins': white_wins,
-                                                  'other players losses': white_losses,
-                                                  'other players draws': white_draws,
-                                                  'other players win percentage': percentage_won_w,
-                                                  'other players loss percentage': percentage_lost_w,
-                                                  'other players draw percentage': percentage_drawn_w})
-    response['side percentages']['black'].update({'other players wins': black_wins,
-                                                  'other players losses': black_losses,
-                                                  'other players draws': black_draws,
-                                                  'other players win percentage': percentage_won_b,
-                                                  'other players loss percentage': percentage_lost_b,
-                                                  'other players draw percentage': percentage_drawn_b})
-    return response
+    new_response = create_dictionary(response, white_wins, black_wins, white_losses, black_losses, white_draws,
+                                     black_draws)
+    new_response['general percentages'].update({'other players games': i})
+    return new_response
 
 
 def calculate_compare_endgame_material(name, params):
-    from_date, to_date, min_elo, max_elo, opponent = check_params(params)
-    elo, r = check_params_comparisons(name, params)
-    temp = {'minelo': str(elo - r), 'maxelo': str(elo + r), 'pieces': '5'}
-    temp_p = {'minelo': str(min_elo), 'maxelo': str(max_elo), 'pieces': '5'}
+    temp, temp_p, elo, r = check_endgames_compare_params(name, params)
     response = calculate_endgame_material_percentages(name, temp_p)
     games = compare_database_query(name, temp)
     wins, losses, draws, win_material_adv, loss_material_adv, draw_material_adv = calculate_wdl_material_compare(
@@ -66,10 +38,7 @@ def calculate_compare_endgame_material(name, params):
 
 def calculate_compare_endgame_wdl_material(name, params):
     response = {}
-    from_date, to_date, min_elo, max_elo, opponent = check_params(params)
-    elo, r = check_params_comparisons(name, params)
-    temp = {'minelo': str(elo - r), 'maxelo': str(elo + r), 'pieces': '5'}
-    temp_p = {'minelo': str(min_elo), 'maxelo': str(max_elo), 'pieces': '5'}
+    temp, temp_p, elo, r = check_endgames_compare_params(name, params)
     response["your stats"] = calculate_endgame_wdl_material_percentages(name, temp_p)
     games = compare_database_query(name, temp)
     wins, losses, draws, win_material_adv, loss_material_adv, draw_material_adv = calculate_wdl_material_compare(
@@ -80,50 +49,19 @@ def calculate_compare_endgame_wdl_material(name, params):
 
 
 def calculate_compare_endgame_predicted_wdl_material(name, params):
-    from_date, to_date, min_elo, max_elo, opponent = check_params(params)
-    elo, r = check_params_comparisons(name, params)
-    temp = {'minelo': str(elo - r), 'maxelo': str(elo + r), 'pieces': '5'}
-    temp_p = {'minelo': str(min_elo), 'maxelo': str(max_elo), 'pieces': '5'}
+    temp, temp_p, elo, r = check_endgames_compare_params(name, params)
     response = calculate_endgame_predicted_wdl_material_percentages(name, temp_p)
     games = compare_database_query(name, temp)
     white_wins, white_losses, white_draws, black_wins, black_losses, black_draws = \
         calculate_predicted_wdl_material_compare(name, games, 5, elo, r)
-    percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(white_wins + black_wins,
-                                                                                  white_losses + black_losses,
-                                                                                  white_draws + black_draws)
-    percentage_won_w, percentage_lost_w, percentage_drawn_w = calculate_wdl_percentages(white_wins, white_losses,
-                                                                                        white_draws)
-    percentage_won_b, percentage_lost_b, percentage_drawn_b = calculate_wdl_percentages(black_wins, black_losses,
-                                                                                        black_draws)
-    response['general percentages'].update({'other players wins': white_wins + black_wins,
-                                            'other players losses': white_losses + black_losses,
-                                            'other players draws': white_draws + black_draws,
-                                            'other players win percentage': percentage_won,
-                                            'other players loss percentage': percentage_lost,
-                                            'other players draw percentage': percentage_drawn})
-    response['side percentages']['white'].update({'other players wins': white_wins,
-                                                  'other players losses': white_losses,
-                                                  'other players draws': white_draws,
-                                                  'other players win percentage': percentage_won_w,
-                                                  'other players loss percentage': percentage_lost_w,
-                                                  'other players draw percentage': percentage_drawn_w})
-    response['side percentages']['black'].update({'other players wins': black_wins,
-                                                  'other players losses': black_losses,
-                                                  'other players draws': black_draws,
-                                                  'other players win percentage': percentage_won_b,
-                                                  'other players loss percentage': percentage_lost_b,
-                                                  'other players draw percentage': percentage_drawn_b})
-    return response
+    return create_dictionary(response, white_wins, black_wins, white_losses, black_losses, white_draws, black_draws)
 
 
 # TODO slow only first time? problem is method struct.unpack_from that is used by the python chess library. It's slow
 #  but it uses a cache so only first time (for each player) is slow. Cache is reset after pc restart, how big is it?
 #  Is it possible to fill it completely? What happens performance-wise when it is filled? Not clear
 def calculate_compare_endgame_tablebase(name, params):
-    from_date, to_date, min_elo, max_elo, opponent = check_params(params)
-    elo, r = check_params_comparisons(name, params)
-    temp = {'minelo': str(elo - r), 'maxelo': str(elo + r)}
-    temp_p = {'minelo': str(min_elo), 'maxelo': str(max_elo), 'pieces': '5'}
+    temp, temp_p, elo, r = check_endgames_compare_params(name, params)
     response = calculate_endgame_tablebase_percentages(name, temp_p)
     games = compare_database_query(name, temp)
     wins, losses, draws, win_predict, loss_predict, draw_predict = calculate_wdl_tablebase_compare(
@@ -135,40 +73,12 @@ def calculate_compare_endgame_tablebase(name, params):
 
 
 def calculate_compare_endgame_predicted_wdl_tablebase(name, params):
-    from_date, to_date, min_elo, max_elo, opponent = check_params(params)
-    elo, r = check_params_comparisons(name, params)
-    temp = {'minelo': str(elo - r), 'maxelo': str(elo + r), 'pieces': '5'}
-    temp_p = {'minelo': str(min_elo), 'maxelo': str(max_elo), 'pieces': '5'}
+    temp, temp_p, elo, r = check_endgames_compare_params(name, params)
     response = calculate_endgame_predicted_wdl_tablebase_percentages(name, temp_p)
     games = compare_database_query(name, temp)
     white_wins, white_losses, white_draws, black_wins, black_losses, black_draws = \
         calculate_predicted_wdl_tablebase_compare(name, games, 5, elo, r)
-    percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(white_wins + black_wins,
-                                                                                  white_losses + black_losses,
-                                                                                  white_draws + black_draws)
-    percentage_won_w, percentage_lost_w, percentage_drawn_w = calculate_wdl_percentages(white_wins, white_losses,
-                                                                                        white_draws)
-    percentage_won_b, percentage_lost_b, percentage_drawn_b = calculate_wdl_percentages(black_wins, black_losses,
-                                                                                        black_draws)
-    response['general percentages'].update({'other players wins': white_wins + black_wins,
-                                            'other players losses': white_losses + black_losses,
-                                            'other players draws': white_draws + black_draws,
-                                            'other players win percentage': percentage_won,
-                                            'other players loss percentage': percentage_lost,
-                                            'other players draw percentage': percentage_drawn})
-    response['side percentages']['white'].update({'other players wins': white_wins,
-                                                  'other players losses': white_losses,
-                                                  'other players draws': white_draws,
-                                                  'other players win percentage': percentage_won_w,
-                                                  'other players loss percentage': percentage_lost_w,
-                                                  'other players draw percentage': percentage_drawn_w})
-    response['side percentages']['black'].update({'other players wins': black_wins,
-                                                  'other players losses': black_losses,
-                                                  'other players draws': black_draws,
-                                                  'other players win percentage': percentage_won_b,
-                                                  'other players loss percentage': percentage_lost_b,
-                                                  'other players draw percentage': percentage_drawn_b})
-    return response
+    return create_dictionary(response, white_wins, black_wins, white_losses, black_losses, white_draws, black_draws)
 
 
 def compare_database_query(name, params):
@@ -342,3 +252,40 @@ def calculate_wdl_tablebase_compare(name, games, pieces, elo, r):
                         if adv == 0:
                             draw_predict += 1
     return wins, losses, draws, win_predict, loss_predict, draw_predict
+
+
+def create_dictionary(response, white_wins, black_wins, white_losses, black_losses, white_draws, black_draws):
+    percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(white_wins + black_wins,
+                                                                                  white_losses + black_losses,
+                                                                                  white_draws + black_draws)
+    percentage_won_w, percentage_lost_w, percentage_drawn_w = calculate_wdl_percentages(white_wins, white_losses,
+                                                                                        white_draws)
+    percentage_won_b, percentage_lost_b, percentage_drawn_b = calculate_wdl_percentages(black_wins, black_losses,
+                                                                                        black_draws)
+    response['general percentages'].update({'other players wins': white_wins + black_wins,
+                                            'other players losses': white_losses + black_losses,
+                                            'other players draws': white_draws + black_draws,
+                                            'other players win percentage': percentage_won,
+                                            'other players loss percentage': percentage_lost,
+                                            'other players draw percentage': percentage_drawn})
+    response['side percentages']['white'].update({'other players wins': white_wins,
+                                                  'other players losses': white_losses,
+                                                  'other players draws': white_draws,
+                                                  'other players win percentage': percentage_won_w,
+                                                  'other players loss percentage': percentage_lost_w,
+                                                  'other players draw percentage': percentage_drawn_w})
+    response['side percentages']['black'].update({'other players wins': black_wins,
+                                                  'other players losses': black_losses,
+                                                  'other players draws': black_draws,
+                                                  'other players win percentage': percentage_won_b,
+                                                  'other players loss percentage': percentage_lost_b,
+                                                  'other players draw percentage': percentage_drawn_b})
+    return response
+
+
+def check_endgames_compare_params(name, params):
+    from_date, to_date, min_elo, max_elo, opponent = check_params(params)
+    elo, r = check_params_comparisons(name, params)
+    temp = {'minelo': str(elo - r), 'maxelo': str(elo + r), 'pieces': '5'}
+    temp_p = {'minelo': str(min_elo), 'maxelo': str(max_elo), 'pieces': '5'}
+    return temp, temp_p, elo, r

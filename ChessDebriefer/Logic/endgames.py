@@ -10,29 +10,13 @@ from ChessDebriefer.models import Games
 
 
 def calculate_endgame_percentages(name, params):
-    response = {}
     n_endgame_games, n_games, endgame_games, pieces = database_query(name, params)
     percentage_endgames = round((n_endgame_games / (n_games * 1.)) * 100, 2)
     white_wins, white_losses, white_draws, black_wins, black_losses, black_draws = calculate_general_wdl(name,
                                                                                                          endgame_games)
-    percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(white_wins + black_wins,
-                                                        white_losses + black_losses, white_draws + black_draws)
-    percentage_won_w, percentage_lost_w, percentage_drawn_w = calculate_wdl_percentages(white_wins, white_losses,
-                                                                                        white_draws)
-    percentage_won_b, percentage_lost_b, percentage_drawn_b = calculate_wdl_percentages(black_wins, black_losses,
-                                                                                        black_draws)
-    response['general percentages'] = {'games': n_games, 'endgames': n_endgame_games,
-                                       'percentage of games that finish in the endgame': percentage_endgames,
-                                       'wins': white_wins + black_wins, 'losses': white_losses + black_losses,
-                                       'draws': white_draws + black_draws, 'win percentage': percentage_won,
-                                       'loss percentage': percentage_lost, 'draw percentage': percentage_drawn}
-    response['side percentages'] = {}
-    response['side percentages']['white'] = {'wins': white_wins, 'losses': white_losses, 'draws': white_draws,
-                                             'win percentage': percentage_won_w, 'loss percentage': percentage_lost_w,
-                                             'draw percentage': percentage_drawn_w}
-    response['side percentages']['black'] = {'wins': black_wins, 'losses': black_losses, 'draws': black_draws,
-                                             'win percentage': percentage_won_b, 'loss percentage': percentage_lost_b,
-                                             'draw percentage': percentage_drawn_b}
+    response = create_dictionary(white_wins, black_wins, white_losses, black_losses, white_draws, black_draws)
+    response['general percentages'].update({'games': n_games, 'endgames': n_endgame_games,
+                                            'percentage of games that finish in the endgame': percentage_endgames})
     return response
 
 
@@ -54,27 +38,10 @@ def calculate_endgame_wdl_material_percentages(name, params):
 
 
 def calculate_endgame_predicted_wdl_material_percentages(name, params):
-    response = {}
     n_endgame_games, n_games, endgame_games, pieces = database_query(name, params)
     white_wins, white_losses, white_draws, black_wins, black_losses, black_draws = calculate_predicted_wdl_material(
         name, endgame_games, pieces)
-    percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(
-        white_wins + black_wins, white_losses + black_losses, white_draws + black_draws)
-    percentage_won_w, percentage_lost_w, percentage_drawn_w = calculate_wdl_percentages(white_wins, white_losses,
-                                                                                        white_draws)
-    percentage_won_b, percentage_lost_b, percentage_drawn_b = calculate_wdl_percentages(black_wins, black_losses,
-                                                                                        black_draws)
-    response['general percentages'] = {'wins': white_wins + black_wins, 'losses': white_losses + black_losses,
-                                       'draws': white_draws + black_draws, 'win percentage': percentage_won,
-                                       'loss percentage': percentage_lost, 'draw percentage': percentage_drawn}
-    response['side percentages'] = {}
-    response['side percentages']['white'] = {'wins': white_wins, 'losses': white_losses, 'draws': white_draws,
-                                             'win percentage': percentage_won_w, 'loss percentage': percentage_lost_w,
-                                             'draw percentage': percentage_drawn_w}
-    response['side percentages']['black'] = {'wins': black_wins, 'losses': black_losses, 'draws': black_draws,
-                                             'win percentage': percentage_won_b, 'loss percentage': percentage_lost_b,
-                                             'draw percentage': percentage_drawn_b}
-    return response
+    return create_dictionary(white_wins, black_wins, white_losses, black_losses, white_draws, black_draws)
 
 
 def calculate_endgame_tablebase_percentages(name, params):
@@ -87,29 +54,12 @@ def calculate_endgame_tablebase_percentages(name, params):
 
 
 def calculate_endgame_predicted_wdl_tablebase_percentages(name, params):
-    response = {}
     params_copy = params.copy()
     params_copy["pieces"] = "5"
     n_endgame_games, n_games, endgame_games, pieces = database_query(name, params_copy)
     white_wins, white_losses, white_draws, black_wins, black_losses, black_draws = calculate_predicted_wdl_tablebase(
         name, endgame_games, pieces)
-    percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(
-        white_wins + black_wins, white_losses + black_losses, white_draws + black_draws)
-    percentage_won_w, percentage_lost_w, percentage_drawn_w = calculate_wdl_percentages(white_wins, white_losses,
-                                                                                        white_draws)
-    percentage_won_b, percentage_lost_b, percentage_drawn_b = calculate_wdl_percentages(black_wins, black_losses,
-                                                                                        black_draws)
-    response['general percentages'] = {'wins': white_wins + black_wins, 'losses': white_losses + black_losses,
-                                       'draws': white_draws + black_draws, 'win percentage': percentage_won,
-                                       'loss percentage': percentage_lost, 'draw percentage': percentage_drawn}
-    response['side percentages'] = {}
-    response['side percentages']['white'] = {'wins': white_wins, 'losses': white_losses, 'draws': white_draws,
-                                             'win percentage': percentage_won_w, 'loss percentage': percentage_lost_w,
-                                             'draw percentage': percentage_drawn_w}
-    response['side percentages']['black'] = {'wins': black_wins, 'losses': black_losses, 'draws': black_draws,
-                                             'win percentage': percentage_won_b, 'loss percentage': percentage_lost_b,
-                                             'draw percentage': percentage_drawn_b}
-    return response
+    return create_dictionary(white_wins, black_wins, white_losses, black_losses, white_draws, black_draws)
 
 
 def database_query(name, params):
@@ -314,6 +264,27 @@ def create_material_dictionary(wins, losses, draws, win_material_adv, loss_mater
                                            'percentage drawn': percentage_drawn_a})
     response["material disadvantage"].update({'percentage won': percentage_won_d, 'percentage lost': percentage_lost_d,
                                               'percentage drawn': percentage_drawn_d})
+    return response
+
+
+def create_dictionary(white_wins, black_wins, white_losses, black_losses, white_draws, black_draws):
+    response = {}
+    percentage_won, percentage_lost, percentage_drawn = calculate_wdl_percentages(
+        white_wins + black_wins, white_losses + black_losses, white_draws + black_draws)
+    percentage_won_w, percentage_lost_w, percentage_drawn_w = calculate_wdl_percentages(white_wins, white_losses,
+                                                                                        white_draws)
+    percentage_won_b, percentage_lost_b, percentage_drawn_b = calculate_wdl_percentages(black_wins, black_losses,
+                                                                                        black_draws)
+    response['general percentages'] = {'wins': white_wins + black_wins, 'losses': white_losses + black_losses,
+                                       'draws': white_draws + black_draws, 'win percentage': percentage_won,
+                                       'loss percentage': percentage_lost, 'draw percentage': percentage_drawn}
+    response['side percentages'] = {}
+    response['side percentages']['white'] = {'wins': white_wins, 'losses': white_losses, 'draws': white_draws,
+                                             'win percentage': percentage_won_w, 'loss percentage': percentage_lost_w,
+                                             'draw percentage': percentage_drawn_w}
+    response['side percentages']['black'] = {'wins': black_wins, 'losses': black_losses, 'draws': black_draws,
+                                             'win percentage': percentage_won_b, 'loss percentage': percentage_lost_b,
+                                             'draw percentage': percentage_drawn_b}
     return response
 
 
