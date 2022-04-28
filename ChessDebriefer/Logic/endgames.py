@@ -6,8 +6,6 @@ from mongoengine import Q
 from ChessDebriefer.Logic.percentages import check_params, calculate_wdl_percentages
 from ChessDebriefer.models import Games
 
-# TODO remove duplicate code
-
 
 def calculate_endgame_percentages(name, params):
     n_endgame_games, n_games, endgame_games, pieces = database_query(name, params)

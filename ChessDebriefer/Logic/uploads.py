@@ -25,6 +25,10 @@ def handle_pgn_uploads(f):
 
 # n = 10 -> 34 min per 121114 partite
 # n = 1 -> 1 ora e 49 min per 121114 partite
+# n = 10 -> 28 min per 179207 partite with index
+# n = 10 -> 19 min per 121114 partite with index
+# n = 1 -> 42 min per 121114 partite with index
+# n = 20 -> 20 min per 121114 partite with index
 def parse_pgn(file_name):
     # cached_fields = FieldsCache.objects.first()
     # fields = ["event", "termination"]
@@ -80,7 +84,7 @@ def run(pgn, lock):
                 saved_game.save()
                 find_opening(saved_game)
             except:
-                print("Game already exists")
+                saved_game.delete()
             # update_cache(saved_game, fields, cached_fields)
             # update_player_cache(saved_game.white, saved_game.white_elo, saved_game)
             # update_player_cache(saved_game.black, saved_game.black_elo, saved_game)
