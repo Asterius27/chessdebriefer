@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react';
-import { BarChart } from './ChartBar';
-import { DoughnutChart } from './ChartDoughnut';
 import { StackedBarChart } from './ChartStackedBar';
 import LoadingSpinner from './LoadingSpinner';
 
@@ -19,43 +17,23 @@ function PlayersCharts({ name, url }) {
 
   if (Object.keys(data).length !== 0) {
 
-    let sectionChartsData = []
     let sectionNames = []
-    let matchesPlayed = []
     let wins = []
     let losses = []
     let draws = []
+    let win_percentages = []
+    let loss_percentages = []
+    let draw_percentages = []
     for (const section in data["data"]) {
         if (data["data"][section]["your wins"] + data["data"][section]["your losses"] + data["data"][section]["your draws"] !== 0) {
             sectionNames.push(section)
-            matchesPlayed.push(data["data"][section]["your wins"] + data["data"][section]["your losses"] + data["data"][section]["your draws"])
             wins.push(data["data"][section]["your wins"])
             losses.push(data["data"][section]["your losses"])
             draws.push(data["data"][section]["your draws"])
-            sectionChartsData.push({
-                labels: ['Wins', 'Losses', 'Draws'],
-                datasets: [{
-                    label: 'wdl',
-                    data: [data["data"][section]["your wins"], data["data"][section]["your losses"], data["data"][section]["your draws"]],
-                    backgroundColor: [
-                        'rgb(255, 99, 132)',
-                        'rgb(54, 162, 235)',
-                        'rgb(255, 205, 86)'
-                    ],
-                    hoverOffset: 4
-                }]
-            })
+            win_percentages.push(data["data"][section]["your win percentage"])
+            loss_percentages.push(data["data"][section]["your loss percentage"])
+            draw_percentages.push(data["data"][section]["your draw percentage"])
         }
-    }
-
-    let barChartData = {
-      labels: sectionNames,
-      datasets: [{
-        label: 'matches played',
-        data: matchesPlayed,
-        backgroundColor: 'rgb(50, 205, 50)',
-        hoverOffset: 4
-      }]
     }
 
     let stackedBarChartData = {
@@ -78,11 +56,24 @@ function PlayersCharts({ name, url }) {
       }]
     }
 
-    const doughnutStyle = {
-      margin: "auto",
-      paddingBottom: "7%",
-      width: "40%",
-      height: "40%"
+    let stackedPercentagesBarChart = {
+      labels: sectionNames,
+      datasets: [{
+        label: 'win percentage',
+        data: win_percentages,
+        backgroundColor: 'rgb(255, 99, 132)',
+        hoverOffset: 4
+      }, {
+        label: 'loss percentage',
+        data: loss_percentages,
+        backgroundColor: 'rgb(54, 162, 235)',
+        hoverOffset: 4
+      }, {
+        label: 'draw percentage',
+        data: draw_percentages,
+        backgroundColor: 'rgb(255, 205, 86)',
+        hoverOffset: 4
+      }]
     }
 
     const barStyle = {
@@ -95,18 +86,11 @@ function PlayersCharts({ name, url }) {
     return (
       <div>
         <div style={barStyle}>
-          <BarChart chartData={barChartData} text={name + "'s most played"} />
+          <StackedBarChart chartData={stackedBarChartData} text={name + "'s wdl stats"} />
         </div>
         <div style={barStyle}>
-          <StackedBarChart chartData={stackedBarChartData} text={name + "'s most played"} />
+          <StackedBarChart chartData={stackedPercentagesBarChart} text={name + "'s wdl stats"} />
         </div>
-        {sectionChartsData.map(function(sectionChartData, i){
-          return (
-            <div key={sectionNames[i]} style={doughnutStyle}>
-              <DoughnutChart chartData={sectionChartData} text={name + "'s " + sectionNames[i] + " wdls"} />
-            </div>
-          )
-        })}
       </div>
     )
 

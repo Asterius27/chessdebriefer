@@ -16,7 +16,7 @@ export const StackedBarChart = ({ chartData, text }) => {
                             text: text
                         },
                         legend: {
-                            display: false,
+                            display: true
                         }
                     },
                     scales: {

@@ -11,7 +11,6 @@ import Accuracy from "./components/Accuracy";
 import ThrowsComebacks from "./components/ThrowsComebacks";
 import EndgamesCompare from "./components/EndgamesCompare";
 
-// TODO remove duplicate code
 function App() {
   return (
     <div className="App">
