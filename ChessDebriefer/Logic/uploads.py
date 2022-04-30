@@ -23,7 +23,7 @@ def handle_pgn_uploads(f):
         thr.start()
 
 
-# TODO try with n = 100 and n = 1
+# TODO try with n = 1
 # n = 10 -> 34 min per 121114 partite
 # n = 1 -> 1 ora e 49 min per 121114 partite
 # n = 10 -> 28 min per 179207 partite with index
@@ -32,13 +32,14 @@ def handle_pgn_uploads(f):
 # n = 20 -> 20 min per 121114 partite with index
 # n = 10 -> 20 min per 121114 partite with index and separated files
 # n = 20 -> 20 min per 121114 partite with index and separated files
+# n = 100 -> 20 min per 121114 partite with index and separated files
 def parse_pgn(file_name, ind):
     # cached_fields = FieldsCache.objects.first()
     # fields = ["event", "termination"]
     # if not cached_fields:
     #    cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
     with open(file_name) as pgn:
-        n = 100
+        n = 10
         lines = pgn.readlines()
         l = len(lines)
         j = 0
