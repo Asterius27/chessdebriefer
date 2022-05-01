@@ -2,6 +2,9 @@ import concurrent.futures
 import datetime
 import os
 import threading
+import multiprocessing
+import mongoengine
+import yappi
 from os.path import exists
 import chess.pgn
 from ChessDebriefer.Logic.games import find_opening
@@ -23,7 +26,9 @@ def handle_pgn_uploads(f):
         thr.start()
 
 
-# TODO try with n = 1
+# TODO 16 min without save and n = 10, 14 min without save and find_opening and n = 20, 3 min with multiprocessing and
+#  n = 50 and n = 10 and without save and find_opening, 4 min with n = 5 and multiprocessing and without save and
+#  find_opening
 # n = 10 -> 34 min per 121114 partite
 # n = 1 -> 1 ora e 49 min per 121114 partite
 # n = 10 -> 28 min per 179207 partite with index
@@ -33,13 +38,15 @@ def handle_pgn_uploads(f):
 # n = 10 -> 20 min per 121114 partite with index and separated files
 # n = 20 -> 20 min per 121114 partite with index and separated files
 # n = 100 -> 20 min per 121114 partite with index and separated files
+# n = 5 -> 11 min per 121114 partite with index and separated files and multiprocessing
+# n = 10 -> 9 min per 121114 partite with index and separated files and multiprocessing
 def parse_pgn(file_name, ind):
     # cached_fields = FieldsCache.objects.first()
     # fields = ["event", "termination"]
     # if not cached_fields:
     #    cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
     with open(file_name) as pgn:
-        n = 10
+        n = 5
         lines = pgn.readlines()
         l = len(lines)
         j = 0
@@ -57,6 +64,25 @@ def parse_pgn(file_name, ind):
             h += 1
         file.write(lines[l - 1])
         file.close()
+    os.remove(file_name)
+    # yappi.start()
+    print(datetime.datetime.now())
+    threads = []
+    for x in range(n):
+        thr = multiprocessing.Process(target=run, args=(x, ind))
+        thr.start()
+        threads.append(thr)
+    for t in threads:
+        t.join()
+    print(datetime.datetime.now())
+    """
+    yappi.stop()
+    threads = yappi.get_thread_stats()
+    for thread in threads:
+        print("Function stats for (%s) (%d)" % (thread.name, thread.id))
+        yappi.get_func_stats(ctx_id=thread.id).print_all()
+        """
+    """
         futures = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=n) as executor:
             print(datetime.datetime.now())
@@ -66,9 +92,11 @@ def parse_pgn(file_name, ind):
             concurrent.futures.wait(futures)
     print(datetime.datetime.now())
     os.remove(file_name)
+    """
 
 
 def run(i, ind):
+    mongoengine.connect(db='ChessDebriefer', host='localhost:27017')
     with open("temp" + str(ind) + str(i) + ".pgn") as pgn:
         while True:
             game = chess.pgn.read_game(pgn)
@@ -100,9 +128,9 @@ def run(i, ind):
                                    opening_id="000000000000000000000000", time_control=game.headers["TimeControl"],
                                    termination=game.headers["Termination"], moves=str(game.mainline_moves()),
                                    best_moves=[], moves_evaluation=[], five_piece_endgame_fen=fen)
+                find_opening(saved_game)
                 try:
                     saved_game.save()
-                    find_opening(saved_game)
                 except:
                     saved_game.delete()
                 # update_cache(saved_game, fields, cached_fields)

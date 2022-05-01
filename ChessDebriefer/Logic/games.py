@@ -94,7 +94,7 @@ def find_opening(game, update=False):
         """
         setattr(game, "eco", eco)
         setattr(game, "opening_id", idd)
-        game.save()
+        # game.save()
         """DEPRECATED
         cached_fields = FieldsCache.objects.first()
         fields = ["eco", "opening_id"]
