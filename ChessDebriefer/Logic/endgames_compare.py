@@ -1,3 +1,4 @@
+from memory_profiler import profile
 from mongoengine import Q
 import chess.syzygy
 from ChessDebriefer.Logic.compare import check_params_comparisons
@@ -60,6 +61,7 @@ def calculate_compare_endgame_predicted_wdl_material(name, params):
 # TODO slow only first time? problem is method struct.unpack_from that is used by the python chess library. It's slow
 #  but it uses a cache so only first time (for each player) is slow. Cache is reset after pc restart, how big is it?
 #  Is it possible to fill it completely? What happens performance-wise when it is filled? Not clear
+# @profile(precision=4) Only uses 10 megabytes to cache 5500 matches?
 def calculate_compare_endgame_tablebase(name, params):
     temp, temp_p, elo, r = check_endgames_compare_params(name, params)
     response = calculate_endgame_tablebase_percentages(name, temp_p)
