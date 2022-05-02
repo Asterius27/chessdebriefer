@@ -85,7 +85,7 @@ WSGI_APPLICATION = 'ChessDebriefer.wsgi.application'
 #        'NAME': BASE_DIR / 'db.sqlite3',
 #    }
 # }
-mongoengine.connect(db='ChessDebriefer', host='localhost:27017')
+mongoengine.connect(db='ChessDebriefer', host='mongodb://root:root@127.0.0.1:27017')
 
 
 # Password validation
