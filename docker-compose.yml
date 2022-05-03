@@ -20,6 +20,7 @@ services:
       - .:/code
     ports:
       - "8000:8000"
+    hostname: chessdebriefer
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=root
@@ -33,6 +34,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    hostname: chessdebriefer
     stdin_open: true
     depends_on:
       - backend

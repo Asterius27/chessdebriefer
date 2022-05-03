@@ -96,7 +96,7 @@ def parse_pgn(file_name, ind):
 
 
 def run(i, ind):
-    mongoengine.connect(db='ChessDebriefer', host='localhost:27017')
+    mongoengine.connect(db='ChessDebriefer', host='mongodb://root:root@chessdebrieferdatabase:27017')
     with open("temp" + str(ind) + str(i) + ".pgn") as pgn:
         while True:
             game = chess.pgn.read_game(pgn)
