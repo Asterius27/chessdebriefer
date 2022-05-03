@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-
+import socket
 from pathlib import Path
 import mongoengine
 
@@ -85,7 +85,8 @@ WSGI_APPLICATION = 'ChessDebriefer.wsgi.application'
 #        'NAME': BASE_DIR / 'db.sqlite3',
 #    }
 # }
-mongoengine.connect(db='ChessDebriefer', host='mongodb://root:root@127.0.0.1:27017')
+socket.gethostname()
+mongoengine.connect(db='ChessDebriefer', host='mongodb://root:root@chessdebrieferdatabase:27017')
 
 
 # Password validation
