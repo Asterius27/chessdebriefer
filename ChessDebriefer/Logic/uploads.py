@@ -95,8 +95,9 @@ def parse_pgn(file_name, ind):
     """
 
 
+# TODO connection with mongodb doesn't work in docker
 def run(i, ind):
-    mongoengine.connect(db='ChessDebriefer', host='mongodb://root:root@chessdebrieferdatabase:27017')
+    # mongoengine.connect(db='ChessDebriefer', host='mongodb://root:root@chessdebrieferdatabase:27017')
     with open("temp" + str(ind) + str(i) + ".pgn") as pgn:
         while True:
             game = chess.pgn.read_game(pgn)
@@ -128,11 +129,13 @@ def run(i, ind):
                                    opening_id="000000000000000000000000", time_control=game.headers["TimeControl"],
                                    termination=game.headers["Termination"], moves=str(game.mainline_moves()),
                                    best_moves=[], moves_evaluation=[], five_piece_endgame_fen=fen)
+                """
                 find_opening(saved_game)
                 try:
                     saved_game.save()
                 except:
                     saved_game.delete()
+                    """
                 # update_cache(saved_game, fields, cached_fields)
                 # update_player_cache(saved_game.white, saved_game.white_elo, saved_game)
                 # update_player_cache(saved_game.black, saved_game.black_elo, saved_game)
