@@ -64,16 +64,18 @@ def parse_pgn(file_name, ind):
             h += 1
         file.write(lines[l - 1])
         file.close()
-    os.remove(file_name)
     # yappi.start()
     print(datetime.datetime.now())
     threads = []
+    mongoengine.disconnect()
     for x in range(n):
         thr = multiprocessing.Process(target=run, args=(x, ind))
         thr.start()
         threads.append(thr)
+    mongoengine.connect(db='ChessDebriefer', host='mongodb://root:root@chessdebrieferdatabase:27017')
     for t in threads:
         t.join()
+    os.remove(file_name)
     print(datetime.datetime.now())
     """
     yappi.stop()
@@ -95,9 +97,8 @@ def parse_pgn(file_name, ind):
     """
 
 
-# TODO connection with mongodb doesn't work in docker
 def run(i, ind):
-    # mongoengine.connect(db='ChessDebriefer', host='mongodb://root:root@chessdebrieferdatabase:27017')
+    mongoengine.connect(db='ChessDebriefer', host='mongodb://root:root@chessdebrieferdatabase:27017')
     with open("temp" + str(ind) + str(i) + ".pgn") as pgn:
         while True:
             game = chess.pgn.read_game(pgn)
@@ -129,13 +130,11 @@ def run(i, ind):
                                    opening_id="000000000000000000000000", time_control=game.headers["TimeControl"],
                                    termination=game.headers["Termination"], moves=str(game.mainline_moves()),
                                    best_moves=[], moves_evaluation=[], five_piece_endgame_fen=fen)
-                """
                 find_opening(saved_game)
                 try:
                     saved_game.save()
                 except:
                     saved_game.delete()
-                    """
                 # update_cache(saved_game, fields, cached_fields)
                 # update_player_cache(saved_game.white, saved_game.white_elo, saved_game)
                 # update_player_cache(saved_game.black, saved_game.black_elo, saved_game)
