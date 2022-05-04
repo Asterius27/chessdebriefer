@@ -26,9 +26,10 @@ def handle_pgn_uploads(f):
         thr.start()
 
 
-# TODO 16 min without save and n = 10, 14 min without save and find_opening and n = 20, 3 min with multiprocessing and
-#  n = 50 and n = 10 and without save and find_opening, 4 min with n = 5 and multiprocessing and without save and
-#  find_opening
+# 16 min without save and n = 10, 14 min without save and find_opening and n = 20, 3 min with multiprocessing and
+# n = 50 and n = 10 and without save and find_opening, 4 min with n = 5 and multiprocessing and without save and
+# find_opening
+
 # n = 10 -> 34 min per 121114 partite
 # n = 1 -> 1 ora e 49 min per 121114 partite
 # n = 10 -> 28 min per 179207 partite with index

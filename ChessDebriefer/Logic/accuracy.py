@@ -3,6 +3,8 @@ from mongoengine import Q
 from ChessDebriefer.Logic.games import evaluate_game
 from ChessDebriefer.models import Games, Openings
 
+# TODO add multithreading/multiprocessing to slow endpoints?
+
 
 def calculate_accuracy(name):
     accuracy = 0
