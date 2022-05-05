@@ -2,6 +2,50 @@
 
 A backend that parses and analyses pgn files
 
+## Installation
+
+It's recommended to use docker
+
+### Back-End
+
+Install python 3 and then run:
+``` 
+pip install -r requirements.txt
+```
+And then run the back-end using:
+```
+python manage.py runserver 8000
+```
+
+### Front-End
+
+Install node 16.14.2 and npm 8.5.0 and then run:
+``` 
+npm install
+```
+And then run the front-end using:
+``` 
+npm run
+```
+The front-end connects to the back-end on localhost, so if you are running the back-end on another machine you'll have to change all of the urls in the front-end files.
+
+### Database
+
+Install MongoDB and then insert the URL you use to connect to your MongoDB instance in the following files:
+1. ChessDebriefer/settings.py (line 91)
+2. ChessDebriefer/uploads.py (lines 76, 102)
+
+### Docker
+
+You can install the whole application using docker with two simple commands:
+``` 
+docker-compose build 
+```
+``` 
+docker-compose up 
+```
+And then manage it through the docker dashboard
+
 ## Endpoints
 
 Not updated
