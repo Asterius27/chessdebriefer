@@ -11,6 +11,7 @@ import Accuracy from "./components/Accuracy";
 import ThrowsComebacks from "./components/ThrowsComebacks";
 import EndgamesCompare from "./components/EndgamesCompare";
 
+// TODO put base back-end url in a config file
 function App() {
   return (
     <div className="App">
