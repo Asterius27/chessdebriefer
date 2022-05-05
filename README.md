@@ -3,6 +3,9 @@
 A backend that parses and analyses pgn files
 
 ## Endpoints
+
+Not updated
+
 <details>
   <summary> 
   <h3> GET /:name/percentages </h3>
