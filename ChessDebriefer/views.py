@@ -1,4 +1,5 @@
 import cProfile
+import os
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from ChessDebriefer.Logic.accuracy import calculate_accuracy
@@ -21,7 +22,8 @@ from ChessDebriefer.Logic.percentages import calculate_percentages_database, \
 
 # TODO remove
 def debug(request):
-    cProfile.runctx('calculate_compare_endgame_tablebase("mamalak", {})', globals(), locals())
+    # cProfile.runctx('calculate_compare_endgame_tablebase("mamalak", {})', globals(), locals())
+    print(os.listdir())
     return HttpResponse(status=200)
 
 

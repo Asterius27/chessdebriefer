@@ -11,7 +11,7 @@ from ChessDebriefer.models import Openings
 def evaluate_game(game):
     pgn = io.StringIO(game.moves)
     parsed_game = chess.pgn.read_game(pgn)
-    engine = chess.engine.SimpleEngine.popen_uci("stockfish_14.1_win_x64_avx2.exe")
+    engine = chess.engine.SimpleEngine.popen_uci(r"/code/stockfish_14_x64_avx2")  # stockfish_14.1_win_x64_avx2.exe
     best_moves = []
     moves_evaluation = []
     while not parsed_game.is_end():
@@ -112,7 +112,7 @@ def evaluate_opening_engine(opening):
     if not opening.engine_evaluation:
         pgn = io.StringIO(opening.moves)
         parsed_game = chess.pgn.read_game(pgn)
-        engine = chess.engine.SimpleEngine.popen_uci("stockfish_14.1_win_x64_avx2.exe")
+        engine = chess.engine.SimpleEngine.popen_uci(r"/code/stockfish_14_x64_avx2")  # stockfish_14.1_win_x64_avx2.exe
         info = engine.analyse(parsed_game.end().board(), chess.engine.Limit(time=1))
         t = str(info["score"].pov(True))
         if t.startswith("#"):
