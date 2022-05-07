@@ -9,7 +9,6 @@ def calculate_percentages_comparisons(name, params):
     elo, r = check_params_comparisons(name, params)
     temp = {'minelo': str(min_elo), 'maxelo': str(max_elo)}
     response = calculate_percentages_database(name, temp)
-    # names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
     other_players_white_percentages = create_other_players_side_percentages_dictionary(name, elo, r, True)
     other_players_black_percentages = create_other_players_side_percentages_dictionary(name, elo, r, False)
     if not other_players_white_percentages:
@@ -44,7 +43,6 @@ def calculate_percentages_comparisons(name, params):
 def calculate_event_comparisons(name, params):
     elo, r = check_params_comparisons(name, params)
     player_event_stats, events = calculate_player_stats(name, params, 'event')
-    # names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
     event_stats = create_other_players_percentages_dictionary(name, elo, r, 'event', events)
     return create_response(player_event_stats, event_stats)
 
@@ -52,7 +50,6 @@ def calculate_event_comparisons(name, params):
 def calculate_termination_comparisons(name, params):
     elo, r = check_params_comparisons(name, params)
     player_termination_stats, terminations = calculate_player_stats(name, params, 'termination')
-    # names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
     termination_stats = create_other_players_percentages_dictionary(name, elo, r, 'termination', terminations)
     return create_response(player_termination_stats, termination_stats)
 
@@ -60,7 +57,6 @@ def calculate_termination_comparisons(name, params):
 def calculate_opening_comparisons(name, params):
     elo, r = check_params_comparisons(name, params)
     player_eco_stats, ecos = calculate_player_stats(name, params, 'eco')
-    # names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
     eco_stats = create_other_players_percentages_dictionary(name, elo, r, 'eco', ecos)
     return create_response(player_eco_stats, eco_stats)
 
@@ -210,64 +206,3 @@ def check_params_comparisons(name, params):
     else:
         r = 100
     return elo, r
-
-
-'''DEPRECATED: too slow (20 seconds more or less)
-def find_players(name, elo, r):
-    players = Games.objects.aggregate([
-        {
-            '$sort': {'date': -1}
-        },
-        {
-            '$group': {
-                '_id': '$white',
-                'elo': {'$first': '$white_elo'},
-                'date': {'$first': '$date'}
-            }
-        },
-        {
-            '$lookup': {
-                'from': 'games',
-                'let': {'player': '$_id', 'white_date': '$date'},
-                'pipeline': [
-                    {'$sort': {'date': -1}},
-                    {'$group': {
-                        '_id': '$black',
-                        'new_elo': {'$first': '$black_elo'},
-                        'date': {'$first': '$date'}
-                    }},
-                    {'$match': {'$expr': {'$and': [
-                        {'$eq': ['$_id', '$$player']},
-                        {'$gt': ['$date', '$$white_date']}
-                    ]}}},
-                    {'$project': {'_id': 0, 'date': 0}}
-                ],
-                'as': 'arr'
-            }
-        },
-        {
-            '$replaceRoot': {'newRoot': {'$mergeObjects': [{'$arrayElemAt': ['$arr', 0]}, '$$ROOT']}}
-        },
-        {
-            '$project': {
-                '_id': 1,
-                'elo': {'$ifNull': ['$new_elo', '$elo']}
-            }
-        },
-        {
-            '$match': {
-                '$and': [{'_id': {'$ne': name}}, {'elo': {'$gte': elo - r, '$lte': elo + r}}]
-            }
-        },
-        {
-            '$group': {
-                '_id': 'null',
-                'names': {'$push': '$_id'}
-            }
-        }
-    ])
-    names = []
-    for player in players:
-        names = player['names']
-    return names
-'''

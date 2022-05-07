@@ -1,4 +1,3 @@
-from memory_profiler import profile
 from mongoengine import Q
 import chess.syzygy
 from ChessDebriefer.Logic.compare import check_params_comparisons

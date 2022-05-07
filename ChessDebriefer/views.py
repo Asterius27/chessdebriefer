@@ -1,5 +1,3 @@
-import cProfile
-import os
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from ChessDebriefer.Logic.accuracy import calculate_accuracy
@@ -18,13 +16,6 @@ from ChessDebriefer.Logic.uploads import handle_pgn_uploads, handle_pgn_openings
 from ChessDebriefer.Logic.percentages import calculate_percentages_database, \
     calculate_event_percentages_database, calculate_termination_percentages_database, \
     calculate_opening_percentages_database, calculate_throws_comebacks
-
-
-# TODO remove
-def debug(request):
-    # cProfile.runctx('calculate_compare_endgame_tablebase("mamalak", {})', globals(), locals())
-    print(os.listdir())
-    return HttpResponse(status=200)
 
 
 @csrf_exempt

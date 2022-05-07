@@ -17,7 +17,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.debug),
     path('upload', views.upload),
     path('upload/openings', views.upload_openings),
     path('<slug:name>/percentages', views.percentages),

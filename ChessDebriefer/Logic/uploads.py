@@ -4,7 +4,6 @@ import os
 import threading
 import multiprocessing
 import mongoengine
-import yappi
 from os.path import exists
 import chess.pgn
 from ChessDebriefer.Logic.games import find_opening
@@ -12,7 +11,6 @@ from ChessDebriefer.models import Games, Openings
 
 
 # TODO add headers check (?)
-# it takes a lot of time to parse everything
 def handle_pgn_uploads(f):
     if Openings.objects.first() is not None:
         i = 0
@@ -42,10 +40,6 @@ def handle_pgn_uploads(f):
 # n = 5 -> 11 min per 121114 partite with index and separated files and multiprocessing
 # n = 10 -> 9 min per 121114 partite with index and separated files and multiprocessing
 def parse_pgn(file_name, ind):
-    # cached_fields = FieldsCache.objects.first()
-    # fields = ["event", "termination"]
-    # if not cached_fields:
-    #    cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
     with open(file_name) as pgn:
         n = 5
         lines = pgn.readlines()
@@ -65,37 +59,18 @@ def parse_pgn(file_name, ind):
             h += 1
         file.write(lines[l - 1])
         file.close()
-    # yappi.start()
-    print(datetime.datetime.now())
-    threads = []
+    # print(datetime.datetime.now())
+    processes = []
     mongoengine.disconnect()
     for x in range(n):
-        thr = multiprocessing.Process(target=run, args=(x, ind))
-        thr.start()
-        threads.append(thr)
+        prc = multiprocessing.Process(target=run, args=(x, ind))
+        prc.start()
+        processes.append(prc)
     mongoengine.connect(db='ChessDebriefer', host='mongodb://root:root@chessdebrieferdatabase:27017')
-    for t in threads:
-        t.join()
+    for p in processes:
+        p.join()
     os.remove(file_name)
-    print(datetime.datetime.now())
-    """
-    yappi.stop()
-    threads = yappi.get_thread_stats()
-    for thread in threads:
-        print("Function stats for (%s) (%d)" % (thread.name, thread.id))
-        yappi.get_func_stats(ctx_id=thread.id).print_all()
-        """
-    """
-        futures = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=n) as executor:
-            print(datetime.datetime.now())
-            for x in range(n):
-                future = executor.submit(run, x, ind)
-                futures.append(future)
-            concurrent.futures.wait(futures)
-    print(datetime.datetime.now())
-    os.remove(file_name)
-    """
+    # print(datetime.datetime.now())
 
 
 def run(i, ind):
@@ -136,9 +111,6 @@ def run(i, ind):
                     saved_game.save()
                 except:
                     saved_game.delete()
-                # update_cache(saved_game, fields, cached_fields)
-                # update_player_cache(saved_game.white, saved_game.white_elo, saved_game)
-                # update_player_cache(saved_game.black, saved_game.black_elo, saved_game)
     os.remove("temp" + str(ind) + str(i) + ".pgn")
 
 
@@ -170,10 +142,6 @@ def endgame_start_fen(parsed_game):
 
 
 def handle_pgn_openings_upload(f):
-    # cached_fields = FieldsCache.objects.first()
-    # fields = ["opening_id", "eco"]
-    # if not cached_fields:
-    #    cached_fields = FieldsCache(event=[], opening_id=[], eco=[], termination=[]).save()
     with open('openings.pgn', 'wb+') as temp:
         for chunk in f.chunks():
             temp.write(chunk)
@@ -181,9 +149,6 @@ def handle_pgn_openings_upload(f):
     Games.drop_collection()
     thr = threading.Thread(target=parse_pgn_opening)
     thr.start()
-    # for field in fields:
-    #    setattr(cached_fields, field, [])
-    # cached_fields.save()
 
 
 def parse_pgn_opening():
@@ -208,92 +173,3 @@ def run_openings(pgn, lock):
         Openings(eco=opening.headers["Site"], white_opening=opening.headers["White"],
                  black_opening=opening.headers["Black"], moves=str(opening.mainline_moves()),
                  engine_evaluation="").save()
-
-
-'''DEPRECATED
-def update_cache(game, fields, cached_fields):
-    for field in fields:
-        if "https" in getattr(game, field):
-            new = game.event.split(" ")
-            del new[-1]
-            if ' '.join(new) not in getattr(cached_fields, field):
-                temp = getattr(cached_fields, field)
-                temp.append(' '.join(new))
-                setattr(cached_fields, field, temp)
-                cached_fields.save()
-        elif getattr(game, field) not in getattr(cached_fields, field):
-            temp = getattr(cached_fields, field)
-            temp.append(getattr(game, field))
-            setattr(cached_fields, field, temp)
-            cached_fields.save()
-    update_player_cache(game.white, game.white_elo, game)
-    update_player_cache(game.black, game.black_elo, game)
-'''
-
-'''DEPRECATED
-def update_player_cache(name, elo, game):
-    player = Players.objects.filter(Q(name=name)).first()
-    if "https" in game.event:
-        new = game.event.split(" ")
-        del new[-1]
-        event = ' '.join(new)
-    else:
-        event = game.event
-    if not player:
-        player = Players(name=name, elo=elo, elo_date=game.date, openings={}, terminations={}, events={}, accuracy={},
-                         percentages={}).save()
-    if not player.percentages:
-        player.percentages = {"general percentages": {"wins": 0, "losses": 0, "draws": 0},
-                              "side percentages": {"white": {"wins": 0, "losses": 0, "draws": 0},
-                                                   "black": {"wins": 0, "losses": 0, "draws": 0}}}
-    if game.termination not in player.terminations.keys():
-        player.terminations[game.termination] = {"wins": 0, "losses": 0, "draws": 0}
-    if event not in player.events.keys():
-        player.events[event] = {"wins": 0, "losses": 0, "draws": 0}
-    if game.eco not in player.openings.keys():
-        player.openings[game.eco] = {"wins": 0, "losses": 0, "draws": 0}
-    if game.white == name:
-        if game.result == "1-0":
-            player.percentages["general percentages"]["wins"] += 1
-            player.percentages["side percentages"]["white"]["wins"] += 1
-            player.events[event]["wins"] += 1
-            player.terminations[game.termination]["wins"] += 1
-            player.openings[game.eco]["wins"] += 1
-        if game.result == "0-1":
-            player.percentages["general percentages"]["losses"] += 1
-            player.percentages["side percentages"]["white"]["losses"] += 1
-            player.events[event]["losses"] += 1
-            player.terminations[game.termination]["losses"] += 1
-            player.openings[game.eco]["losses"] += 1
-        if game.result == "1/2-1/2":
-            player.percentages["general percentages"]["draws"] += 1
-            player.percentages["side percentages"]["white"]["draws"] += 1
-            player.events[event]["draws"] += 1
-            player.terminations[game.termination]["draws"] += 1
-            player.openings[game.eco]["draws"] += 1
-    if game.black == name:
-        if game.result == "0-1":
-            player.percentages["general percentages"]["wins"] += 1
-            player.percentages["side percentages"]["black"]["wins"] += 1
-            player.events[event]["wins"] += 1
-            player.terminations[game.termination]["wins"] += 1
-            player.openings[game.eco]["wins"] += 1
-        if game.result == "1-0":
-            player.percentages["general percentages"]["losses"] += 1
-            player.percentages["side percentages"]["black"]["losses"] += 1
-            player.events[event]["losses"] += 1
-            player.terminations[game.termination]["losses"] += 1
-            player.openings[game.eco]["losses"] += 1
-        if game.result == "1/2-1/2":
-            player.percentages["general percentages"]["draws"] += 1
-            player.percentages["side percentages"]["black"]["draws"] += 1
-            player.events[event]["draws"] += 1
-            player.terminations[game.termination]["draws"] += 1
-            player.openings[game.eco]["draws"] += 1
-    if not player:
-        player = Players(name=name, elo=elo, elo_date=game.date, accuracy={}).save()
-    if player.elo_date < game.date:
-        setattr(player, "elo", elo)
-        setattr(player, "elo_date", game.date)
-    player.save()
-'''

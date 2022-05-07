@@ -38,27 +38,3 @@ class Openings(Document):
     black_opening = StringField()
     moves = StringField()
     engine_evaluation = StringField()
-
-
-'''DEPRECATED
-# document used as cache
-class FieldsCache(Document):
-    event = ListField(StringField())
-    opening_id = ListField(ObjectIdField())
-    eco = ListField(StringField())
-    termination = ListField(StringField())
-'''
-
-
-'''DEPRECATED
-# document used as cache
-class Players(Document):
-    name = StringField(unique=True)
-    elo = IntField()
-    elo_date = DateTimeField()
-    accuracy = DictField()
-    openings = DictField()
-    terminations = DictField()
-    events = DictField()
-    percentages = DictField()
-'''

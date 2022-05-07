@@ -14,7 +14,6 @@ def calculate_openings_best_worst(name, params):
         if key not in ecos:
             ecos.append(key)
     elo, r = check_params_comparisons(name, params)
-    # names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
     eco_stats = create_other_players_percentages_dictionary(name, elo, r, 'eco', ecos)
     for key in eco_stats:
         if key in response['best'].keys():
@@ -36,7 +35,6 @@ def calculate_openings_best_worst_simplified(name, params):
     for key in worst_dict:
         worst.append(key)
     elo, r = check_params_comparisons(name, params)
-    # names = Players.objects.filter(Q(name__ne=name) & Q(elo__gte=elo - r) & Q(elo__lte=elo + r)).distinct("name")
     others_best_dict = create_players_percentages_dictionary(name, elo, r, params, -1, 'eco')
     others_worst_dict = create_players_percentages_dictionary(name, elo, r, params, 1, 'eco')
     for key in others_best_dict:
