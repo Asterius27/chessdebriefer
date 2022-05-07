@@ -14,7 +14,7 @@ function ThrowsComebacks() {
     const submitForm = (e) => {
         let oQuery = "", fQuery = "", tQuery = "", minQuery = "", maxQuery = ""
         if (name) {
-            let url = "http://localhost:8000/" + name + "/percentages/throws-comebacks"
+            let url = process.env.REACT_APP_BACKEND_URL + name + "/percentages/throws-comebacks"
             if (opponent) {
                 oQuery = "opponent=" + opponent + "&"
             }

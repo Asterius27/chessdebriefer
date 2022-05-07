@@ -8,7 +8,7 @@ function Accuracy() {
 
     const submitForm = (e) => {
         if (name) {
-            setUrl("http://localhost:8000/" + name + "/accuracy")
+            setUrl(process.env.REACT_APP_BACKEND_URL + name + "/accuracy")
         }
         e.preventDefault()
     }

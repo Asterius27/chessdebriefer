@@ -17,7 +17,7 @@ function EndgamesCompare() {
     const submitForm = (e) => {
         let eloQuery = "", rQuery = "", minQuery = "", maxQuery = ""
         if (name) {
-            let url = "http://localhost:8000/" + name + "/percentages/endgames"
+            let url = process.env.REACT_APP_BACKEND_URL + name + "/percentages/endgames"
             if (section) {
                 url = url + "/" + section + "/compare"
             }

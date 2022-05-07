@@ -13,7 +13,7 @@ function Openings() {
     const submitForm = (e) => {
         let tQuery = "", meQuery = "", eQuery = "", rQuery = ""
         if (eco) {
-            let url = "http://localhost:8000/" + eco + "/stats"
+            let url = process.env.REACT_APP_BACKEND_URL + eco + "/stats"
             if (tournament) {
                 tQuery = "tournament=true&"
             }

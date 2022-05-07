@@ -18,7 +18,7 @@ function Compares() {
     const submitForm = (e) => {
         let eloQuery = "", rQuery = "", eQuery = "", ecoQuery = "", tQuery = "", minQuery = "", maxQuery = ""
         if (name) {
-            let url = "http://localhost:8000/" + name + "/percentages"
+            let url = process.env.REACT_APP_BACKEND_URL + name + "/percentages"
             if (section) {
                 url = url + "/" + section + "/compare"
             }

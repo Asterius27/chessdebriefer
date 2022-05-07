@@ -18,7 +18,7 @@ function Demo() {
     const submitForm = (e) => {
         let oQuery = "", fQuery = "", tQuery = "", minQuery = "", maxQuery = "", eQuery = "", rQuery = "", lQuery = "", mpQuery = ""
         if (name) {
-            let url = "http://localhost:8000/" + name + "/percentages/openings/best-worst"
+            let url = process.env.REACT_APP_BACKEND_URL + name + "/percentages/openings/best-worst"
             if (opponent) {
                 oQuery = "opponent=" + opponent + "&"
             }

@@ -20,8 +20,8 @@ function Endgames() {
     const submitForm = (e) => {
         let oQuery = "", fQuery = "", tQuery = "", minQuery = "", maxQuery = "", pQuery = ""
         if (name) {
-            let url = "http://localhost:8000/" + name + "/percentages/endgames"
-            let url2 = "http://localhost:8000/" + name + "/percentages/endgames"
+            let url = process.env.REACT_APP_BACKEND_URL + name + "/percentages/endgames"
+            let url2 = process.env.REACT_APP_BACKEND_URL + name + "/percentages/endgames"
             if (section) {
                 url = url + "/" + section
             }

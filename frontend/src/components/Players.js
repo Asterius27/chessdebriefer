@@ -18,7 +18,7 @@ function Players() {
     const submitForm = (e) => {
         let oQuery = "", fQuery = "", tQuery = "", minQuery = "", maxQuery = "", eQuery = ""
         if (name) {
-            let url = "http://localhost:8000/" + name + "/percentages"
+            let url = process.env.REACT_APP_BACKEND_URL + name + "/percentages"
             if (section) {
                 url = url + "/" + section
             }

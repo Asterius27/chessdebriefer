@@ -4,7 +4,7 @@ import { useState } from "react";
 function Upload() {
 
     const [selectedFile, setSelectedFile] = useState("")
-    const [url, setUrl] = useState("http://localhost:8000/upload")
+    const [url, setUrl] = useState(process.env.REACT_APP_BACKEND_URL + "upload")
 
     const submitForm = (e) => {
         const formData = new FormData();
@@ -24,6 +24,9 @@ function Upload() {
         e.preventDefault()
     }
 
+    const url1 = process.env.REACT_APP_BACKEND_URL + "upload"
+    const url2 = process.env.REACT_APP_BACKEND_URL + "upload/openings"
+
     return (
         <div className="bg-light" style={{paddingBottom: "1%"}}>
             <form onSubmit={submitForm} style={{width: "80%", height: "80%", margin: "auto"}}>
@@ -31,8 +34,8 @@ function Upload() {
                 <div className="form-group">
                     <label htmlFor="choosesection" style={{float: "left"}}>Choose upload type:</label>
                     <select id="choosesection" className="form-select" value={url} onChange={(e) => setUrl(e.target.value)}>
-                        <option value="http://localhost:8000/upload">Games</option>
-                        <option value="http://localhost:8000/upload/openings">Openings</option>
+                        <option value={url1}>Games</option>
+                        <option value={url2}>Openings</option>
                     </select>
                 </div>
                 <br/>
