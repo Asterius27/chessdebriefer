@@ -16,6 +16,8 @@ And then run the back-end using:
 ```
 python manage.py runserver 8000
 ```
+If you don't want to run the server only locally you'll have to add the ip address or domain name in the following file:
+ChessDebriefer/settings.py (line 27)
 
 ### Front-End
 
