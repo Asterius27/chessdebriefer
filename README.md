@@ -27,13 +27,13 @@ And then run the front-end using:
 ``` 
 npm run
 ```
-The front-end connects to the back-end on localhost, so if you are running the back-end on another machine you'll have to change all of the urls in the front-end files.
+The front-end connects to the back-end on localhost, so if you are running the back-end on another machine you'll have to change the url in the .env file located in frontend/.env
 
 ### Database
 
 Install MongoDB and then insert the URL you use to connect to your MongoDB instance in the following files:
 1. ChessDebriefer/settings.py (line 91)
-2. ChessDebriefer/uploads.py (lines 76, 102)
+2. ChessDebriefer/Logic/uploads.py (lines 76, 102)
 
 ### Docker
 
@@ -46,9 +46,12 @@ docker-compose up
 ```
 And then manage it through the docker dashboard
 
-## Endpoints
+### Chess Engine
 
-Not updated
+If you aren't using docker, or if you are planning to use a different engine or a different operating system, then you have to change the engine location in the following file:
+1. ChessDebriefer/Logic/games.py (lines 14, 94)
+
+## Endpoints
 
 <details>
   <summary> 
@@ -115,6 +118,8 @@ Not updated
   #### URI parameters
   * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
   * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
+  * **minelo** : (optional) find only the matches played where your elo was greater than this
+  * **maxelo** : (optional) find only the matches played where your elo was lower than this
   
   #### Response
   Headers
@@ -233,6 +238,8 @@ Not updated
   * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
   * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
   * **event** : (optional) which events to find stats on, otherwise all of your events are used
+  * **minelo** : (optional) find only the matches played where your elo was greater than this
+  * **maxelo** : (optional) find only the matches played where your elo was lower than this
   
   #### Response
   Headers
@@ -376,6 +383,8 @@ Not updated
   * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
   * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
   * **eco** : (optional) which ecos to find stats on, otherwise all of your ecos are used (list separated by a comma)
+  * **minelo** : (optional) find only the matches played where your elo was greater than this
+  * **maxelo** : (optional) find only the matches played where your elo was lower than this
   
   #### Response
   Headers
@@ -602,6 +611,8 @@ Not updated
   * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
   * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
   * **termination** : (optional) which terminations to find stats on, otherwise all of your terminations are used
+  * **minelo** : (optional) find only the matches played where your elo was greater than this
+  * **maxelo** : (optional) find only the matches played where your elo was lower than this
   
   #### Response
   Headers
@@ -753,6 +764,8 @@ Not updated
   #### URI parameters
   * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
   * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
+  * **minelo** : (optional) find only the matches played where your elo was greater than this
+  * **maxelo** : (optional) find only the matches played where your elo was lower than this
   
   #### Response
   Headers
@@ -866,6 +879,8 @@ Not updated
   #### URI parameters
   * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
   * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
+  * **minelo** : (optional) find only the matches played where your elo was greater than this
+  * **maxelo** : (optional) find only the matches played where your elo was lower than this
   
   #### Response
   Headers
@@ -954,6 +969,8 @@ Not updated
   #### URI parameters
   * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
   * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
+  * **minelo** : (optional) find only the matches played where your elo was greater than this
+  * **maxelo** : (optional) find only the matches played where your elo was lower than this
   
   #### Response
   Headers
@@ -1010,6 +1027,136 @@ Not updated
 
 <details>
   <summary> 
+  <h3> GET /:name/percentages/endgames/material/predicted </h3>
+  
+  </summary>
+  
+  #### URI parameters
+  * **pieces** : (optional) how many pieces must be left on the board (at least) to be considered an endgame
+  * **opponent** : (optional) find only the matches played against this opponent
+  * **from** : (optional) find only the matches played after this date
+  * **to** : (optional) find only the matches played before this date
+  * **minelo** : (optional) find only the matches played where your elo was greater than this
+  * **maxelo** : (optional) find only the matches played where your elo was lower than this
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"general percentages": {
+			"wins": 19,
+			"losses": 14,
+			"draws": 21,
+			"win percentage": 35.19,
+			"loss percentage": 25.93,
+			"draw percentage": 38.89
+		},
+		"side percentages": {
+			"white": {
+				"wins": 4,
+				"losses": 2,
+				"draws": 4,
+				"win percentage": 40.0,
+				"loss percentage": 20.0,
+				"draw percentage": 40.0
+			},
+			"black": {
+				"wins": 15,
+				"losses": 12,
+				"draws": 17,
+				"win percentage": 34.09,
+				"loss percentage": 27.27,
+				"draw percentage": 38.64
+			}
+		}
+	}
+  ```
+</details>
+	
+</details>
+
+<details>
+  <summary> 
+  <h3> GET /:name/percentages/endgames/material/predicted/compare </h3>
+  
+  </summary>
+  
+  #### URI parameters
+  * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
+  * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
+  * **minelo** : (optional) find only the matches played where your elo was greater than this
+  * **maxelo** : (optional) find only the matches played where your elo was lower than this
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"general percentages": {
+			"wins": 8,
+			"losses": 11,
+			"draws": 0,
+			"win percentage": 42.11,
+			"loss percentage": 57.89,
+			"draw percentage": 0.0,
+			"other players wins": 2579,
+			"other players losses": 2855,
+			"other players draws": 0,
+			"other players win percentage": 47.46,
+			"other players loss percentage": 52.54,
+			"other players draw percentage": 0.0
+		},
+		"side percentages": {
+			"white": {
+				"wins": 3,
+				"losses": 2,
+				"draws": 0,
+				"win percentage": 60.0,
+				"loss percentage": 40.0,
+				"draw percentage": 0.0,
+				"other players wins": 1235,
+				"other players losses": 1415,
+				"other players draws": 0,
+				"other players win percentage": 46.6,
+				"other players loss percentage": 53.4,
+				"other players draw percentage": 0.0
+			},
+			"black": {
+				"wins": 5,
+				"losses": 9,
+				"draws": 0,
+				"win percentage": 35.71,
+				"loss percentage": 64.29,
+				"draw percentage": 0.0,
+				"other players wins": 1344,
+				"other players losses": 1440,
+				"other players draws": 0,
+				"other players win percentage": 48.28,
+				"other players loss percentage": 51.72,
+				"other players draw percentage": 0.0
+			}
+		}
+	}
+  ```
+</details>
+	
+</details>
+
+<details>
+  <summary> 
   <h3> GET /:name/percentages/endgames/tablebase </h3>
   
   </summary>
@@ -1054,6 +1201,8 @@ Not updated
   #### URI parameters
   * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
   * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
+  * **minelo** : (optional) find only the matches played where your elo was greater than this
+  * **maxelo** : (optional) find only the matches played where your elo was lower than this
   
   #### Response
   Headers
@@ -1078,6 +1227,136 @@ Not updated
 		"matches other players should have lost": 2740,
 		"other players draws": 1978,
 		"matches other players should have drawn": 1125
+	}
+  ```
+</details>
+	
+</details>
+
+<details>
+  <summary> 
+  <h3> GET /:name/percentages/endgames/tablebase/predicted </h3>
+  
+  </summary>
+  
+  #### URI parameters
+  * **pieces** : (optional) how many pieces must be left on the board (at least) to be considered an endgame (maximum is 5 for tablebase)
+  * **opponent** : (optional) find only the matches played against this opponent
+  * **from** : (optional) find only the matches played after this date
+  * **to** : (optional) find only the matches played before this date
+  * **minelo** : (optional) find only the matches played where your elo was greater than this
+  * **maxelo** : (optional) find only the matches played where your elo was lower than this
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"general percentages": {
+			"wins": 4,
+			"losses": 10,
+			"draws": 5,
+			"win percentage": 21.05,
+			"loss percentage": 52.63,
+			"draw percentage": 26.32
+		},
+		"side percentages": {
+			"white": {
+				"wins": 1,
+				"losses": 2,
+				"draws": 2,
+				"win percentage": 20.0,
+				"loss percentage": 40.0,
+				"draw percentage": 40.0
+			},
+			"black": {
+				"wins": 3,
+				"losses": 8,
+				"draws": 3,
+				"win percentage": 21.43,
+				"loss percentage": 57.14,
+				"draw percentage": 21.43
+			}
+		}
+	}
+  ```
+</details>
+	
+</details>
+
+<details>
+  <summary> 
+  <h3> GET /:name/percentages/endgames/tablebase/predicted/compare </h3>
+  
+  </summary>
+  
+  #### URI parameters
+  * **elo** : (optional) elo used to find other players' stats, otherwise your elo is used
+  * **range** : (optional) players used to generate the stats are within this range (elo - range ~ elo + range)
+  * **minelo** : (optional) find only the matches played where your elo was greater than this
+  * **maxelo** : (optional) find only the matches played where your elo was lower than this
+  
+  #### Response
+  Headers
+  ```
+  Content-Type: application/json
+  ```
+  
+<details>
+  <summary>Body</summary>
+  
+  ```json
+	{
+		"general percentages": {
+			"wins": 4,
+			"losses": 10,
+			"draws": 5,
+			"win percentage": 21.05,
+			"loss percentage": 52.63,
+			"draw percentage": 26.32,
+			"other players wins": 2039,
+			"other players losses": 2296,
+			"other players draws": 1099,
+			"other players win percentage": 37.52,
+			"other players loss percentage": 42.25,
+			"other players draw percentage": 20.22
+		},
+		"side percentages": {
+			"white": {
+				"wins": 1,
+				"losses": 2,
+				"draws": 2,
+				"win percentage": 20.0,
+				"loss percentage": 40.0,
+				"draw percentage": 40.0,
+				"other players wins": 995,
+				"other players losses": 1127,
+				"other players draws": 528,
+				"other players win percentage": 37.55,
+				"other players loss percentage": 42.53,
+				"other players draw percentage": 19.92
+			},
+			"black": {
+				"wins": 3,
+				"losses": 8,
+				"draws": 3,
+				"win percentage": 21.43,
+				"loss percentage": 57.14,
+				"draw percentage": 21.43,
+				"other players wins": 1044,
+				"other players losses": 1169,
+				"other players draws": 571,
+				"other players win percentage": 37.5,
+				"other players loss percentage": 41.99,
+				"other players draw percentage": 20.51
+			}
+		}
 	}
   ```
 </details>
