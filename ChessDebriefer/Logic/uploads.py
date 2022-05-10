@@ -27,7 +27,7 @@ def handle_pgn_uploads(f):
             while exists('temp' + str(j) + '.pgn'):
                 j += 1
             file_name = 'temp' + str(j) + '.pgn'
-            with bz2.BZ2File(compressed_file_name) as fr, open(file_name, 'wb') as fw:
+            with bz2.BZ2File(compressed_file_name) as fr, open(file_name, 'wb') as fw:  # TODO do this in the thread
                 shutil.copyfileobj(fr, fw)
                 thr = threading.Thread(target=parse_pgn, args=(file_name, j))
                 thr.start()
