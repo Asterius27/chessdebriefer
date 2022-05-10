@@ -58,7 +58,7 @@ def handle_pgn_uploads(f):
 # n = 10 -> 9 min per 121114 partite with index and separated files and multiprocessing
 def parse_pgn(file_name, ind):
     with open(file_name) as pgn:
-        n = 5
+        n = 25
         lines = pgn.readlines()
         l = len(lines)
         j = 0
