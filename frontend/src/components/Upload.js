@@ -35,7 +35,7 @@ function Upload() {
     if (flag) {
         return (
             <div className="bg-light" style={{paddingBottom: "1%"}}>
-                <div style={{width: "80%", margin: "auto"}}>
+                <div style={{width: "80%", margin: "auto", paddingTop: "2%"}}>
                     <div className="progress">
                         <div className="progress-bar" role="progressbar" style={{width: progress + "%"}} aria-valuenow={progress} aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
