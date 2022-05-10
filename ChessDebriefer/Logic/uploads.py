@@ -5,8 +5,6 @@ import os
 import shutil
 import threading
 import multiprocessing
-import zipfile
-
 import mongoengine
 from os.path import exists
 import chess.pgn
@@ -33,7 +31,7 @@ def handle_pgn_uploads(f):
                 shutil.copyfileobj(fr, fw)
                 thr = threading.Thread(target=parse_pgn, args=(file_name, j))
                 thr.start()
-            # os.remove(compressed_file_name)
+            os.remove(compressed_file_name)
         if str(f).endswith('.pgn'):  # request.FILES['file'].content_type == "application/x-chess-pgn"
             i = 0
             while exists('temp' + str(i) + '.pgn'):
@@ -81,7 +79,6 @@ def parse_pgn(file_name, ind):
             h += 1
         file.write(lines[l - 1])
         file.close()
-    """
     print(datetime.datetime.now())
     processes = []
     mongoengine.disconnect()
@@ -94,7 +91,6 @@ def parse_pgn(file_name, ind):
         p.join()
     os.remove(file_name)
     print(datetime.datetime.now())
-    """
 
 
 def run(i, ind):
