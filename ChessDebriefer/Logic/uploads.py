@@ -63,7 +63,7 @@ def parse_pgn(file_name, compressed_file_name, ind):
         os.remove(compressed_file_name)
     with open(file_name) as pgn:
         n = 25
-        lines = pgn.readlines()
+        lines = pgn.readlines()  # TODO crashes with large files
         l = len(lines)
         j = 0
         h = 0
