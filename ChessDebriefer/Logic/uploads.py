@@ -3,6 +3,8 @@ import datetime
 import os
 import threading
 import multiprocessing
+import zipfile
+
 import mongoengine
 from os.path import exists
 import chess.pgn
@@ -13,15 +15,30 @@ from ChessDebriefer.models import Games, Openings
 # TODO add headers check (?)
 def handle_pgn_uploads(f):
     if Openings.objects.first() is not None:
-        i = 0
-        while exists('temp' + str(i) + '.pgn'):
-            i += 1
-        file_name = 'temp' + str(i) + '.pgn'
-        with open(file_name, 'wb+') as temp:
-            for chunk in f.chunks():
-                temp.write(chunk)
-        thr = threading.Thread(target=parse_pgn, args=(file_name, i))
-        thr.start()
+        if str(f).endswith('.bz2'):
+            i = 0
+            while exists('temp' + str(i) + '.bz2'):
+                i += 1
+            file_name = 'temp' + str(i) + '.bz2'
+            with open(file_name, 'wb+') as temp:
+                for chunk in f.chunks():
+                    temp.write(chunk)
+            with zipfile.ZipFile(file_name, 'r') as zip_ref:
+                name = zip_ref.namelist()
+                zip_ref.extractall()
+                thr = threading.Thread(target=parse_pgn, args=(name[0], i))
+                thr.start()
+            os.remove(file_name)
+        if str(f).endswith('.pgn'):  # request.FILES['file'].content_type == "application/x-chess-pgn"
+            i = 0
+            while exists('temp' + str(i) + '.pgn'):
+                i += 1
+            file_name = 'temp' + str(i) + '.pgn'
+            with open(file_name, 'wb+') as temp:
+                for chunk in f.chunks():
+                    temp.write(chunk)
+            thr = threading.Thread(target=parse_pgn, args=(file_name, i))
+            thr.start()
 
 
 # 16 min without save and n = 10, 14 min without save and find_opening and n = 20, 3 min with multiprocessing and
@@ -59,7 +76,8 @@ def parse_pgn(file_name, ind):
             h += 1
         file.write(lines[l - 1])
         file.close()
-    # print(datetime.datetime.now())
+    """
+    print(datetime.datetime.now())
     processes = []
     mongoengine.disconnect()
     for x in range(n):
@@ -70,7 +88,8 @@ def parse_pgn(file_name, ind):
     for p in processes:
         p.join()
     os.remove(file_name)
-    # print(datetime.datetime.now())
+    print(datetime.datetime.now())
+    """
 
 
 def run(i, ind):

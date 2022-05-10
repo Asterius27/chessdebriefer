@@ -21,12 +21,9 @@ from ChessDebriefer.Logic.percentages import calculate_percentages_database, \
 @csrf_exempt
 def upload(request):
     if request.method == 'POST':
-        if str(request.FILES['file']).endswith('.pgn'):  # request.FILES['file'].content_type == "application/x-chess-pgn"
-            handle_pgn_uploads(request.FILES['file'])
-            return HttpResponse("Success! Your file was uploaded and is now being parsed. Please note that it may take "
-                                "several hours for the process to complete")
-        else:
-            return HttpResponse(status=400)
+        handle_pgn_uploads(request.FILES['file'])
+        return HttpResponse("Success! Your file was uploaded and is now being parsed. Please note that it may take "
+                            "several hours for the process to complete")
     else:
         return HttpResponse(status=405)
 
@@ -34,12 +31,9 @@ def upload(request):
 @csrf_exempt
 def upload_openings(request):
     if request.method == 'POST':
-        if str(request.FILES['file']).endswith('.pgn'):  # request.FILES['file'].content_type == "application/x-chess-pgn"
-            handle_pgn_openings_upload(request.FILES['file'])
-            return HttpResponse("Success! Your file was uploaded and is now being parsed. Please note that it may take "
-                                "several hours for the process to complete")
-        else:
-            return HttpResponse(status=400)
+        handle_pgn_openings_upload(request.FILES['file'])
+        return HttpResponse("Success! Your file was uploaded and is now being parsed. Please note that it may take "
+                            "several hours for the process to complete")
     else:
         return HttpResponse(status=405)
 
