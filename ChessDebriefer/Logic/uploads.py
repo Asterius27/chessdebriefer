@@ -1,6 +1,8 @@
+import bz2
 import concurrent.futures
 import datetime
 import os
+import shutil
 import threading
 import multiprocessing
 import zipfile
@@ -17,18 +19,21 @@ def handle_pgn_uploads(f):
     if Openings.objects.first() is not None:
         if str(f).endswith('.bz2'):
             i = 0
+            j = 0
             while exists('temp' + str(i) + '.bz2'):
                 i += 1
-            file_name = 'temp' + str(i) + '.bz2'
-            with open(file_name, 'wb+') as temp:
+            compressed_file_name = 'temp' + str(i) + '.bz2'
+            with open(compressed_file_name, 'wb+') as temp:
                 for chunk in f.chunks():
                     temp.write(chunk)
-            with zipfile.ZipFile(file_name, 'r') as zip_ref:
-                name = zip_ref.namelist()
-                zip_ref.extractall()
-                thr = threading.Thread(target=parse_pgn, args=(name[0], i))
+            while exists('temp' + str(j) + '.pgn'):
+                j += 1
+            file_name = 'temp' + str(j) + '.pgn'
+            with bz2.BZ2File(compressed_file_name) as fr, open(file_name, 'wb') as fw:
+                shutil.copyfileobj(fr, fw)
+                thr = threading.Thread(target=parse_pgn, args=(file_name, j))
                 thr.start()
-            os.remove(file_name)
+            # os.remove(compressed_file_name)
         if str(f).endswith('.pgn'):  # request.FILES['file'].content_type == "application/x-chess-pgn"
             i = 0
             while exists('temp' + str(i) + '.pgn'):
