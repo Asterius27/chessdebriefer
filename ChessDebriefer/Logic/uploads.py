@@ -27,11 +27,8 @@ def handle_pgn_uploads(f):
             while exists('temp' + str(j) + '.pgn'):
                 j += 1
             file_name = 'temp' + str(j) + '.pgn'
-            with bz2.BZ2File(compressed_file_name) as fr, open(file_name, 'wb') as fw:  # TODO do this in the thread
-                shutil.copyfileobj(fr, fw)
-                thr = threading.Thread(target=parse_pgn, args=(file_name, j))
-                thr.start()
-            os.remove(compressed_file_name)
+            thr = threading.Thread(target=parse_pgn, args=(file_name, compressed_file_name, j))
+            thr.start()
         if str(f).endswith('.pgn'):  # request.FILES['file'].content_type == "application/x-chess-pgn"
             i = 0
             while exists('temp' + str(i) + '.pgn'):
@@ -40,7 +37,7 @@ def handle_pgn_uploads(f):
             with open(file_name, 'wb+') as temp:
                 for chunk in f.chunks():
                     temp.write(chunk)
-            thr = threading.Thread(target=parse_pgn, args=(file_name, i))
+            thr = threading.Thread(target=parse_pgn, args=(file_name, "", i))
             thr.start()
 
 
@@ -59,7 +56,11 @@ def handle_pgn_uploads(f):
 # n = 100 -> 20 min per 121114 partite with index and separated files
 # n = 5 -> 11 min per 121114 partite with index and separated files and multiprocessing
 # n = 10 -> 9 min per 121114 partite with index and separated files and multiprocessing
-def parse_pgn(file_name, ind):
+def parse_pgn(file_name, compressed_file_name, ind):
+    if compressed_file_name != "":
+        with bz2.BZ2File(compressed_file_name) as fr, open(file_name, 'wb') as fw:
+            shutil.copyfileobj(fr, fw)
+        os.remove(compressed_file_name)
     with open(file_name) as pgn:
         n = 25
         lines = pgn.readlines()
