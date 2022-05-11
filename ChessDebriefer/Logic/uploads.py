@@ -12,7 +12,6 @@ from ChessDebriefer.Logic.games import find_opening
 from ChessDebriefer.models import Games, Openings
 
 
-# TODO add headers check (?)
 def handle_pgn_uploads(f):
     if Openings.objects.first() is not None:
         if str(f).endswith('.bz2'):
@@ -97,42 +96,45 @@ def parse_pgn(file_name, compressed_file_name, ind):
 
 def run(i, ind):
     mongoengine.connect(db='ChessDebriefer', host='mongodb://root:root@chessdebrieferdatabase:27017')
+    required_headers = ["Black", "White", "Event", "Site", "Result", "UTCDate", "UTCTime", "WhiteElo", "BlackElo",
+                        "WhiteRatingDiff", "BlackRatingDiff", "TimeControl", "Termination"]
     with open("temp" + str(ind) + str(i) + ".pgn") as pgn:
         while True:
             game = chess.pgn.read_game(pgn)
             if game is None:
                 break
-            if game.headers["Black"] != "?" and game.headers["White"] != "?" and game.headers["UTCDate"] != "?" and \
-                    game.headers["UTCTime"] != "?":
-                arr_date = game.headers["UTCDate"].split(".")
-                arr_time = game.headers["UTCTime"].split(":")
-                date = datetime.datetime(int(arr_date[0]), int(arr_date[1]), int(arr_date[2]), int(arr_time[0]),
-                                         int(arr_time[1]), int(arr_time[2]))
-                if "https" in game.headers["Event"]:
-                    temp = game.headers["Event"].split(" ")
-                    tournament_site = temp[-1]
-                    del temp[-1]
-                    event = ' '.join(temp)
-                else:
-                    tournament_site = ""
-                    event = game.headers["Event"]
-                fen = ""
-                if reaches_five_piece_endgame(game):
-                    fen = endgame_start_fen(game.end())
-                saved_game = Games(event=event, tournament_site=tournament_site, site=game.headers["Site"],
-                                   white=game.headers["White"], black=game.headers["Black"],
-                                   result=game.headers["Result"], date=date, white_elo=game.headers["WhiteElo"],
-                                   black_elo=game.headers["BlackElo"],
-                                   white_rating_diff=game.headers["WhiteRatingDiff"],
-                                   black_rating_diff=game.headers["BlackRatingDiff"], eco="",
-                                   opening_id="000000000000000000000000", time_control=game.headers["TimeControl"],
-                                   termination=game.headers["Termination"], moves=str(game.mainline_moves()),
-                                   best_moves=[], moves_evaluation=[], five_piece_endgame_fen=fen)
-                find_opening(saved_game)
-                try:
-                    saved_game.save()
-                except:
-                    saved_game.delete()
+            if set(required_headers).issubset(set(game.headers.keys())):
+                if game.headers["Black"] != "?" and game.headers["White"] != "?" and game.headers["UTCDate"] != "?" and \
+                        game.headers["UTCTime"] != "?":
+                    arr_date = game.headers["UTCDate"].split(".")
+                    arr_time = game.headers["UTCTime"].split(":")
+                    date = datetime.datetime(int(arr_date[0]), int(arr_date[1]), int(arr_date[2]), int(arr_time[0]),
+                                             int(arr_time[1]), int(arr_time[2]))
+                    if "https" in game.headers["Event"]:
+                        temp = game.headers["Event"].split(" ")
+                        tournament_site = temp[-1]
+                        del temp[-1]
+                        event = ' '.join(temp)
+                    else:
+                        tournament_site = ""
+                        event = game.headers["Event"]
+                    fen = ""
+                    if reaches_five_piece_endgame(game):
+                        fen = endgame_start_fen(game.end())
+                    saved_game = Games(event=event, tournament_site=tournament_site, site=game.headers["Site"],
+                                       white=game.headers["White"], black=game.headers["Black"],
+                                       result=game.headers["Result"], date=date, white_elo=game.headers["WhiteElo"],
+                                       black_elo=game.headers["BlackElo"],
+                                       white_rating_diff=game.headers["WhiteRatingDiff"],
+                                       black_rating_diff=game.headers["BlackRatingDiff"], eco="",
+                                       opening_id="000000000000000000000000", time_control=game.headers["TimeControl"],
+                                       termination=game.headers["Termination"], moves=str(game.mainline_moves()),
+                                       best_moves=[], moves_evaluation=[], five_piece_endgame_fen=fen)
+                    find_opening(saved_game)
+                    try:
+                        saved_game.save()
+                    except:
+                        saved_game.delete()
     os.remove("temp" + str(ind) + str(i) + ".pgn")
 
 

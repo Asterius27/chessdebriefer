@@ -82,8 +82,9 @@ def find_opening(game, update=False):
             if game.moves.startswith(opening['moves']):
                 eco = opening['eco']
                 idd = opening['_id']
-        setattr(game, "eco", eco)
-        setattr(game, "opening_id", idd)
+        if idd != "" and eco != "":
+            setattr(game, "eco", eco)
+            setattr(game, "opening_id", idd)
 
 
 # slow
