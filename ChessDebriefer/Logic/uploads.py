@@ -62,7 +62,7 @@ def parse_pgn(file_name, compressed_file_name, ind):
             shutil.copyfileobj(fr, fw)
         os.remove(compressed_file_name)
     with open(file_name) as pgn:
-        n = 5  # 25
+        n = 25
         flag = False
         j = 0
         file = open("temp" + str(ind) + str(j) + ".pgn", 'a+')
@@ -81,26 +81,6 @@ def parse_pgn(file_name, compressed_file_name, ind):
             elif line != "\n":
                 file.write(line)
         file.close()
-        """
-        lines = pgn.readlines()
-        l = len(lines)
-        j = 0
-        h = 0
-        file = open("temp" + str(ind) + str(j) + ".pgn", 'w+')
-        for i in range(l - 1):
-            if lines[i] == "\n" and h > ((l / n) * 1.) and lines[i + 1].startswith("["):
-                file.write(lines[i])
-                file.close()
-                h = 0
-                j += 1
-                file = open("temp" + str(ind) + str(j) + ".pgn", 'w+')
-            else:
-                file.write(lines[i])
-            h += 1
-        file.write(lines[l - 1])
-        file.close()
-        """
-    """
     print(datetime.datetime.now())
     processes = []
     mongoengine.disconnect()
@@ -113,7 +93,6 @@ def parse_pgn(file_name, compressed_file_name, ind):
         p.join()
     os.remove(file_name)
     print(datetime.datetime.now())
-    """
 
 
 def run(i, ind):
