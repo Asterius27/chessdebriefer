@@ -2,6 +2,8 @@ import { useState } from "react";
 import PlayersGeneralCharts from "./PlayersGeneralCharts";
 import PlayersCharts from "./PlayersCharts";
 import PlayersOpeningCharts from "./PlayersOpeningCharts";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 
 function Players() {
 
@@ -48,6 +50,35 @@ function Players() {
         e.preventDefault()
     }
 
+    const generatePDF = (e) => {
+        let input = document.querySelector(".div2PDF");
+        html2canvas(input, { 
+            scale: 3, // use the desired scale
+            allowTaint: true,
+            useCORS: true
+        }).then(canvas => { 
+      
+            // Your IMAGE_DATA_URI
+            var imgData = canvas.toDataURL('image/png');
+      
+            // Make pdf
+            const doc = new jsPDF("l", "pt");
+      
+            // add image
+            doc.addImage(
+                imgData, 
+                'png', 
+                input.offsetLeft,
+                input.offsetTop,
+                input.clientWidth,
+                input.clientHeight
+            );
+      
+            // Save document
+            doc.save('charts.pdf');
+        });
+    } 
+
     if (url) {
         return (
             <div className="bg-light">
@@ -65,6 +96,9 @@ function Players() {
                     <PlayersGeneralCharts name={name} url={url} />
                 </div>
                 }
+                <div style={{paddingBottom: "2%"}}>
+                    <button className="btn btn-primary" onClick={generatePDF}>Download PDF</button>
+                </div>
                 <div style={{paddingBottom: "2%"}}>
                     <button className="btn btn-primary" onClick={(e) => {setUrl(""); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); setSection(""); setEco(""); e.preventDefault();}}>Back</button>
                 </div>

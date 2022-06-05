@@ -3,7 +3,6 @@ import { Navbar, Container, Nav } from "react-bootstrap";
 
 const MyNavbar = () => {
     return (
-
         <Navbar bg="primary" variant="dark" expand="lg" sticky="top">
             <Container>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
