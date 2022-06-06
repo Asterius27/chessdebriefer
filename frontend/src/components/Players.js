@@ -53,9 +53,10 @@ function Players() {
     const generatePDF = (e) => {
         let charts = document.querySelectorAll(".div2PDF");
         const doc = new jsPDF("p", "pt", "a4");
-        [...charts].forEach(function(chart) {
+        [...charts].forEach(async function(chart) {
+            console.log("CHART!");
             let input_ratio = (chart.clientHeight * 1.0) / chart.clientWidth;
-            html2canvas(chart, {
+            await html2canvas(chart, {
                 allowTaint: true,
                 useCORS: true
             }).then(canvas => { 
