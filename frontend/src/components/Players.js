@@ -57,24 +57,16 @@ function Players() {
             allowTaint: true,
             useCORS: true
         }).then(canvas => { 
-      
-            // Your IMAGE_DATA_URI
             var imgData = canvas.toDataURL('image/png');
-      
-            // Make pdf
-            const doc = new jsPDF("l", "pt");
-      
-            // add image
+            const doc = new jsPDF("p", "pt", "a4");
             doc.addImage(
                 imgData, 
                 'png', 
                 1,
                 1,
-                input.clientWidth,
+                590,
                 input.clientHeight
             );
-      
-            // Save document
             doc.save('charts.pdf');
         });
     } 
