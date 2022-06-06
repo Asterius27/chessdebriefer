@@ -52,8 +52,8 @@ function Players() {
 
     const generatePDF = (e) => {
         let input = document.querySelector(".div2PDF");
-        html2canvas(input, { 
-            // scale: 3,
+        let input_ratio = (input.clientHeight * 1.0) / input.clientWidth;
+        html2canvas(input, {
             allowTaint: true,
             useCORS: true
         }).then(canvas => { 
@@ -65,7 +65,7 @@ function Players() {
                 1,
                 1,
                 590,
-                input.clientHeight
+                input_ratio * 590
             );
             doc.save('charts.pdf');
         });
