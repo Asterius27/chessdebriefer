@@ -10,6 +10,7 @@ import Endgames from "./components/Endgames";
 import Accuracy from "./components/Accuracy";
 import ThrowsComebacks from "./components/ThrowsComebacks";
 import EndgamesCompare from "./components/EndgamesCompare";
+import GeneratePDF from "./components/GeneratePDF";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route exact path="/accuracy" element={<Accuracy />} />
         <Route exact path="/openings" element={<Openings />} />
         <Route exact path="/upload" element={<Upload />} />
+        <Route exact path="/report" element={<GeneratePDF />} />
       </Routes>
     </div>
   );

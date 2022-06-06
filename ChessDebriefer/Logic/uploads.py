@@ -87,7 +87,7 @@ def parse_pgn(file_name, compressed_file_name, ind):
         prc = multiprocessing.Process(target=run, args=(x, ind))
         prc.start()
         processes.append(prc)
-    mongoengine.connect(db='ChessDebriefertemp', host='mongodb://root:root@chessdebrieferdatabase:27017')
+    mongoengine.connect(db='ChessDebriefer', host='mongodb://root:root@chessdebrieferdatabase:27017')
     for p in processes:
         p.join()
     os.remove(file_name)
@@ -95,7 +95,7 @@ def parse_pgn(file_name, compressed_file_name, ind):
 
 
 def run(i, ind):
-    mongoengine.connect(db='ChessDebriefertemp', host='mongodb://root:root@chessdebrieferdatabase:27017')
+    mongoengine.connect(db='ChessDebriefer', host='mongodb://root:root@chessdebrieferdatabase:27017')
     required_headers = ["Black", "White", "Event", "Site", "Result", "UTCDate", "UTCTime", "WhiteElo", "BlackElo",
                         "WhiteRatingDiff", "BlackRatingDiff", "TimeControl", "Termination"]
     with open("temp" + str(ind) + str(i) + ".pgn") as pgn:

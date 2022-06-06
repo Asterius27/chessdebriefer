@@ -17,6 +17,7 @@ const MyNavbar = () => {
                     <Nav.Link as={Link} to="/accuracy">Accuracy (Slow)</Nav.Link>
                     <Nav.Link as={Link} to="/openings">Openings</Nav.Link>
                     <Nav.Link as={Link} to="/upload">Upload PGN</Nav.Link>
+                    <Nav.Link as={Link} to="/report">Generate PDF Report</Nav.Link>
                 </Nav>
                 </Navbar.Collapse>
             </Container>

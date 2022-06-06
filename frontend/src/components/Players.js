@@ -2,8 +2,6 @@ import { useState } from "react";
 import PlayersGeneralCharts from "./PlayersGeneralCharts";
 import PlayersCharts from "./PlayersCharts";
 import PlayersOpeningCharts from "./PlayersOpeningCharts";
-import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
 
 function Players() {
 
@@ -50,34 +48,6 @@ function Players() {
         e.preventDefault()
     }
 
-    const generatePDF = (e) => {
-        let charts = document.querySelectorAll(".div2PDF");
-        const doc = new jsPDF("p", "pt", "a4");
-        let i = 0;
-        [...charts].forEach(async function(chart) {
-            console.log("che palle " + i);
-            let input_ratio = (chart.clientHeight * 1.0) / chart.clientWidth;
-            await html2canvas(chart, {
-                allowTaint: true,
-                useCORS: true
-            }).then(canvas => { 
-                var imgData = canvas.toDataURL('image/png');
-                doc.addImage(
-                    imgData, 
-                    'png', 
-                    1,
-                    1,
-                    590,
-                    input_ratio * 590,
-                    "chart" + i
-                );
-                i = i + 1;
-                // doc.addPage("a4", "p");
-            });
-        });
-        doc.save('charts.pdf');
-    } 
-
     if (url) {
         return (
             <div className="bg-light">
@@ -95,9 +65,6 @@ function Players() {
                     <PlayersGeneralCharts name={name} url={url} />
                 </div>
                 }
-                <div style={{paddingBottom: "2%"}}>
-                    <button className="btn btn-primary" onClick={generatePDF}>Download PDF</button>
-                </div>
                 <div style={{paddingBottom: "2%"}}>
                     <button className="btn btn-primary" onClick={(e) => {setUrl(""); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); setSection(""); setEco(""); e.preventDefault();}}>Back</button>
                 </div>

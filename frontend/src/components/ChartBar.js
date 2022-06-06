@@ -3,7 +3,7 @@ import { Bar } from "react-chartjs-2";
 
 export const BarChart = ({ chartData, text }) => {
     return (
-        <div>
+        <div className='div2PDF'>
             <Bar
                 data={chartData}
                 options={{
