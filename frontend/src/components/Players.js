@@ -51,24 +51,27 @@ function Players() {
     }
 
     const generatePDF = (e) => {
-        let input = document.querySelector(".div2PDF");
-        let input_ratio = (input.clientHeight * 1.0) / input.clientWidth;
-        html2canvas(input, {
-            allowTaint: true,
-            useCORS: true
-        }).then(canvas => { 
-            var imgData = canvas.toDataURL('image/png');
-            const doc = new jsPDF("p", "pt", "a4");
-            doc.addImage(
-                imgData, 
-                'png', 
-                1,
-                1,
-                590,
-                input_ratio * 590
-            );
-            doc.save('charts.pdf');
-        });
+        let charts = document.querySelectorAll(".div2PDF");
+        const doc = new jsPDF("p", "pt", "a4");
+        for (let i = 0; i < charts.length; i++) {
+            let input_ratio = (charts[i].clientHeight * 1.0) / charts[i].clientWidth;
+            html2canvas(charts[i], {
+                allowTaint: true,
+                useCORS: true
+            }).then(canvas => { 
+                var imgData = canvas.toDataURL('image/png');
+                doc.addImage(
+                    imgData, 
+                    'png', 
+                    1,
+                    1,
+                    590,
+                    input_ratio * 590
+                );
+                doc.addPage("a4", "p");
+            });
+        }
+        doc.save('charts.pdf');
     } 
 
     if (url) {
