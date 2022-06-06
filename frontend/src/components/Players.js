@@ -53,9 +53,9 @@ function Players() {
     const generatePDF = (e) => {
         let charts = document.querySelectorAll(".div2PDF");
         const doc = new jsPDF("p", "pt", "a4");
-        for (let i = 0; i < charts.length; i++) {
-            let input_ratio = (charts[i].clientHeight * 1.0) / charts[i].clientWidth;
-            html2canvas(charts[i], {
+        [...charts].forEach(function(chart) {
+            let input_ratio = (chart.clientHeight * 1.0) / chart.clientWidth;
+            html2canvas(chart, {
                 allowTaint: true,
                 useCORS: true
             }).then(canvas => { 
@@ -70,7 +70,7 @@ function Players() {
                 );
                 doc.addPage("a4", "p");
             });
-        }
+        });
         doc.save('charts.pdf');
     } 
 
