@@ -27,7 +27,7 @@ npm install
 ```
 And then run the front-end using:
 ``` 
-npm run
+npm start
 ```
 The front-end connects to the back-end on localhost, so if you are running the back-end on another machine you'll have to change the url in the .env file located in frontend/.env
 
@@ -35,7 +35,7 @@ The front-end connects to the back-end on localhost, so if you are running the b
 
 Install MongoDB and then insert the URL you use to connect to your MongoDB instance in the following files:
 1. ChessDebriefer/settings.py (line 91)
-2. ChessDebriefer/Logic/uploads.py (lines 76, 102)
+2. ChessDebriefer/Logic/uploads.py (lines 90, 98)
 
 ### Docker
 

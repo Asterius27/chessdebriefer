@@ -53,7 +53,7 @@ function Players() {
     const generatePDF = (e) => {
         let input = document.querySelector(".div2PDF");
         html2canvas(input, { 
-            scale: 3, // use the desired scale
+            // scale: 3,
             allowTaint: true,
             useCORS: true
         }).then(canvas => { 
@@ -68,8 +68,8 @@ function Players() {
             doc.addImage(
                 imgData, 
                 'png', 
-                input.offsetLeft,
-                input.offsetTop,
+                1,
+                1,
                 input.clientWidth,
                 input.clientHeight
             );
