@@ -2,6 +2,19 @@ import { useState } from "react";
 import PlayersGeneralCharts from "./PlayersGeneralCharts";
 import PlayersCharts from "./PlayersCharts";
 import PlayersOpeningCharts from "./PlayersOpeningCharts";
+import ComparesCharts from "./ComparesCharts";
+import ComparesGeneralCharts from "./ComparesGeneralCharts";
+import DemoResponse from "./DemoResponse";
+import EndgamesCharts from "./EndgamesCharts";
+import EndgamesGeneralCharts from "./EndgamesGeneralCharts";
+import EndgamesWDLCharts from "./EndgamesWDLCharts";
+import EndgamesPredictedWDLCharts from "./EndgamesPredictedWDLCharts";
+import EndgamesCompareGeneralCharts from "./EndgamesCompareGeneralCharts";
+import EndgamesCompareCharts from "./EndgamesCompareCharts";
+import EndgamesCompareWDLCharts from "./EndgamesCompareWDLCharts";
+import EndgamesComparePredictedWDLCharts from "./EndgamesComparePredictedWDLCharts";
+import ThrowsComebacksCharts from "./ThrowsComebacksCharts";
+import AccuracyResponse from "./AccuracyResponse";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 
@@ -147,8 +160,65 @@ function GeneratePDF() {
                     <PlayersCharts name={name} url={urls["percentages_openings"]} />
                 </div>
                 }
+                <div>
+                    <ComparesGeneralCharts name={name} url={urls["percentages_compare"]} />
+                </div>
+                <div>
+                    <ComparesCharts name={name} url={urls["percentages_events_compare"]} />
+                </div>
+                <div>
+                    <ComparesCharts name={name} url={urls["percentages_terminations_compare"]} />
+                </div>
+                <div>
+                    <ComparesCharts name={name} url={urls["percentages_openings_compare"]} />
+                </div>
+                <div>
+                    <DemoResponse name={name} url={urls["percentages_demo"]} />
+                </div>
+                <div>
+                    <EndgamesGeneralCharts name={name} url={urls["percentages_endgames"]} />
+                </div>
+                <div>
+                    <EndgamesCharts name={name} url={urls["percentages_endgames_material"]} />
+                </div>
+                <div>
+                    <EndgamesCharts name={name} url={urls["percentages_endgames_tablebase"]} />
+                </div>
+                <div>
+                    <EndgamesWDLCharts name={name} url={urls["percentages_endgames_material_wdl"]} />
+                </div>
+                <div>
+                    <EndgamesPredictedWDLCharts name={name} url={urls["percentages_endgames_material_predicted"]} generalUrl={urls["percentages_endgames"]} />
+                </div>
+                <div>
+                    <EndgamesPredictedWDLCharts name={name} url={urls["percentages_endgames_tablebase_predicted"]} generalUrl={urls["percentages_endgames"]} />
+                </div>
+                <div>
+                    <EndgamesCompareGeneralCharts name={name} url={urls["percentages_endgames_compare"]} />
+                </div>
+                <div>
+                    <EndgamesCompareCharts name={name} url={urls["percentages_endgames_material_compare"]} />
+                </div>
+                <div>
+                    <EndgamesCompareCharts name={name} url={urls["percentages_endgames_tablebase_compare"]} />
+                </div>
+                <div>
+                    <EndgamesCompareWDLCharts name={name} url={urls["percentages_endgames_material_wdl_compare"]} />
+                </div>
+                <div>
+                    <EndgamesComparePredictedWDLCharts name={name} url={urls["percentages_endgames_material_predicted_compare"]} />
+                </div>
+                <div>
+                    <EndgamesComparePredictedWDLCharts name={name} url={urls["percentages_endgames_tablebase_predicted_compare"]} />
+                </div>
+                <div>
+                    <ThrowsComebacksCharts name={name} url={urls["percentages_throws_comebacks"]} />
+                </div>
+                <div>
+                    <AccuracyResponse name={name} url={urls["accuracy"]} />
+                </div>
                 <div style={{paddingBottom: "2%"}}>
-                    <button className="btn btn-primary" onClick={(e) => {setUrls({}); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); setEco(""); e.preventDefault();}}>Back</button>
+                    <button className="btn btn-primary" onClick={(e) => {setUrls({}); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); setEco(""); setElo(""); setRange(""); setEvent(""); setTermination(""); setLimit(""); setMinPlayed(""); setPieces(""); e.preventDefault();}}>Back</button>
                 </div>
             </div>
         )
@@ -193,6 +263,41 @@ function GeneratePDF() {
                         <input id="ecos" className="form-control" placeholder="Enter eco(s)" type="text" onChange={(e) => setEco(e.target.value)}/>
                         <br/>
                     </div>
+                    <div className="form-group">
+                        <label htmlFor="elo" style={{float: "left"}}>Elo to compare to:</label>
+                        <input id="elo" className="form-control" placeholder="Enter elo" type="number" onChange={(e) => setElo(e.target.value)} />
+                    </div>
+                    <br/>
+                    <div className="form-group">
+                        <label htmlFor="range" style={{float: "left"}}>Range:</label>
+                        <input id="range" className="form-control" placeholder="Enter range" type="number" onChange={(e) => setRange(e.target.value)} />
+                    </div>
+                    <br/>
+                    <div className="form-group">
+                        <label htmlFor="events" style={{float: "left"}}>Event(s):</label>
+                        <input id="events" className="form-control" placeholder="Enter event(s)" type="text" onChange={(e) => setEvent(e.target.value)}/>
+                        <br/>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="terminations" style={{float: "left"}}>Termination(s):</label>
+                        <input id="terminations" className="form-control" placeholder="Enter termination(s)" type="text" onChange={(e) => setTermination(e.target.value)}/>
+                        <br/>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="limit" style={{float: "left"}}>Limit response list to:</label>
+                        <input id="limit" className="form-control" placeholder="Enter limit" type="number" onChange={(e) => setLimit(e.target.value)} />
+                    </div>
+                    <br/>
+                    <div className="form-group">
+                        <label htmlFor="minplayed" style={{float: "left"}}>Only consider openings that have at least this many matches played:</label>
+                        <input id="minplayed" className="form-control" placeholder="Enter minimum played" type="number" onChange={(e) => setMinPlayed(e.target.value)} />
+                    </div>
+                    <br/>
+                    <div className="form-group">
+                        <label htmlFor="pieces" style={{float: "left"}}>How many pieces must be left on the board to be considered an endgame:</label>
+                        <input id="pieces" className="form-control" placeholder="Enter number of pieces" type="number" onChange={(e) => setPieces(e.target.value)} />
+                    </div>
+                    <br/>
                     <input type="submit" value="Submit" className="btn btn-primary" />
                 </form>
             </div>
