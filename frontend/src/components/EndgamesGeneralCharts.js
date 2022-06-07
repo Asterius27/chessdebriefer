@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { DoughnutChart } from './ChartDoughnut';
 import LoadingSpinner from './LoadingSpinner';
 
-function EndgamesGeneralCharts({ name, url }) {
+function EndgamesGeneralCharts({ name, url, onLoad }) {
 
     useEffect(() => {
         const fetchPercentages = async () => {
@@ -64,6 +64,10 @@ function EndgamesGeneralCharts({ name, url }) {
             paddingBottom: "7%",
             width: "40%",
             height: "40%"
+        }
+
+        if (onLoad) {
+            onLoad(true, url);
         }
     
         return (

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
 
-function DemoResponse({ name, url }) {
+function DemoResponse({ name, url, onLoad }) {
 
     useEffect(() => {
         const fetchPercentages = async () => {
@@ -15,6 +15,9 @@ function DemoResponse({ name, url }) {
     const [data, setData] = useState({})
 
     if (Object.keys(data).length !== 0) {
+        if (onLoad) {
+            onLoad(true, url);
+        }
         return (
             <div style={{margin: "auto", display: "table"}}>
                 <div style={{display: "table-row"}}>

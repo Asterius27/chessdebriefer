@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { BarChart } from './ChartBar';
 import LoadingSpinner from './LoadingSpinner';
 
-function ThrowsComebacksCharts({ name, url }) {
+function ThrowsComebacksCharts({ name, url, onLoad }) {
 
     useEffect(() => {
         const fetchPercentages = async () => {
@@ -44,6 +44,10 @@ function ThrowsComebacksCharts({ name, url }) {
             paddingBottom: "7%",
             width: "40%",
             height: "40%"
+        }
+
+        if (onLoad) {
+            onLoad(true, url);
         }
     
         return (

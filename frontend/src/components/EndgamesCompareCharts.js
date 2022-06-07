@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { BarChart } from './ChartBar';
 import LoadingSpinner from './LoadingSpinner';
 
-function EndgamesCompareCharts({ name, url }) {
+function EndgamesCompareCharts({ name, url, onLoad }) {
 
     useEffect(() => {
         const fetchPercentages = async () => {
@@ -91,6 +91,10 @@ function EndgamesCompareCharts({ name, url }) {
             width: "50%",
             height: "50%",
             display: "table-cell"
+        }
+
+        if (onLoad) {
+            onLoad(true, url);
         }
     
         return (

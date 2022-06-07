@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StackedBarChart } from './ChartStackedBar';
 import LoadingSpinner from './LoadingSpinner';
 
-function PlayersCharts({ name, url }) {
+function PlayersCharts({ name, url, onLoad }) {
 
   useEffect(() => {
     const fetchPercentages = async () => {
@@ -81,6 +81,10 @@ function PlayersCharts({ name, url }) {
       paddingBottom: "7%",
       width: "70%",
       height: "40%"
+    }
+
+    if (onLoad) {
+      onLoad(true, url);
     }
 
     return (

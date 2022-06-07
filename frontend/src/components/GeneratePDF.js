@@ -15,6 +15,7 @@ import EndgamesCompareWDLCharts from "./EndgamesCompareWDLCharts";
 import EndgamesComparePredictedWDLCharts from "./EndgamesComparePredictedWDLCharts";
 import ThrowsComebacksCharts from "./ThrowsComebacksCharts";
 import AccuracyResponse from "./AccuracyResponse";
+import LoadingSpinner from './LoadingSpinner';
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 
@@ -105,7 +106,7 @@ function GeneratePDF() {
                 piecesQuery = "pieces=" + pieces + "&"
             }
             if (oQuery || fQuery || tQuery || minQuery || maxQuery || eQuery || eloQuery || rQuery || eventQuery || terminationQuery || limitQuery || minPlayedQuery || piecesQuery) {
-                for (let url of urls) {
+                for (let url in urls) {
                     urls[url] = urls[url] + "?" + oQuery + fQuery + tQuery + minQuery + maxQuery + eQuery + eloQuery + rQuery + eventQuery + terminationQuery + limitQuery + minPlayedQuery + piecesQuery
                 }
             }
@@ -114,7 +115,19 @@ function GeneratePDF() {
         e.preventDefault()
     }
 
-    const generatePDF = async (e) => {
+    let loaded = {}
+    let generate = true;
+    const load = (state, origin) => {
+        if (state) {
+            loaded[origin] = true;
+            if (Object.keys(loaded).length === 23 && generate) {
+                generate = false;
+                setTimeout(generatePDF, 2000);
+            }
+        }
+    }
+
+    const generatePDF = async () => {
         let charts = document.querySelectorAll(".div2PDF");
         const doc = new jsPDF("p", "pt", "a4");
         for (let i = 0; i < charts.length; i++) {
@@ -137,88 +150,92 @@ function GeneratePDF() {
                 doc.addPage("a4", "p");
             }
         }
-        doc.save('charts.pdf');
+        doc.save('report.pdf');
+        document.getElementById("backbutton").click();
     }
 
     if (urls && Object.keys(urls).length !== 0) {
         return (
             <div className="bg-light">
-                <div>
-                    <PlayersGeneralCharts name={name} url={urls["percentages"]} />
+                <div style={{overflow: "hidden", height: "0"}}>
+                    <div>
+                        <PlayersGeneralCharts name={name} url={urls["percentages"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <PlayersCharts name={name} url={urls["percentages_events"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <PlayersCharts name={name} url={urls["percentages_terminations"]} onLoad={load} />
+                    </div>
+                    {eco ? 
+                    <div>
+                        <PlayersOpeningCharts name={name} url={urls["percentages_openings"]} onLoad={load} />
+                    </div> :
+                    <div>
+                        <PlayersCharts name={name} url={urls["percentages_openings"]} onLoad={load} />
+                    </div>
+                    }
+                    <div>
+                        <ComparesGeneralCharts name={name} url={urls["percentages_compare"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <ComparesCharts name={name} url={urls["percentages_events_compare"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <ComparesCharts name={name} url={urls["percentages_terminations_compare"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <ComparesCharts name={name} url={urls["percentages_openings_compare"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <DemoResponse name={name} url={urls["percentages_demo"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <EndgamesGeneralCharts name={name} url={urls["percentages_endgames"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <EndgamesCharts name={name} url={urls["percentages_endgames_material"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <EndgamesCharts name={name} url={urls["percentages_endgames_tablebase"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <EndgamesWDLCharts name={name} url={urls["percentages_endgames_material_wdl"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <EndgamesPredictedWDLCharts name={name} url={urls["percentages_endgames_material_predicted"]} generalUrl={urls["percentages_endgames"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <EndgamesPredictedWDLCharts name={name} url={urls["percentages_endgames_tablebase_predicted"]} generalUrl={urls["percentages_endgames"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <EndgamesCompareGeneralCharts name={name} url={urls["percentages_endgames_compare"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <EndgamesCompareCharts name={name} url={urls["percentages_endgames_material_compare"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <EndgamesCompareCharts name={name} url={urls["percentages_endgames_tablebase_compare"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <EndgamesCompareWDLCharts name={name} url={urls["percentages_endgames_material_wdl_compare"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <EndgamesComparePredictedWDLCharts name={name} url={urls["percentages_endgames_material_predicted_compare"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <EndgamesComparePredictedWDLCharts name={name} url={urls["percentages_endgames_tablebase_predicted_compare"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <ThrowsComebacksCharts name={name} url={urls["percentages_throws_comebacks"]} onLoad={load} />
+                    </div>
+                    <div>
+                        <AccuracyResponse name={name} url={urls["accuracy"]} onLoad={load} />
+                    </div>
                 </div>
-                <div>
-                    <PlayersCharts name={name} url={urls["percentages_events"]} />
-                </div>
-                <div>
-                    <PlayersCharts name={name} url={urls["percentages_terminations"]} />
-                </div>
-                {eco ? 
-                <div>
-                    <PlayersOpeningCharts name={name} url={urls["percentages_openings"]} />
-                </div> :
-                <div>
-                    <PlayersCharts name={name} url={urls["percentages_openings"]} />
-                </div>
-                }
-                <div>
-                    <ComparesGeneralCharts name={name} url={urls["percentages_compare"]} />
-                </div>
-                <div>
-                    <ComparesCharts name={name} url={urls["percentages_events_compare"]} />
-                </div>
-                <div>
-                    <ComparesCharts name={name} url={urls["percentages_terminations_compare"]} />
-                </div>
-                <div>
-                    <ComparesCharts name={name} url={urls["percentages_openings_compare"]} />
-                </div>
-                <div>
-                    <DemoResponse name={name} url={urls["percentages_demo"]} />
-                </div>
-                <div>
-                    <EndgamesGeneralCharts name={name} url={urls["percentages_endgames"]} />
-                </div>
-                <div>
-                    <EndgamesCharts name={name} url={urls["percentages_endgames_material"]} />
-                </div>
-                <div>
-                    <EndgamesCharts name={name} url={urls["percentages_endgames_tablebase"]} />
-                </div>
-                <div>
-                    <EndgamesWDLCharts name={name} url={urls["percentages_endgames_material_wdl"]} />
-                </div>
-                <div>
-                    <EndgamesPredictedWDLCharts name={name} url={urls["percentages_endgames_material_predicted"]} generalUrl={urls["percentages_endgames"]} />
-                </div>
-                <div>
-                    <EndgamesPredictedWDLCharts name={name} url={urls["percentages_endgames_tablebase_predicted"]} generalUrl={urls["percentages_endgames"]} />
-                </div>
-                <div>
-                    <EndgamesCompareGeneralCharts name={name} url={urls["percentages_endgames_compare"]} />
-                </div>
-                <div>
-                    <EndgamesCompareCharts name={name} url={urls["percentages_endgames_material_compare"]} />
-                </div>
-                <div>
-                    <EndgamesCompareCharts name={name} url={urls["percentages_endgames_tablebase_compare"]} />
-                </div>
-                <div>
-                    <EndgamesCompareWDLCharts name={name} url={urls["percentages_endgames_material_wdl_compare"]} />
-                </div>
-                <div>
-                    <EndgamesComparePredictedWDLCharts name={name} url={urls["percentages_endgames_material_predicted_compare"]} />
-                </div>
-                <div>
-                    <EndgamesComparePredictedWDLCharts name={name} url={urls["percentages_endgames_tablebase_predicted_compare"]} />
-                </div>
-                <div>
-                    <ThrowsComebacksCharts name={name} url={urls["percentages_throws_comebacks"]} />
-                </div>
-                <div>
-                    <AccuracyResponse name={name} url={urls["accuracy"]} />
-                </div>
+                <LoadingSpinner />
                 <div style={{paddingBottom: "2%"}}>
-                    <button className="btn btn-primary" onClick={(e) => {setUrls({}); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); setEco(""); setElo(""); setRange(""); setEvent(""); setTermination(""); setLimit(""); setMinPlayed(""); setPieces(""); e.preventDefault();}}>Back</button>
+                    <button id="backbutton" className="btn btn-primary" onClick={(e) => {loaded = {}; generate = true; setUrls({}); setName(""); setMaxElo(""); setMinElo(""); setTo(""); setFrom(""); setOpponent(""); setEco(""); setElo(""); setRange(""); setEvent(""); setTermination(""); setLimit(""); setMinPlayed(""); setPieces(""); e.preventDefault();}}>Back</button>
                 </div>
             </div>
         )
@@ -298,7 +315,7 @@ function GeneratePDF() {
                         <input id="pieces" className="form-control" placeholder="Enter number of pieces" type="number" onChange={(e) => setPieces(e.target.value)} />
                     </div>
                     <br/>
-                    <input type="submit" value="Submit" className="btn btn-primary" />
+                    <input type="submit" value="Generate PDF Report" className="btn btn-primary" />
                 </form>
             </div>
         )

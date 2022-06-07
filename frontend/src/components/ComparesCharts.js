@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { DoughnutChart } from './ChartDoughnut';
 import LoadingSpinner from './LoadingSpinner';
 
-function ComparesCharts({ name, url }) {
+function ComparesCharts({ name, url, onLoad }) {
 
   useEffect(() => {
     const fetchPercentages = async () => {
@@ -58,6 +58,11 @@ function ComparesCharts({ name, url }) {
       width: "50%",
       height: "50%",
       display: "table-cell"
+    }
+
+    
+    if (onLoad) {
+      onLoad(true, url);
     }
 
     return (

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { DoughnutChart } from './ChartDoughnut';
 import LoadingSpinner from './LoadingSpinner';
 
-function EndgamesCompareWDLCharts({ name, url }) {
+function EndgamesCompareWDLCharts({ name, url, onLoad }) {
 
     useEffect(() => {
         const fetchPercentages = async () => {
@@ -79,6 +79,10 @@ function EndgamesCompareWDLCharts({ name, url }) {
             width: "50%",
             height: "50%",
             display: "table-cell"
+        }
+
+        if (onLoad) {
+            onLoad(true, url);
         }
     
         return (

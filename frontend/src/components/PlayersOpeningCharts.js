@@ -110,7 +110,7 @@ function GenerateCharts({ data, eco, name }) {
     )
 }
 
-function PlayersOpeningCharts({ name, url }) {
+function PlayersOpeningCharts({ name, url, onLoad }) {
 
     useEffect(() => {
         const fetchPercentages = async () => {
@@ -124,6 +124,11 @@ function PlayersOpeningCharts({ name, url }) {
     const [data, setData] = useState({})
 
     if (Object.keys(data).length !== 0) {
+
+        
+        if (onLoad) {
+            onLoad(true, url);
+        }
 
         return(
             <div>
