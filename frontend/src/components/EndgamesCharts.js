@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { BarChart } from './ChartBar';
 import LoadingSpinner from './LoadingSpinner';
 
-function EndgamesCharts({ name, url, onLoad }) {
+function EndgamesCharts({ name, url, onLoad, section }) {
 
     useEffect(() => {
         const fetchPercentages = async () => {
@@ -14,6 +14,7 @@ function EndgamesCharts({ name, url, onLoad }) {
     }, []);
     
     const [data, setData] = useState({})
+    let flag = false
     
     if (Object.keys(data).length !== 0) {
     
@@ -59,11 +60,18 @@ function EndgamesCharts({ name, url, onLoad }) {
 
         if (onLoad) {
             onLoad(true, url);
+            flag = true;
+        }
+
+        if (!section) {
+            section = "";
+        } else {
+            section = " " + section;
         }
     
         return (
             <div style={barStyle}>
-                <BarChart chartData={chartData} text={name + "'s endgames stats"} />
+                <BarChart chartData={chartData} text={name + "'s" + section + " endgames stats"} displayLabels={flag} />
                 {url.includes("tablebase") ? 
                 <p>The predicted wdl stat indicates how many of those wins/losses/draws you should have gotten according to the tablebase</p> :
                 <p>The predicted wdl stat indicates how many of those wins/losses/draws you should have gotten based on material advantage (for the wins) or material disadvantage (for the losses). 

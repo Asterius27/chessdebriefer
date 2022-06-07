@@ -19,7 +19,7 @@ function DemoResponse({ name, url, onLoad }) {
             onLoad(true, url);
         }
         return (
-            <div style={{margin: "auto", display: "table"}}>
+            <div style={{margin: "auto", display: "table"}} className="div2PDF">
                 <div style={{display: "table-row"}}>
                     <div style={{paddingRight: "50px", display: "table-cell"}}>
                         <h3>Your Best</h3>

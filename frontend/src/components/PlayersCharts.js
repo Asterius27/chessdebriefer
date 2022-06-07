@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StackedBarChart } from './ChartStackedBar';
 import LoadingSpinner from './LoadingSpinner';
 
-function PlayersCharts({ name, url, onLoad }) {
+function PlayersCharts({ name, url, onLoad, section }) {
 
   useEffect(() => {
     const fetchPercentages = async () => {
@@ -14,6 +14,7 @@ function PlayersCharts({ name, url, onLoad }) {
   }, []);
 
   const [data, setData] = useState({})
+  let flag = false
 
   if (Object.keys(data).length !== 0) {
 
@@ -85,15 +86,22 @@ function PlayersCharts({ name, url, onLoad }) {
 
     if (onLoad) {
       onLoad(true, url);
+      flag = true
+    }
+
+    if (!section) {
+      section = "";
+    } else {
+      section = " " + section;
     }
 
     return (
       <div>
         <div style={barStyle}>
-          <StackedBarChart chartData={stackedBarChartData} text={name + "'s wdl stats"} />
+          <StackedBarChart chartData={stackedBarChartData} text={name + "'s" + section + " wdl stats"} displayLabels={flag} />
         </div>
         <div style={barStyle}>
-          <StackedBarChart chartData={stackedPercentagesBarChart} text={name + "'s wdl stats"} />
+          <StackedBarChart chartData={stackedPercentagesBarChart} text={name + "'s" + section + " wdl stats"} displayLabels={flag} />
         </div>
       </div>
     )

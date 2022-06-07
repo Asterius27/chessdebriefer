@@ -14,6 +14,7 @@ function ComparesGeneralCharts({ name, url, onLoad }) {
   }, []);
 
   const [data, setData] = useState({})
+  let flag = false
 
   if (Object.keys(data).length !== 0) {
 
@@ -112,6 +113,7 @@ function ComparesGeneralCharts({ name, url, onLoad }) {
     
     if (onLoad) {
       onLoad(true, url);
+      flag = true;
     }
 
     return (
@@ -119,36 +121,36 @@ function ComparesGeneralCharts({ name, url, onLoad }) {
             <div style={{display: "table-row"}}>
                 {data["data"]["general percentages"]["your wins"] + data["data"]["general percentages"]["your losses"] + data["data"]["general percentages"]["your draws"] !== 0 ? 
                 <div style={doughnutStyle}>
-                    <DoughnutChart chartData={generalChartData} text={name + "'s general wdl stats"} />
+                    <DoughnutChart chartData={generalChartData} text={name + "'s general wdl stats"} displayLabels={flag} />
                 </div> : <div></div>
                 }
                 {data["data"]["general percentages"]["other players wins"] + data["data"]["general percentages"]["other players losses"] + data["data"]["general percentages"]["other players draws"] !== 0 ? 
                 <div style={doughnutStyle}>
-                    <DoughnutChart chartData={compareGeneralChartData} text={"Other players general wdl stats"} />
+                    <DoughnutChart chartData={compareGeneralChartData} text={"Other players general wdl stats"} displayLabels={flag} />
                 </div> : <div></div>
                 }
             </div>
             <div style={{display: "table-row"}}>
                 {data["data"]["side percentages"]["white"]["your wins"] + data["data"]["side percentages"]["white"]["your losses"] + data["data"]["side percentages"]["white"]["your draws"] !== 0 ? 
                 <div style={doughnutStyle}>
-                    <DoughnutChart chartData={whiteChartData} text={name + "'s white wdl stats"} />
+                    <DoughnutChart chartData={whiteChartData} text={name + "'s white wdl stats"} displayLabels={flag} />
                 </div> : <div></div>
                 }
                 {data["data"]["side percentages"]["white"]["other players wins"] + data["data"]["side percentages"]["white"]["other players losses"] + data["data"]["side percentages"]["white"]["other players draws"] !== 0 ? 
                 <div style={doughnutStyle}>
-                    <DoughnutChart chartData={compareWhiteChartData} text={"Other player's white wdl stats"} />
+                    <DoughnutChart chartData={compareWhiteChartData} text={"Other player's white wdl stats"} displayLabels={flag} />
                 </div> : <div></div>
                 }
             </div>
             <div style={{display: "table-row"}}>
                 {data["data"]["side percentages"]["black"]["your wins"] + data["data"]["side percentages"]["black"]["your losses"] + data["data"]["side percentages"]["black"]["your draws"] !== 0 ? 
                 <div style={doughnutStyle}>
-                    <DoughnutChart chartData={blackChartData} text={name + "'s black wdl stats"} />
+                    <DoughnutChart chartData={blackChartData} text={name + "'s black wdl stats"} displayLabels={flag} />
                 </div> : <div></div>
                 }
                 {data["data"]["side percentages"]["black"]["other players wins"] + data["data"]["side percentages"]["black"]["other players losses"] + data["data"]["side percentages"]["black"]["other players draws"] !== 0 ? 
                 <div style={doughnutStyle}>
-                    <DoughnutChart chartData={compareBlackChartData} text={"Other player's black wdl stats"} />
+                    <DoughnutChart chartData={compareBlackChartData} text={"Other player's black wdl stats"} displayLabels={flag} />
                 </div> : <div></div>
                 }
             </div>

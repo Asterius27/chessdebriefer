@@ -46,13 +46,15 @@ function ThrowsComebacksCharts({ name, url, onLoad }) {
             height: "40%"
         }
 
+        let flag = false;
         if (onLoad) {
             onLoad(true, url);
+            flag = true;
         }
     
         return (
             <div style={barStyle}>
-                <BarChart chartData={chartData} text={name + "'s throws-comebacks"} />
+                <BarChart chartData={chartData} text={name + "'s throws-comebacks"} displayLabels={flag} />
                 <p>Throws are the matches you lost while having engine advantage for most of the time and comebacks are the matches you won while having engine disadvantage for most of the time</p>
             </div>
         )

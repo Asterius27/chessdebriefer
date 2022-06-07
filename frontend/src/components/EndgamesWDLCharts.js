@@ -14,6 +14,7 @@ function EndgamesWDLCharts({ name, url, onLoad }) {
     }, []);
     
     const [data, setData] = useState({})
+    let flag = false;
     
     if (Object.keys(data).length !== 0) {
     
@@ -54,18 +55,19 @@ function EndgamesWDLCharts({ name, url, onLoad }) {
 
         if (onLoad) {
             onLoad(true, url);
+            flag = true;
         }
     
         return (
             <div>
                 {data["data"]["material advantage"]["wins"] + data["data"]["material advantage"]["losses"] + data["data"]["material advantage"]["draws"] !== 0 ? 
                 <div style={doughnutStyle}>
-                    <DoughnutChart chartData={advantageChartData} text={name + " material advantage wdl endgame stats"} />
+                    <DoughnutChart chartData={advantageChartData} text={name + " material advantage wdl endgame stats"} displayLabels={flag} />
                 </div> : <div></div>
                 }
                 {data["data"]["material disadvantage"]["wins"] + data["data"]["material disadvantage"]["losses"] + data["data"]["material disadvantage"]["draws"] !== 0 ? 
                 <div style={doughnutStyle}>
-                    <DoughnutChart chartData={disadvantageChartData} text={name + " material disadvantage wdl endgame stats"} />
+                    <DoughnutChart chartData={disadvantageChartData} text={name + " material disadvantage wdl endgame stats"} displayLabels={flag} />
                 </div> : <div></div>
                 }
             </div>

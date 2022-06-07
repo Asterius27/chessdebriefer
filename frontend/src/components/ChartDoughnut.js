@@ -1,7 +1,10 @@
 import 'chart.js/auto'
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { Chart } from 'chart.js';
 import { Doughnut } from "react-chartjs-2";
+Chart.register(ChartDataLabels);
 
-export const DoughnutChart = ({ chartData, text }) => {
+export const DoughnutChart = ({ chartData, text, displayLabels }) => {
     return (
         <div className='div2PDF'>
             <Doughnut
@@ -35,6 +38,14 @@ export const DoughnutChart = ({ chartData, text }) => {
                                     return context.label + ": " + context.formattedValue + " (" + percentage.toFixed(2) + " %)"
                                 }
                             }
+                        },
+                        datalabels: {
+                            display: displayLabels,
+                            font: {
+                                weight: "bold",
+                                size: "25%"
+                            },
+                            color: "white"
                         }
                     }
                 }}

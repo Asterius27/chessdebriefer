@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import LoadingSpinner from "./LoadingSpinner";
 
-function AccuracyResponse({ name, url, onLoad }) {
+function AccuracyResponse({ name, url }) {
 
   useEffect(() => {
     const fetchPercentages = async () => {
@@ -15,10 +15,6 @@ function AccuracyResponse({ name, url, onLoad }) {
   const [data, setData] = useState({})
 
   if (Object.keys(data).length !== 0) {
-
-    if (onLoad) {
-      onLoad(true, url);
-    }
 
     return (
         <div style={{width: "80%", margin: "auto", paddingTop: "1%", paddingBottom: "1%"}}>

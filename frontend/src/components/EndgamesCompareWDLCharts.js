@@ -14,6 +14,7 @@ function EndgamesCompareWDLCharts({ name, url, onLoad }) {
     }, []);
     
     const [data, setData] = useState({})
+    let flag = false
     
     if (Object.keys(data).length !== 0) {
     
@@ -83,6 +84,7 @@ function EndgamesCompareWDLCharts({ name, url, onLoad }) {
 
         if (onLoad) {
             onLoad(true, url);
+            flag = true;
         }
     
         return (
@@ -90,24 +92,24 @@ function EndgamesCompareWDLCharts({ name, url, onLoad }) {
                 <div style={{display: "table-row"}}>
                     {data["data"]["your stats"]["material advantage"]["wins"] + data["data"]["your stats"]["material advantage"]["losses"] + data["data"]["your stats"]["material advantage"]["draws"] !== 0 ? 
                     <div style={doughnutStyle}>
-                        <DoughnutChart chartData={advantageChartData} text={name + " material advantage wdl endgame stats"} />
+                        <DoughnutChart chartData={advantageChartData} text={name + " material advantage wdl endgame stats"} displayLabels={flag} />
                     </div> : <div></div>
                     }
                     {data["data"]["other players stats"]["material advantage"]["wins"] + data["data"]["other players stats"]["material advantage"]["losses"] + data["data"]["other players stats"]["material advantage"]["draws"] !== 0 ? 
                     <div style={doughnutStyle}>
-                        <DoughnutChart chartData={compareAdvantageChartData} text={"Other player's material advantage wdl endgame stats"} />
+                        <DoughnutChart chartData={compareAdvantageChartData} text={"Other player's material advantage wdl endgame stats"} displayLabels={flag} />
                     </div> : <div></div>
                     }
                 </div>
                 <div style={{display: "table-row"}}> 
                     {data["data"]["your stats"]["material disadvantage"]["wins"] + data["data"]["your stats"]["material disadvantage"]["losses"] + data["data"]["your stats"]["material disadvantage"]["draws"] !== 0 ? 
                     <div style={doughnutStyle}>
-                        <DoughnutChart chartData={disadvantageChartData} text={name + " material disadvantage wdl endgame stats"} />
+                        <DoughnutChart chartData={disadvantageChartData} text={name + " material disadvantage wdl endgame stats"} displayLabels={flag} />
                     </div> : <div></div>
                     }
                     {data["data"]["other players stats"]["material disadvantage"]["wins"] + data["data"]["other players stats"]["material disadvantage"]["losses"] + data["data"]["other players stats"]["material disadvantage"]["draws"] !== 0 ? 
                     <div style={doughnutStyle}>
-                        <DoughnutChart chartData={compareDisadvantageChartData} text={"Other player's material disadvantage wdl endgame stats"} />
+                        <DoughnutChart chartData={compareDisadvantageChartData} text={"Other player's material disadvantage wdl endgame stats"} displayLabels={flag} />
                     </div> : <div></div>
                     }
                 </div>

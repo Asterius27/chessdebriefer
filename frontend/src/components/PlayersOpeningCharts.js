@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { DoughnutChart } from "./ChartDoughnut";
 import LoadingSpinner from "./LoadingSpinner";
 
-function GenerateCharts({ data, eco, name }) {
+function GenerateCharts({ data, eco, name, displayLabels }) {
 
     const doughnutStyle = {
         margin: "auto",
@@ -84,16 +84,16 @@ function GenerateCharts({ data, eco, name }) {
                 <h1 style={{fontSize: "600%"}}>{eco}</h1>
             </div>
             <div style={doughnutStyle}>
-                <DoughnutChart chartData={generalChartData} text={name + "'s " + eco + " wdl"} />
+                <DoughnutChart chartData={generalChartData} text={name + "'s " + eco + " wdl"} displayLabels={displayLabels} />
             </div>
             {whiteChartData ? 
                 <div style={doughnutStyle}>
-                    <DoughnutChart chartData={whiteChartData} text={name + "'s " + eco + " white wdl"} />
+                    <DoughnutChart chartData={whiteChartData} text={name + "'s " + eco + " white wdl"} displayLabels={displayLabels} />
                 </div> : <div></div>
             }
             {blackChartData ? 
                 <div style={doughnutStyle}>
-                    <DoughnutChart chartData={blackChartData} text={name + "'s " + eco + " black wdl"} />
+                    <DoughnutChart chartData={blackChartData} text={name + "'s " + eco + " black wdl"} displayLabels={displayLabels} />
                 </div> : <div></div>
             }
             <div>
@@ -102,7 +102,7 @@ function GenerateCharts({ data, eco, name }) {
             {variationsChartsData.map(function(variationsChartData, i){
                 return (
                     <div key={variationNames[i]} style={doughnutStyle}>
-                        <DoughnutChart chartData={variationsChartData} text={variationNames[i]} />
+                        <DoughnutChart chartData={variationsChartData} text={variationNames[i]} displayLabels={displayLabels} />
                     </div>
                 )
             })}
@@ -125,9 +125,11 @@ function PlayersOpeningCharts({ name, url, onLoad }) {
 
     if (Object.keys(data).length !== 0) {
 
+        let flag = false;
         
         if (onLoad) {
             onLoad(true, url);
+            flag = true;
         }
 
         return(
@@ -135,7 +137,7 @@ function PlayersOpeningCharts({ name, url, onLoad }) {
                 {(() => {
                     let charts = []
                     for (const eco in data["data"]) {
-                        charts.push(<GenerateCharts data={data} eco={eco} name={name} />)
+                        charts.push(<GenerateCharts data={data} eco={eco} name={name} displayLabels={flag} />)
                     }
                     return charts
                 })()}

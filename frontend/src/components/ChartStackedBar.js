@@ -1,7 +1,7 @@
 import 'chart.js/auto'
 import { Bar } from "react-chartjs-2";
 
-export const StackedBarChart = ({ chartData, text }) => {
+export const StackedBarChart = ({ chartData, text, displayLabels }) => {
     return (
         <div className='div2PDF'>
             <Bar
@@ -17,6 +17,14 @@ export const StackedBarChart = ({ chartData, text }) => {
                         },
                         legend: {
                             display: true
+                        },
+                        datalabels: {
+                            display: displayLabels,
+                            font: {
+                                weight: "bold",
+                                size: "25%"
+                            },
+                            color: "white"
                         }
                     },
                     scales: {

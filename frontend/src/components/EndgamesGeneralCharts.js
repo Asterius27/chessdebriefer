@@ -14,6 +14,7 @@ function EndgamesGeneralCharts({ name, url, onLoad }) {
     }, []);
     
     const [data, setData] = useState({})
+    let flag = false
     
     if (Object.keys(data).length !== 0) {
     
@@ -68,6 +69,7 @@ function EndgamesGeneralCharts({ name, url, onLoad }) {
 
         if (onLoad) {
             onLoad(true, url);
+            flag = true;
         }
     
         return (
@@ -75,17 +77,17 @@ function EndgamesGeneralCharts({ name, url, onLoad }) {
                 <h3>You have played {data["data"]["general percentages"]["games"]} of which {data["data"]["general percentages"]["endgames"]} ({data["data"]["general percentages"]["percentage of games that finish in the endgame"]} %) reached the endgame</h3>
                 {data["data"]["general percentages"]["wins"] + data["data"]["general percentages"]["losses"] + data["data"]["general percentages"]["draws"] !== 0 ? 
                 <div style={doughnutStyle}>
-                    <DoughnutChart chartData={generalChartData} text={name + " general wdl endgame stats"} />
+                    <DoughnutChart chartData={generalChartData} text={name + " general wdl endgame stats"} displayLabels={flag} />
                 </div> : <div></div>
                 }
                 {data["data"]["side percentages"]["white"]["wins"] + data["data"]["side percentages"]["white"]["losses"] + data["data"]["side percentages"]["white"]["draws"] !== 0 ? 
                 <div style={doughnutStyle}>
-                    <DoughnutChart chartData={whiteChartData} text={name + " white wdl endgame stats"} />
+                    <DoughnutChart chartData={whiteChartData} text={name + " white wdl endgame stats"} displayLabels={flag} />
                 </div> : <div></div>
                 }
                 {data["data"]["side percentages"]["black"]["wins"] + data["data"]["side percentages"]["black"]["losses"] + data["data"]["side percentages"]["black"]["draws"] !== 0 ? 
                 <div style={doughnutStyle}>
-                    <DoughnutChart chartData={blackChartData} text={name + " black wdl endgame stats"} />
+                    <DoughnutChart chartData={blackChartData} text={name + " black wdl endgame stats"} displayLabels={flag} />
                 </div> : <div></div>
                 }
             </div>

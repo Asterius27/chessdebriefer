@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { BarChart } from './ChartBar';
 import LoadingSpinner from './LoadingSpinner';
 
-function EndgamesCompareCharts({ name, url, onLoad }) {
+function EndgamesCompareCharts({ name, url, onLoad, section }) {
 
     useEffect(() => {
         const fetchPercentages = async () => {
@@ -14,6 +14,7 @@ function EndgamesCompareCharts({ name, url, onLoad }) {
     }, []);
     
     const [data, setData] = useState({})
+    let flag = false
     
     if (Object.keys(data).length !== 0) {
     
@@ -95,6 +96,13 @@ function EndgamesCompareCharts({ name, url, onLoad }) {
 
         if (onLoad) {
             onLoad(true, url);
+            flag = true;
+        }
+
+        if (!section) {
+            section = "";
+        } else {
+            section = " " + section;
         }
     
         return (
@@ -102,10 +110,10 @@ function EndgamesCompareCharts({ name, url, onLoad }) {
                 <div style={{margin: "auto", width: "90%", display: "table"}}>
                     <div style={{display: "table-row"}}>
                         <div style={barStyle}>
-                            <BarChart chartData={chartData} text={name + "'s endgames stats"} />
+                            <BarChart chartData={chartData} text={name + "'s" + section + " endgames stats"} displayLabels={flag} />
                         </div>
                         <div style={barStyle}>
-                            <BarChart chartData={compareChartData} text={"other players endgames stats"} />
+                            <BarChart chartData={compareChartData} text={"other players" + section + " endgames stats"} displayLabels={flag} />
                         </div>
                     </div>
                 </div>

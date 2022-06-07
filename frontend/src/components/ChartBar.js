@@ -1,7 +1,7 @@
 import 'chart.js/auto'
 import { Bar } from "react-chartjs-2";
 
-export const BarChart = ({ chartData, text }) => {
+export const BarChart = ({ chartData, text, displayLabels }) => {
     return (
         <div className='div2PDF'>
             <Bar
@@ -17,6 +17,14 @@ export const BarChart = ({ chartData, text }) => {
                         },
                         legend: {
                             display: false,
+                        },
+                        datalabels: {
+                            display: displayLabels,
+                            font: {
+                                weight: "bold",
+                                size: "25%"
+                            },
+                            color: "white"
                         }
                     }
                 }}

@@ -14,6 +14,7 @@ function ComparesCharts({ name, url, onLoad }) {
   }, []);
 
   const [data, setData] = useState({})
+  let flag = false
 
   if (Object.keys(data).length !== 0) {
 
@@ -63,6 +64,7 @@ function ComparesCharts({ name, url, onLoad }) {
     
     if (onLoad) {
       onLoad(true, url);
+      flag = true
     }
 
     return (
@@ -71,10 +73,10 @@ function ComparesCharts({ name, url, onLoad }) {
             return (
                 <div key={sectionNames[i]} style={{display: "table-row"}}>
                     <div style={doughnutStyle}>
-                        <DoughnutChart chartData={sectionChartData} text={name + "'s " + sectionNames[i] + " wdls"} />
+                        <DoughnutChart chartData={sectionChartData} text={name + "'s " + sectionNames[i] + " wdls"} displayLabels={flag} />
                     </div>
                     <div style={doughnutStyle}>
-                        <DoughnutChart chartData={compareSectionChartsData[i]} text={"Other player's " + sectionNames[i] + " wdls"} />
+                        <DoughnutChart chartData={compareSectionChartsData[i]} text={"Other player's " + sectionNames[i] + " wdls"} displayLabels={flag} />
                     </div>
                 </div>
             )

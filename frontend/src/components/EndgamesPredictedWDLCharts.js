@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { DoughnutChart } from './ChartDoughnut';
 import LoadingSpinner from './LoadingSpinner';
 
-function EndgamesPredictedWDLCharts({ name, url, generalUrl, onLoad }) {
+function EndgamesPredictedWDLCharts({ name, url, generalUrl, onLoad, section }) {
 
     useEffect(() => {
         const fetchPercentages = async () => {
@@ -18,6 +18,7 @@ function EndgamesPredictedWDLCharts({ name, url, generalUrl, onLoad }) {
     
     const [data, setData] = useState({})
     const [generalData, setGeneralData] = useState({})
+    let flag = false;
     
     if (Object.keys(data).length !== 0 && Object.keys(generalData).length !== 0) {
     
@@ -115,6 +116,13 @@ function EndgamesPredictedWDLCharts({ name, url, generalUrl, onLoad }) {
 
         if (onLoad) {
             onLoad(true, url);
+            flag = true;
+        }
+
+        if (!section) {
+            section = "";
+        } else {
+            section = " " + section;
         }
     
         return (
@@ -124,36 +132,36 @@ function EndgamesPredictedWDLCharts({ name, url, generalUrl, onLoad }) {
                     <div style={{display: "table-row"}}>
                         {generalData["data"]["general percentages"]["wins"] + generalData["data"]["general percentages"]["losses"] + generalData["data"]["general percentages"]["draws"] !== 0 ? 
                         <div style={doughnutStyle}>
-                            <DoughnutChart chartData={generalChartData} text={name + " general wdl endgame stats"} />
+                            <DoughnutChart chartData={generalChartData} text={name + " general" + section + " wdl endgame stats"} displayLabels={flag} />
                         </div> : <div></div>
                         }
                         {data["data"]["general percentages"]["wins"] + data["data"]["general percentages"]["losses"] + data["data"]["general percentages"]["draws"] !== 0 ? 
                         <div style={doughnutStyle}>
-                            <DoughnutChart chartData={predictedGeneralChartData} text={"Predicted general wdl endgame stats"} />
+                            <DoughnutChart chartData={predictedGeneralChartData} text={"Predicted general" + section + " wdl endgame stats"} displayLabels={flag} />
                         </div> : <div></div>
                         }
                     </div>
                     <div style={{display: "table-row"}}>
                         {generalData["data"]["side percentages"]["white"]["wins"] + generalData["data"]["side percentages"]["white"]["losses"] + generalData["data"]["side percentages"]["white"]["draws"] !== 0 ? 
                         <div style={doughnutStyle}>
-                            <DoughnutChart chartData={whiteChartData} text={name + " white wdl endgame stats"} />
+                            <DoughnutChart chartData={whiteChartData} text={name + " white" + section + " wdl endgame stats"} displayLabels={flag} />
                         </div> : <div></div>
                         }
                         {data["data"]["side percentages"]["white"]["wins"] + data["data"]["side percentages"]["white"]["losses"] + data["data"]["side percentages"]["white"]["draws"] !== 0 ? 
                         <div style={doughnutStyle}>
-                            <DoughnutChart chartData={predictedWhiteChartData} text={"Predicted white wdl endgame stats"} />
+                            <DoughnutChart chartData={predictedWhiteChartData} text={"Predicted white" + section + " wdl endgame stats"} displayLabels={flag} />
                         </div> : <div></div>
                         }
                     </div>
                     <div style={{display: "table-row"}}>
                         {generalData["data"]["side percentages"]["black"]["wins"] + generalData["data"]["side percentages"]["black"]["losses"] + generalData["data"]["side percentages"]["black"]["draws"] !== 0 ? 
                         <div style={doughnutStyle}>
-                            <DoughnutChart chartData={blackChartData} text={name + " black wdl endgame stats"} />
+                            <DoughnutChart chartData={blackChartData} text={name + " black" + section + " wdl endgame stats"} displayLabels={flag} />
                         </div> : <div></div>
                         }
                         {data["data"]["side percentages"]["black"]["wins"] + data["data"]["side percentages"]["black"]["losses"] + data["data"]["side percentages"]["black"]["draws"] !== 0 ? 
                         <div style={doughnutStyle}>
-                            <DoughnutChart chartData={predictedBlackChartData} text={"Predicted black wdl endgame stats"} />
+                            <DoughnutChart chartData={predictedBlackChartData} text={"Predicted black" + section + " wdl endgame stats"} displayLabels={flag} />
                         </div> : <div></div>
                         }
                     </div>

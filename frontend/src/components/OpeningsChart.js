@@ -14,6 +14,7 @@ function OpeningsChart({ eco, url }) {
     }, [])
 
     const [data, setData] = useState({})
+    let flag = false;
 
     if (Object.keys(data).length !== 0) {
 
@@ -64,7 +65,7 @@ function OpeningsChart({ eco, url }) {
         return (
             <div>
                 <div style={doughnutStyle}>
-                    <DoughnutChart chartData={generalChartData} text={eco + " Side Advantage"} />
+                    <DoughnutChart chartData={generalChartData} text={eco + " Side Advantage"} displayLabels={flag} />
                 </div>
                 <div>
                     <h1 style={{fontSize: "700%"}}>Variations</h1>
@@ -72,7 +73,7 @@ function OpeningsChart({ eco, url }) {
                 {variationsChartsData.map(function(variationsChartData, i){
                     return (
                         <div key={variationNames[i]} style={doughnutStyle}>
-                            <DoughnutChart chartData={variationsChartData} text={variationNames[i]} />
+                            <DoughnutChart chartData={variationsChartData} text={variationNames[i]} displayLabels={flag} />
                             <p>Engine Evaluation: {variationEngineEvals[i]}</p>
                         </div>
                     )
