@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
 
-function DemoResponse({ name, url, onLoad }) {
+function DemoResponse({ name, url }) {
 
     useEffect(() => {
         const fetchPercentages = async () => {
@@ -15,11 +15,8 @@ function DemoResponse({ name, url, onLoad }) {
     const [data, setData] = useState({})
 
     if (Object.keys(data).length !== 0) {
-        if (onLoad) {
-            onLoad(true, url);
-        }
         return (
-            <div style={{margin: "auto", display: "table"}} className="div2PDF">
+            <div style={{margin: "auto", display: "table"}}>
                 <div style={{display: "table-row"}}>
                     <div style={{paddingRight: "50px", display: "table-cell"}}>
                         <h3>Your Best</h3>

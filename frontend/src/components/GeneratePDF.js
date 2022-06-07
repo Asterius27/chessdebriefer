@@ -4,7 +4,6 @@ import PlayersCharts from "./PlayersCharts";
 import PlayersOpeningCharts from "./PlayersOpeningCharts";
 import ComparesCharts from "./ComparesCharts";
 import ComparesGeneralCharts from "./ComparesGeneralCharts";
-import DemoResponse from "./DemoResponse";
 import EndgamesCharts from "./EndgamesCharts";
 import EndgamesGeneralCharts from "./EndgamesGeneralCharts";
 import EndgamesWDLCharts from "./EndgamesWDLCharts";
@@ -17,8 +16,6 @@ import ThrowsComebacksCharts from "./ThrowsComebacksCharts";
 import LoadingSpinner from './LoadingSpinner';
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-
-// TODO check demo response
 
 function GeneratePDF() {
 
@@ -49,7 +46,6 @@ function GeneratePDF() {
                 percentages_events_compare: url + "/percentages/events/compare",
                 percentages_openings: url + "/percentages/openings",
                 percentages_openings_compare: url + "/percentages/openings/compare",
-                percentages_demo: url + "/percentages/openings/best-worst",
                 percentages_terminations: url + "/percentages/terminations",
                 percentages_terminations_compare: url + "/percentages/terminations/compare",
                 percentages_throws_comebacks: url + "/percentages/throws-comebacks",
@@ -120,7 +116,7 @@ function GeneratePDF() {
     const load = (state, origin) => {
         if (state) {
             loaded[origin] = true;
-            if (Object.keys(loaded).length === 22 && generate) {
+            if (Object.keys(loaded).length === 21 && generate) {
                 generate = false;
                 setTimeout(generatePDF, 2000);
             }
@@ -186,9 +182,6 @@ function GeneratePDF() {
                     </div>
                     <div>
                         <ComparesCharts name={name} url={urls["percentages_openings_compare"]} onLoad={load} />
-                    </div>
-                    <div>
-                        <DemoResponse name={name} url={urls["percentages_demo"]} onLoad={load} />
                     </div>
                     <div>
                         <EndgamesGeneralCharts name={name} url={urls["percentages_endgames"]} onLoad={load} />
