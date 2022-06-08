@@ -305,16 +305,17 @@ def find_endgame_matches(n, games):
             i = 0
             pgn = io.StringIO(game.moves)
             parsed_game = chess.pgn.read_game(pgn)
-            fen = parsed_game.end().board().board_fen().lower()
-            for char in fen:
-                if char in pieces:
-                    i += 1
-                if i > n:
-                    break
-            if i <= n:
-                j += 1
-                result.append((game, parsed_game))
-            h += 1
+            if parsed_game is not None:
+                fen = parsed_game.end().board().board_fen().lower()
+                for char in fen:
+                    if char in pieces:
+                        i += 1
+                    if i > n:
+                        break
+                if i <= n:
+                    j += 1
+                    result.append((game, parsed_game))
+                h += 1
     return j, h, result
 
 
