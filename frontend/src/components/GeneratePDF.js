@@ -4,6 +4,7 @@ import PlayersCharts from "./PlayersCharts";
 import PlayersOpeningCharts from "./PlayersOpeningCharts";
 import ComparesCharts from "./ComparesCharts";
 import ComparesGeneralCharts from "./ComparesGeneralCharts";
+import DemoResponse from "./DemoResponse";
 import EndgamesCharts from "./EndgamesCharts";
 import EndgamesGeneralCharts from "./EndgamesGeneralCharts";
 import EndgamesWDLCharts from "./EndgamesWDLCharts";
@@ -12,7 +13,6 @@ import EndgamesCompareGeneralCharts from "./EndgamesCompareGeneralCharts";
 import EndgamesCompareCharts from "./EndgamesCompareCharts";
 import EndgamesCompareWDLCharts from "./EndgamesCompareWDLCharts";
 import EndgamesComparePredictedWDLCharts from "./EndgamesComparePredictedWDLCharts";
-import ThrowsComebacksCharts from "./ThrowsComebacksCharts";
 import LoadingSpinner from './LoadingSpinner';
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
@@ -48,7 +48,7 @@ function GeneratePDF() {
                 percentages_openings_compare: url + "/percentages/openings/compare",
                 percentages_terminations: url + "/percentages/terminations",
                 percentages_terminations_compare: url + "/percentages/terminations/compare",
-                percentages_throws_comebacks: url + "/percentages/throws-comebacks",
+                percentages_demo: url + "/percentages/openings/best-worst",
                 percentages_endgames: url + "/percentages/endgames",
                 percentages_endgames_compare: url + "/percentages/endgames/compare",
                 percentages_endgames_material: url + "/percentages/endgames/material",
@@ -184,6 +184,9 @@ function GeneratePDF() {
                         <ComparesCharts name={name} url={urls["percentages_openings_compare"]} onLoad={load} />
                     </div>
                     <div>
+                        <DemoResponse name={name} url={urls["percentages_demo"]} onLoad={load} />
+                    </div>
+                    <div>
                         <EndgamesGeneralCharts name={name} url={urls["percentages_endgames"]} onLoad={load} />
                     </div>
                     <div>
@@ -218,9 +221,6 @@ function GeneratePDF() {
                     </div>
                     <div>
                         <EndgamesComparePredictedWDLCharts name={name} url={urls["percentages_endgames_tablebase_predicted_compare"]} onLoad={load} section={"tablebase"} />
-                    </div>
-                    <div>
-                        <ThrowsComebacksCharts name={name} url={urls["percentages_throws_comebacks"]} onLoad={load} />
                     </div>
                 </div>
                 <LoadingSpinner />

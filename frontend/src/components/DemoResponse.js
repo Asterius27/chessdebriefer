@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
 
-function DemoResponse({ name, url }) {
+function DemoResponse({ name, url, onLoad }) {
 
     useEffect(() => {
         const fetchPercentages = async () => {
@@ -15,15 +15,18 @@ function DemoResponse({ name, url }) {
     const [data, setData] = useState({})
 
     if (Object.keys(data).length !== 0) {
+        if (onLoad) {
+            onLoad(true, url);
+        }
         return (
-            <div style={{margin: "auto", display: "table"}}>
+            <div style={{margin: "auto", display: "table"}} className="div2PDF">
                 <div style={{display: "table-row"}}>
                     <div style={{paddingRight: "50px", display: "table-cell"}}>
                         <h3>Your Best</h3>
                         <ol>
                             {data["data"]["your best"].map(function(elem){
                                 return (
-                                    <li>{elem}</li>
+                                    <li key={elem}>{elem}</li>
                                 )
                             })}
                         </ol>
@@ -33,7 +36,7 @@ function DemoResponse({ name, url }) {
                         <ol>
                             {data["data"]["other players best"].map(function(elem){
                                 return (
-                                    <li>{elem}</li>
+                                    <li key={elem}>{elem}</li>
                                 )
                             })}
                         </ol>
@@ -45,7 +48,7 @@ function DemoResponse({ name, url }) {
                         <ol>
                             {data["data"]["your worst"].map(function(elem){
                                 return (
-                                    <li>{elem}</li>
+                                    <li key={elem}>{elem}</li>
                                 )
                             })}
                         </ol>
@@ -55,7 +58,7 @@ function DemoResponse({ name, url }) {
                         <ol>
                             {data["data"]["other players worst"].map(function(elem){
                                 return (
-                                    <li>{elem}</li>
+                                    <li key={elem}>{elem}</li>
                                 )
                             })}
                         </ol>

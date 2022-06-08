@@ -16,7 +16,7 @@ export const BarChart = ({ chartData, text, displayLabels }) => {
                             text: text
                         },
                         legend: {
-                            display: false,
+                            display: displayLabels,
                         },
                         datalabels: {
                             display: displayLabels,
